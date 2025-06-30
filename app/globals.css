@@ -24,3 +24,175 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+ 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#__next {
+  height: 100%;
+}
+
+.timer-display {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  letter-spacing: 0.1em;
+}
+
+/* Timer flash animation - only affects the timer text */
+@keyframes timer-flash {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  50% { 
+    opacity: 0.8;
+    transform: scale(1.02);
+    text-shadow: 0 0 20px rgba(255,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.5);
+  }
+}
+
+.timer-flash {
+  animation: timer-flash 1.5s ease-in-out infinite;
+}
+
+/* Custom flash animations */
+@keyframes flash-red {
+  0%, 100% { 
+    background-color: var(--original-bg, #1f2937);
+    color: var(--original-text, #ffffff);
+  }
+  50% { 
+    background-color: #7f1d1d;
+    color: #f87171;
+  }
+}
+
+@keyframes flash-normal {
+  0%, 100% { 
+    opacity: 1;
+  }
+  50% { 
+    opacity: 0.7;
+  }
+}
+
+.flash-red {
+  animation: flash-red 1s ease-in-out infinite;
+}
+
+.flash-normal {
+  animation: flash-normal 1s ease-in-out infinite;
+}
+
+/* Enhanced pulse for overtime */
+@keyframes overtime-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    text-shadow: 0 0 20px rgba(248, 113, 113, 0.5);
+  }
+  50% { 
+    transform: scale(1.05);
+    text-shadow: 0 0 30px rgba(248, 113, 113, 0.8);
+  }
+}
+
+.overtime-pulse {
+  animation: overtime-pulse 1s ease-in-out infinite;
+}
+
+/* Full-screen viewer styles */
+.viewer-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: black;
+}
+
+/* Hide scrollbars for full-screen experience */
+.viewer-fullscreen::-webkit-scrollbar {
+  display: none;
+}
+
+.viewer-fullscreen {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Beautiful blob animations for background */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Enhanced glass morphism effects */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Improved timer styling for viewer */
+.viewer-fullscreen .timer-display {
+  font-size: clamp(3rem, 15vw, 8rem);
+  font-weight: 900;
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.3),
+    0 0 20px rgba(255, 255, 255, 0.2),
+    0 0 30px rgba(255, 255, 255, 0.1);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced button hover effects */
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

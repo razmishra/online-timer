@@ -1,22 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Shared Timer App
+
+A real-time synchronized timer application with controller and viewer modes, perfect for presentations, events, and time-sensitive activities.
+
+## Features
+
+### 🎮 Controller Mode
+- **Timer Controls**: Set, start, pause, and reset timer
+- **Negative Timing**: Timer continues into overtime with visual indicators
+- **Message Broadcasting**: Send messages to all connected viewers
+- **Styling Controls**: Customize background color, text color, and font size
+- **Flash Mode**: Toggle flashing animation for attention-grabbing effects
+- **Share Functionality**: Copy viewer link or scan QR code for easy sharing
+
+### 📺 Viewer Mode
+- **Real-time Updates**: See timer changes instantly across all devices
+- **Full-screen Display**: Clean, distraction-free timer view
+- **Connection Status**: Visual indicator showing connection to controller
+- **Message Display**: View broadcasted messages from controller
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+
+### 🔗 Sharing Features
+- **Direct Link**: Copy and share the viewer URL
+- **QR Code**: Scan QR code to open viewer on mobile devices
+- **Real-time Sync**: All viewers see the same timer state simultaneously
+
+### ⏰ Timer Features
+- **Overtime Support**: Timer continues into negative time with red indicators
+- **Flash Animation**: Toggle flashing effects for overtime or attention
+- **Message Management**: Send and unsend messages to viewers
+- **Custom Styling**: Full control over visual appearance
 
 ## Getting Started
 
-First, run the development server:
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Set Controller Password** (optional)
+   ```bash
+   export CONTROLLER_PASSWORD=your_password
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Start the Application**
+   ```bash
+   npm run dev
+   ```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+4. **Access the App**
+   - **Controller**: Navigate to `/controller` and authenticate
+   - **Viewer**: Navigate to `/viewer` or use the shared link
+   - **Dashboard**: Navigate to `/dashboard` for combined view
+
+## Usage
+
+### For Presenters/Controllers
+1. Go to the controller page and authenticate
+2. Set your desired timer duration (MM:SS format)
+3. Use the share section to get the viewer link or QR code
+4. Share the link with your audience
+5. Control the timer and send messages as needed
+
+### For Viewers
+1. Open the shared viewer link
+2. Watch the timer in real-time
+3. See messages and styling updates from the controller
+4. The connection status indicator shows if you're connected
+
+## Technical Details
+
+- **Frontend**: Next.js with React
+- **Real-time Communication**: Socket.IO
+- **Styling**: Tailwind CSS with custom animations
+- **QR Code Generation**: qrcode library
+- **Responsive Design**: Mobile-first approach
+
+## Environment Variables
+
+- `CONTROLLER_PASSWORD`: Password for controller authentication (default: 'admin123')
+- `PORT`: Server port (default: 3000)
+
+## Features in Detail
+
+### Negative Timing
+When the timer reaches zero, it continues into overtime with:
+- Red color indicators
+- "OVERTIME" label
+- Enhanced visual effects
+- Optional flashing animation
+
+### Flash Mode
+Toggle flashing effects that:
+- Change background color during flash
+- Add pulsing animations
+- Make overtime more prominent
+- Can be controlled from the controller
+
+### Message System
+- Send messages to all connected viewers
+- Unsend messages to clear the display
+- Real-time message updates
+- Styled message display
+
+### Sharing System
+- Direct URL copying with clipboard support
+- QR code generation for mobile sharing
+- One-click viewer opening
+- Connection status indicators
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
