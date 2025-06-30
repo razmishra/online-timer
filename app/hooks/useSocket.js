@@ -43,31 +43,31 @@ export const useSocket = () => {
     });
 
     socketInstance.on('timer-list', (timers) => {
-      console.log('Received timer list:', timers);
+      // console.log('Received timer list:', timers);
       setTimerList(timers);
     });
 
     socketInstance.on('timer-joined', (timerState) => {
-      console.log('Timer joined event received:', timerState);
-      console.log('Previous currentTimer:', currentTimer);
+      // console.log('Timer joined event received:', timerState);
+      // console.log('Previous currentTimer:', currentTimer);
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
-      console.log('Updated currentTimer to:', timerState);
+      // console.log('Updated currentTimer to:', timerState);
     });
 
     socketInstance.on('timer-update', (timerState) => {
-      console.log('Timer update:', timerState);
+      // console.log('Timer update:', timerState);
       setCurrentTimer(timerState);
     });
 
     socketInstance.on('timer-created', (timerState) => {
-      console.log('Timer created:', timerState);
+      // console.log('Timer created:', timerState);
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
     });
 
     socketInstance.on('timer-deleted', (data) => {
-      console.log('Timer deleted:', data);
+      // console.log('Timer deleted:', data);
       if (selectedTimerId === data.timerId) {
         setCurrentTimer(null);
         setSelectedTimerId(null);
@@ -75,15 +75,15 @@ export const useSocket = () => {
     });
 
     socketInstance.on('timer-full', (data) => {
-      console.log('Timer is full:', data.message);
+      // console.log('Timer is full:', data.message);
     });
 
     socketInstance.on('timer-not-found', (data) => {
-      console.log('Timer not found:', data.timerId);
+      // console.log('Timer not found:', data.timerId);
     });
 
     socketInstance.on('controller-authenticated', (authenticated) => {
-      console.log('Controller authenticated:', authenticated);
+      // console.log('Controller authenticated:', authenticated);
       setIsControllerAuthenticated(authenticated);
       
       // Store authentication status
@@ -98,71 +98,71 @@ export const useSocket = () => {
     return () => {
       socketInstance.disconnect();
     };
-  }, [selectedTimerId]);
+  }, []);
 
   const authenticateController = (password) => {
-    console.log('Authenticating controller with password:', password);
+    // console.log('Authenticating controller with password:', password);
     localStorage.setItem('controllerPassword', password);
     socket?.emit('authenticate-controller', password);
   };
 
   const createTimer = (name, duration) => {
-    console.log('Creating timer:', name, duration);
+    // console.log('Creating timer:', name, duration);
     socket?.emit('create-timer', { name, duration });
   };
 
   const deleteTimer = (timerId) => {
-    console.log('Deleting timer:', timerId);
+    // console.log('Deleting timer:', timerId);
     socket?.emit('delete-timer', timerId);
   };
 
   const joinTimer = (timerId) => {
-    console.log('Joining timer:', timerId);
-    console.log('Socket state:', { socket: !!socket, isConnected, isControllerAuthenticated });
+    // console.log('Joining timer:', timerId);
+    // console.log('Socket state:', { socket: !!socket, isConnected, isControllerAuthenticated });
     if (socket && isConnected && isControllerAuthenticated) {
       socket.emit('join-timer', timerId);
-      console.log('Emitted join-timer event');
+      // console.log('Emitted join-timer event');
     } else {
-      console.log('Cannot join timer - socket not ready:', { socket: !!socket, isConnected, isControllerAuthenticated });
+      // console.log('Cannot join timer - socket not ready:', { socket: !!socket, isConnected, isControllerAuthenticated });
     }
   };
 
   const setTimer = (timerId, duration) => {
-    console.log('Setting timer:', timerId, duration);
+    // console.log('Setting timer:', timerId, duration);
     socket?.emit('set-timer', { timerId, duration });
   };
 
   const startTimer = (timerId) => {
-    console.log('Starting timer:', timerId);
+    // console.log('Starting timer:', timerId);
     socket?.emit('start-timer', timerId);
   };
 
   const pauseTimer = (timerId) => {
-    console.log('Pausing timer:', timerId);
+    // console.log('Pausing timer:', timerId);
     socket?.emit('pause-timer', timerId);
   };
 
   const resetTimer = (timerId) => {
-    console.log('Resetting timer:', timerId);
+    // console.log('Resetting timer:', timerId);
     socket?.emit('reset-timer', timerId);
   };
 
   const adjustTimer = (timerId, seconds) => {
-    console.log('Adjusting timer:', timerId, seconds);
+    // console.log('Adjusting timer:', timerId, seconds);
     socket?.emit('adjust-timer', { timerId, seconds });
   };
 
   const updateMessage = (timerId, message) => {
-    console.log('Updating message:', timerId, message);
+    // console.log('Updating message:', timerId, message);
     socket?.emit('update-message', { timerId, message });
   };
 
   const updateStyling = (timerId, styling) => {
-    console.log('Updating styling:', timerId, styling);
-    console.log('Socket state for styling update:', { socket: !!socket, isConnected, isControllerAuthenticated });
+    // console.log('Updating styling:', timerId, styling);
+    // console.log('Socket state for styling update:', { socket: !!socket, isConnected, isControllerAuthenticated });
     if (socket && isConnected && isControllerAuthenticated) {
       socket.emit('update-styling', { timerId, styling });
-      console.log('Emitted update-styling event');
+      // console.log('Emitted update-styling event');
     } else {
       console.log('Cannot update styling - socket not ready:', { socket: !!socket, isConnected, isControllerAuthenticated });
     }

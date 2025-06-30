@@ -91,19 +91,35 @@ class Timer {
     this.remaining = duration;
     this.isRunning = false;
     this.startTime = null;
-    
     if (this.interval) {
       clearInterval(this.interval);
       this.interval = null;
     }
-    
     this.update();
-    // console.log(`Timer ${this.id} set to ${duration} seconds`);
   }
 
   adjustTime(seconds) {
     const newDuration = Math.max(0, this.duration + seconds);
-    this.setDuration(newDuration);
+    if (this.isRunning) {
+      // Calculate elapsed time
+      const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+      // Update duration
+      this.duration = newDuration;
+      // Update remaining based on new duration and elapsed
+      this.remaining = Math.max(0, this.duration - elapsed);
+      // If timer already finished, stop it
+      if (this.remaining <= 0) {
+        this.isRunning = false;
+        if (this.interval) {
+          clearInterval(this.interval);
+          this.interval = null;
+        }
+        this.startTime = null;
+      }
+      this.update();
+    } else {
+      this.setDuration(newDuration);
+    }
   }
 
   update() {
@@ -226,6 +242,7 @@ app.prepare().then(() => {
     const timerList = Array.from(timers.values()).map(timer => ({
       id: timer.id,
       name: timer.name,
+      duration: timer.duration,
       connectedCount: timer.connectedDevices.size
     }));
     // console.log('Sending timer list to new client:', timerList);
@@ -252,9 +269,9 @@ app.prepare().then(() => {
 
     // Join timer
     socket.on('join-timer', (timerId) => {
-      console.log('Join timer request:', socket.id, 'timerId:', timerId, 'Type:', typeof timerId);
-      console.log('Available timers:', Array.from(timers.keys()));
-      console.log(timers,"timers List")
+      // console.log('Join timer request:', socket.id, 'timerId:', timerId, 'Type:', typeof timerId);
+      // console.log('Available timers:', Array.from(timers.keys()));
+      // console.log(timers,"timers List")
       // console.log('Available timer IDs and their types:');
       // Array.from(timers.keys()).forEach(id => {
       //   console.log(`  ID: "${id}", Type: ${typeof id}, Length: ${id.length}`);
@@ -263,8 +280,8 @@ app.prepare().then(() => {
       // console.log(`  ID: "${timerId}", Type: ${typeof timerId}, Length: ${timerId.length}`);
       
       const timer = timers.get(timerId);
-      console.log('Found timer:', timer);
-      console.log(timerId,"timerId")
+      // console.log('Found timer:', timer);
+      // console.log(timerId,"timerId")
       if (timer) {
         // Always try to add the device, but don't fail if already connected
         const wasAdded = timer.addDevice(socket.id);
@@ -274,14 +291,15 @@ app.prepare().then(() => {
         
         // Always send the timer state, even if already connected
         const timerState = timer.getState();
-        console.log(`Sending timer-joined to ${socket.id}:`, timerState);
+        // console.log(`Sending timer-joined to ${socket.id}:`, timerState);
         socket.emit('timer-joined', timerState);
         socket.emit('timer-list', Array.from(timers.values()).map(t => ({
           id: t.id,
           name: t.name,
+          duration: t.duration,
           connectedCount: t.connectedDevices.size
         })));
-        console.log(`Device ${socket.id} joined timer ${timerId}`);
+        // console.log(`Device ${socket.id} joined timer ${timerId}`);
       } else {
         socket.emit('timer-not-found', { timerId });
         console.log(`Timer ${timerId} not found`);
@@ -308,9 +326,10 @@ app.prepare().then(() => {
         const timerList = Array.from(timers.values()).map(timer => ({
           id: timer.id,
           name: timer.name,
+          duration: timer.duration,
           connectedCount: timer.connectedDevices.size
         }));
-        console.log('Broadcasting updated timer list to all clients:', timerList);
+        // console.log('Broadcasting updated timer list to all clients:', timerList);
         io.emit('timer-list', timerList);
         
         // Send the new timer to the creator
@@ -348,6 +367,7 @@ app.prepare().then(() => {
           const timerList = Array.from(timers.values()).map(timer => ({
             id: timer.id,
             name: timer.name,
+            duration: timer.duration,
             connectedCount: timer.connectedDevices.size
           }));
           console.log('Broadcasting updated timer list after deletion:', timerList);

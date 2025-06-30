@@ -30,7 +30,8 @@ export default function ControllerPage() {
   } = useSocket();
 
   const [password, setPassword] = useState('');
-  const [timerInput, setTimerInput] = useState('');
+  const [createTimerInput, setCreateTimerInput] = useState('');
+  const [setTimerInput, setSetTimerInput] = useState('');
   const [timerName, setTimerName] = useState('');
   const [messageInput, setMessageInput] = useState('');
   const [backgroundColor, setBackgroundColor] = useState('#1e293b');
@@ -70,11 +71,11 @@ export default function ControllerPage() {
 
   const handleCreateTimer = (e) => {
     e.preventDefault();
-    const [minutes, seconds] = timerInput.split(':').map(Number);
+    const [minutes, seconds] = createTimerInput.split(':').map(Number);
     const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
     if (totalSeconds > 0 && timerName.trim()) {
       createTimer(timerName.trim(), totalSeconds);
-      setTimerInput('');
+      setCreateTimerInput('');
       setTimerName('');
     }
   };
@@ -82,8 +83,7 @@ export default function ControllerPage() {
   const handleSetTimer = (e) => {
     e.preventDefault();
     if (!selectedTimerId) return;
-    
-    const [minutes, seconds] = timerInput.split(':').map(Number);
+    const [minutes, seconds] = setTimerInput.split(':').map(Number);
     const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
     if (totalSeconds > 0) {
       setTimer(selectedTimerId, totalSeconds);
@@ -119,8 +119,9 @@ export default function ControllerPage() {
   };
 
   const handleAdjustTime = (seconds) => {
-    if (!selectedTimerId || !currentTimer.isRunning) return;
-    if(currentTimer.remaining < seconds) return;
+    if (!selectedTimerId || !currentTimer) return;
+    // Only block if subtracting more than remaining
+    if (seconds < 0 && Math.abs(seconds) > currentTimer.remaining) return;
     adjustTimer(selectedTimerId, seconds);
   };
 
@@ -246,8 +247,8 @@ export default function ControllerPage() {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <input
                         type="text"
-                        value={timerInput}
-                        onChange={(e) => setTimerInput(e.target.value)}
+                        value={createTimerInput}
+                        onChange={(e) => setCreateTimerInput(e.target.value)}
                         placeholder="MM:SS"
                         className="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-slate-400"
                         required
@@ -278,7 +279,7 @@ export default function ControllerPage() {
                       <p className="text-sm">No timers created yet</p>
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                    <div className="space-y-3 max-h-64 overflow-y-auto overflow-x-hidden">
                       {timerList.map((timer) => (
                         <div
                           key={timer.id}
@@ -379,8 +380,8 @@ export default function ControllerPage() {
                       <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
-                          value={timerInput}
-                          onChange={(e) => setTimerInput(e.target.value)}
+                          value={setTimerInput}
+                          onChange={(e) => setSetTimerInput(e.target.value)}
                           placeholder="MM:SS"
                           className="flex-1 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-slate-400 text-sm"
                         />

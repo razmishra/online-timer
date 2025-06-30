@@ -27,7 +27,7 @@ export default function HomePage() {
             <p className="text-gray-400 mt-2">Create and manage multiple timers</p>
           </div>
           
-          <div>
+          {/* <div>
             <Link 
               href="/dashboard" 
               className="block bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors"
@@ -35,7 +35,7 @@ export default function HomePage() {
               📊 Dashboard
             </Link>
             <p className="text-gray-400 mt-2">View timer with controls visible</p>
-          </div>
+          </div> */}
         </div>
         
         <div className="mt-12 p-6 bg-gray-800 rounded-lg max-w-2xl">

@@ -41,26 +41,26 @@ export default function DashboardPage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Status:</span>
-                  <span className={`font-semibold ${timerState.isRunning ? 'text-green-400' : 'text-red-400'}`}>
-                    {timerState.isRunning ? 'Running' : 'Stopped'}
+                  <span className={`font-semibold ${timerState?.isRunning ? 'text-green-400' : 'text-red-400'}`}>
+                    {timerState?.isRunning ? 'Running' : 'Stopped'}
                   </span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-400">Duration:</span>
-                  <span className="font-mono">{formatTime(timerState.duration)}</span>
+                  <span className="font-mono">{formatTime(timerState?.duration)}</span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-400">Remaining:</span>
-                  <span className="font-mono">{formatTime(timerState.remaining)}</span>
+                  <span className="font-mono">{formatTime(timerState?.remaining)}</span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-400">Progress:</span>
                   <span className="font-semibold">
-                    {timerState.duration > 0 ? 
-                      Math.round(((timerState.duration - timerState.remaining) / timerState.duration) * 100) : 0}%
+                    {timerState?.duration > 0 ? 
+                      Math.round(((timerState?.duration - timerState?.remaining) / timerState?.duration) * 100) : 0}%
                   </span>
                 </div>
               </div>
@@ -71,8 +71,8 @@ export default function DashboardPage() {
                   <div 
                     className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
                     style={{ 
-                      width: timerState.duration > 0 ? 
-                        `${((timerState.duration - timerState.remaining) / timerState.duration) * 100}%` : '0%'
+                      width: timerState?.duration > 0 ? 
+                        `${((timerState?.duration - timerState?.remaining) / timerState?.duration) * 100}%` : '0%'
                     }}
                   ></div>
                 </div>

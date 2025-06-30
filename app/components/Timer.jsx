@@ -84,7 +84,7 @@ export default function Timer({ timerState, showMessage = true, className = '', 
         </div>
       )}
       
-      {isRunning && (
+      {isRunning && isPreview && (
         <div className="mt-4 flex items-center space-x-2">
           <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
           <span className="text-lg opacity-75">LIVE</span>
