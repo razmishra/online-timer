@@ -6,17 +6,9 @@ import { io, Socket } from 'socket.io-client';
 export const useSocket = () => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [isControllerAuthenticated, setIsControllerAuthenticated] = useState(false);
   const [timerList, setTimerList] = useState([]);
   const [currentTimer, setCurrentTimer] = useState(null);
   const [selectedTimerId, setSelectedTimerId] = useState(null);
-  // Check if we were previously authenticated
-  useEffect(() => {
-    const wasAuthenticated = localStorage.getItem('controllerAuthenticated') === 'true';
-    if (wasAuthenticated) {
-      setIsControllerAuthenticated(true);
-    }
-  }, []);
 
   useEffect(() => {
     // Use environment variable for server URL, fallback to localhost for development
@@ -26,14 +18,6 @@ export const useSocket = () => {
 
     socketInstance.on('connect', () => {
       setIsConnected(true);
-      
-      // If we were previously authenticated, re-authenticate automatically
-      if (localStorage.getItem('controllerAuthenticated') === 'true') {
-        const savedPassword = localStorage.getItem('controllerPassword');
-        if (savedPassword) {
-          socketInstance.emit('authenticate-controller', savedPassword);
-        }
-      }
     });
 
     socketInstance.on('disconnect', () => {
@@ -73,27 +57,10 @@ export const useSocket = () => {
       // No-op for production
     });
 
-    socketInstance.on('controller-authenticated', (authenticated) => {
-      setIsControllerAuthenticated(authenticated);
-      
-      // Store authentication status
-      if (authenticated) {
-        localStorage.setItem('controllerAuthenticated', 'true');
-      } else {
-        localStorage.removeItem('controllerAuthenticated');
-        localStorage.removeItem('controllerPassword');
-      }
-    });
-
     return () => {
       socketInstance.disconnect();
     };
   }, []);
-
-  const authenticateController = (password) => {
-    localStorage.setItem('controllerPassword', password);
-    socket?.emit('authenticate-controller', password);
-  };
 
   const createTimer = (name, duration) => {
     socket?.emit('create-timer', { name, duration });
@@ -104,7 +71,7 @@ export const useSocket = () => {
   };
 
   const joinTimer = (timerId) => {
-    if (socket && isConnected ) {
+    if (socket && isConnected) {
       socket.emit('join-timer', timerId);
     }
   };
@@ -134,7 +101,7 @@ export const useSocket = () => {
   };
 
   const updateStyling = (timerId, styling) => {
-    if (socket && isConnected && isControllerAuthenticated) {
+    if (socket && isConnected) {
       socket.emit('update-styling', { timerId, styling });
     }
   };
@@ -149,12 +116,10 @@ export const useSocket = () => {
 
   return {
     isConnected,
-    isControllerAuthenticated,
     timerList,
     currentTimer,
     selectedTimerId,
     setSelectedTimerId,
-    authenticateController,
     createTimer,
     deleteTimer,
     joinTimer,
