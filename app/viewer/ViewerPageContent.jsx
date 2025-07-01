@@ -64,6 +64,24 @@ export default function ViewerPageContent() {
     ? 'fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center w-screen h-screen'
     : 'relative z-10 w-full h-full flex items-center justify-center py-12 px-4';
 
+  // Add rotation style for fullscreen
+  const rotatedStyle = isFullscreen
+    ? {
+        transform: 'rotate(90deg)',
+        width: '100vh',
+        height: '100vw',
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transformOrigin: 'center',
+        // Center after rotation
+        translate: '-50% -50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }
+    : {};
+
   // Dynamic font size for timer
   const timerFontSize = isFullscreen
     ? 'text-[16vw] md:text-[14vw] lg:text-[12vw] xl:text-[10vw]'
@@ -100,6 +118,18 @@ export default function ViewerPageContent() {
           <span className="hidden md:inline">{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
         </button>
       </div>
+      {/* Exit Fullscreen Button (top-right, only in fullscreen) */}
+      {isFullscreen && (
+        <button
+          className="fixed top-6 right-6 z-50 bg-white/20 hover:bg-red-600/80 text-white rounded-full p-3 shadow-lg transition-all duration-200"
+          onClick={() => setIsFullscreen(false)}
+          aria-label="Exit Fullscreen"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
       {/* Connection status indicator */}
       <div className="absolute top-6 right-6 flex items-center space-x-2 z-20">
         <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
@@ -108,7 +138,7 @@ export default function ViewerPageContent() {
         </span>
       </div>
       {/* Full screen timer container */}
-      <div className={timerContainerClass}>
+      <div className={timerContainerClass} style={rotatedStyle}>
         <Timer timerState={currentTimer} showMessage={true} className={timerFontSize + ' w-full h-full flex-1'} />
       </div>
       {/* Timer selection menu (if no timer in URL) */}
