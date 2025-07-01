@@ -251,19 +251,19 @@ app.prepare().then(() => {
 
     // Controller authentication
     socket.on('authenticate-controller', (password) => {
-      // console.log('Authentication attempt from:', socket.id, 'password:', password);
-      // console.log('Expected password:', CONTROLLER_PASSWORD);
-      // console.log('Password match:', password === CONTROLLER_PASSWORD);
+      console.log('Authentication attempt from:', socket.id, 'password:', password);
+      console.log('Expected password:', CONTROLLER_PASSWORD);
+      console.log('Password match:', password === CONTROLLER_PASSWORD);
       if (password === CONTROLLER_PASSWORD) {
         controllerSocketId = socket.id;
         authenticatedControllers.add(socket.id);
         socket.emit('controller-authenticated', true);
-        // console.log('Controller authenticated:', socket.id);
-        // console.log('controllerSocketId set to:', controllerSocketId);
-        // console.log('Authenticated controllers:', Array.from(authenticatedControllers));
+        console.log('Controller authenticated:', socket.id);
+        console.log('controllerSocketId set to:', controllerSocketId);
+        console.log('Authenticated controllers:', Array.from(authenticatedControllers));
       } else {
         socket.emit('controller-authenticated', false);
-        // console.log('Controller authentication failed:', socket.id);
+        console.log('Controller authentication failed:', socket.id);
       }
     });
 
