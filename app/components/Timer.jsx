@@ -1,6 +1,5 @@
 'use client';
 
-import { TimerState } from '../hooks/useSocket';
 
 const formatTime = (seconds) => {
   // Safety check for invalid values

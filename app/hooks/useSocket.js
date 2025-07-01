@@ -20,7 +20,9 @@ export const useSocket = () => {
   }, []);
 
   useEffect(() => {
-    const socketInstance = io();
+    // Use environment variable for server URL, fallback to localhost for development
+    const serverUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3001';
+    const socketInstance = io(serverUrl);
     setSocket(socketInstance);
 
     socketInstance.on('connect', () => {
