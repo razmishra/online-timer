@@ -11,6 +11,7 @@ export default function ViewerPageContent() {
     currentTimer, 
     timerList, 
     joinTimer,
+    viewTimer,
     selectedTimerId 
   } = useSocket();
   const searchParams = useSearchParams();
@@ -24,13 +25,13 @@ export default function ViewerPageContent() {
 
   useEffect(() => {
     if (timerIdFromUrl && isConnected) {
-      joinTimer(timerIdFromUrl);
+      viewTimer(timerIdFromUrl);
     } else if (!timerIdFromUrl && isConnected && timerList.length > 0) {
       // No timer in URL, showing timer selection
     } else if (!timerIdFromUrl && isConnected && timerList.length === 0) {
       // No timer in URL and no timers available
     }
-  }, [timerIdFromUrl, isConnected, joinTimer, timerList]);
+  }, [timerIdFromUrl, isConnected, viewTimer, timerList]);
 
   // Handle Fullscreen API
   useEffect(() => {
@@ -149,7 +150,7 @@ export default function ViewerPageContent() {
             {timerList.map((timer) => (
               <button
                 key={timer.id}
-                onClick={() => joinTimer(timer.id)}
+                onClick={() => viewTimer(timer.id)}
                 className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105"
               >
                 {timer.name}

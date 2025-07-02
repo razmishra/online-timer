@@ -84,8 +84,8 @@ export const useSocket = () => {
     };
   }, []);
 
-  const createTimer = (name, duration) => {
-    socket?.emit('create-timer', { name, duration, controllerId });
+  const createTimer = (name, duration, styling = {}) => {
+    socket?.emit('create-timer', { name, duration, controllerId, styling });
   };
 
   const deleteTimer = (timerId) => {
@@ -95,6 +95,12 @@ export const useSocket = () => {
   const joinTimer = (timerId) => {
     if (socket && isConnected) {
       socket.emit('join-timer', { timerId, controllerId });
+    }
+  };
+
+  const viewTimer = (timerId) => {
+    if (socket && isConnected) {
+      socket.emit('view-timer', { timerId, controllerId });
     }
   };
 
@@ -145,6 +151,7 @@ export const useSocket = () => {
     createTimer,
     deleteTimer,
     joinTimer,
+    viewTimer,
     setTimer,
     startTimer,
     pauseTimer,

@@ -37,6 +37,7 @@ export default function ControllerPage() {
   const [viewerUrl, setViewerUrl] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  const [timerView, setTimerView] = useState('normal');
 
   // Set viewer URL when component mounts or timer selection changes
   useEffect(() => {
@@ -61,12 +62,18 @@ export default function ControllerPage() {
     }
   }, [selectedTimerId]);
 
+  useEffect(() => {
+    if (currentTimer && currentTimer.styling && currentTimer.styling.timerView) {
+      setTimerView(currentTimer.styling.timerView);
+    }
+  }, [currentTimer]);
+
   const handleCreateTimer = (e) => {
     e.preventDefault();
     const [minutes, seconds] = createTimerInput.split(':').map(Number);
     const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
     if (totalSeconds > 0 && timerName.trim()) {
-      createTimer(timerName.trim(), totalSeconds);
+      createTimer(timerName.trim(), totalSeconds, { timerView, backgroundColor, textColor, fontSize });
       setCreateTimerInput('');
       setTimerName('');
     }
@@ -91,7 +98,7 @@ export default function ControllerPage() {
 
   const handleUpdateStyling = () => {
     if (!selectedTimerId) return;
-    updateStyling(selectedTimerId, { backgroundColor, textColor, fontSize });
+    updateStyling(selectedTimerId, { backgroundColor, textColor, fontSize, timerView });
   };
 
   const handleCopyLink = async () => {
@@ -537,6 +544,18 @@ export default function ControllerPage() {
                           <option value="text-9xl">Extra Large</option>
                         </select>
                       </div>
+                      
+                      {/* <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Timer View</label>
+                        <select
+                          value={timerView}
+                          onChange={e => setTimerView(e.target.value)}
+                          className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-white"
+                        >
+                          <option value="normal">Normal</option>
+                          <option value="flip">Flip Clock</option>
+                        </select>
+                      </div> */}
                       
                       <div className="flex flex-col sm:flex-row gap-2">
                         <button

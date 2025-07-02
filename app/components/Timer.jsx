@@ -1,5 +1,7 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+const FlipClockTimer = dynamic(() => import('./FlipClock'), { ssr: false });
 
 const formatTime = (seconds) => {
   // Safety check for invalid values
@@ -27,7 +29,6 @@ const formatTime = (seconds) => {
 export default function Timer({ timerState, showMessage = true, className = '', isPreview = false }) {
   if(!timerState){
     return (
-
       <div className={`flex flex-col items-center justify-center text-center p-8 ${className}`}>
       <div className="text-4xl font-light text-white/60 mb-4">⏱️</div>
       <div className="text-2xl font-medium text-white/70">No timer selected</div>
@@ -35,9 +36,10 @@ export default function Timer({ timerState, showMessage = true, className = '', 
     </div>
     );
   }
-  const { remaining, message, backgroundColor, textColor, fontSize, isRunning, isFlashing } = timerState;
+  const { remaining, message, backgroundColor, textColor, fontSize, isRunning, isFlashing, styling = {} } = timerState;
   const isNegative = remaining < 0;
-  
+  const timerView = styling.timerView || 'normal';
+  console.log(styling,"styling")
   // Enhanced flash animation for negative time
   const flashClass = isFlashing 
     ? isNegative 
@@ -45,6 +47,23 @@ export default function Timer({ timerState, showMessage = true, className = '', 
       : 'animate-pulse' 
     : '';
   
+  if (timerView === 'flip') {
+    // Calculate target time for countdown
+    const now = Date.now();
+    const absRemaining = Math.max(0, Math.abs(remaining));
+    const targetTime = now + absRemaining * 1000;
+    console.log("showing flip clock");
+    return (
+      <div className={`flex flex-col items-center justify-center text-center p-8 ${className}`}
+        style={{ backgroundColor, color: textColor }}>
+        <FlipClockTimer initialTime={60} showHours={true} showMinutes={true} showSeconds={true} flipDirection="up" animationDuration={600} flipDelay={50} size="medium" theme="dark" customColors={null} showSeparators={true} separatorChar=":" separatorStyle={null} cardBorderRadius={8} cardShadow={true} cardPadding={null} className={""} style={null} disabled={false} pauseOnHover={false} isRunning={null} onToggle={null} onComplete={null} onTick={null} />
+        {/* Message Display */}
+        {showMessage && message && (
+          <div className="mt-8 max-w-4xl break-words px-4" style={{ color: textColor, fontWeight: 'bold', lineHeight: '1.2' }}>{message}</div>
+        )}
+      </div>
+    );
+  }
   return (
     <div 
       className={`flex flex-col items-center justify-center text-center p-8 ${className} ${flashClass}`}

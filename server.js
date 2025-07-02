@@ -47,6 +47,7 @@ class Timer {
     this.connectedDevices = new Set(); // Track connected devices
     this.interval = null;
     this.controllerId = null;
+    this.timerView = 'normal';
   }
 
   start() {
@@ -192,6 +193,7 @@ class Timer {
     this.backgroundColor = styling.backgroundColor || this.backgroundColor;
     this.textColor = styling.textColor || this.textColor;
     this.fontSize = styling.fontSize || this.fontSize;
+    this.timerView = styling.timerView || this.timerView;
     this.update();
   }
 
@@ -212,7 +214,13 @@ class Timer {
       textColor: this.textColor,
       fontSize: this.fontSize,
       isFlashing: this.isFlashing,
-      connectedCount: this.connectedDevices.size
+      connectedCount: this.connectedDevices.size,
+      styling: {
+        backgroundColor: this.backgroundColor,
+        textColor: this.textColor,
+        fontSize: this.fontSize,
+        timerView: this.timerView || 'normal',
+      },
     };
   }
 }
@@ -266,25 +274,50 @@ io.on('connection', (socket) => {
   socket.on('join-timer', ({ timerId, controllerId }) => {
     if (!controllerId) return;
     const timer = timers.get(timerId);
-    if (timer && timer.controllerId === controllerId) {
+    if (timer) {
       const wasAdded = timer.addDevice(socket.id);
       if (wasAdded) {
         deviceToTimer.set(socket.id, timerId);
       }
       const timerState = timer.getState();
       socket.emit('timer-joined', timerState);
-      emitTimerListForController(socket, controllerId);
+      // Only emit timer list if this is the controller (owner)
+      if (timer.controllerId === controllerId) {
+        emitTimerListForController(socket, controllerId);
+      }
+    } else {
+      socket.emit('timer-not-found', { timerId });
+    }
+  });
+
+  // --- VIEW TIMER (for viewers) ---
+  socket.on('view-timer', ({ timerId, controllerId }) => {
+    if (!controllerId) return;
+    const timer = timers.get(timerId);
+    if (timer) {
+      const wasAdded = timer.addDevice(socket.id);
+      if (wasAdded) {
+        deviceToTimer.set(socket.id, timerId);
+      }
+      const timerState = timer.getState();
+      socket.emit('timer-joined', timerState);
     } else {
       socket.emit('timer-not-found', { timerId });
     }
   });
 
   // --- CREATE TIMER ---
-  socket.on('create-timer', ({ name, duration, controllerId }) => {
+  socket.on('create-timer', ({ name, duration, controllerId, styling }) => {
     if (!controllerId) return;
     const timerId = generateId();
     const timer = new Timer(timerId, name, duration);
     timer.controllerId = controllerId;
+    if (styling) {
+      timer.backgroundColor = styling.backgroundColor || timer.backgroundColor;
+      timer.textColor = styling.textColor || timer.textColor;
+      timer.fontSize = styling.fontSize || timer.fontSize;
+      timer.timerView = styling.timerView || 'normal';
+    }
     timers.set(timerId, timer);
     if (!controllerTimers.has(controllerId)) controllerTimers.set(controllerId, new Set());
     controllerTimers.get(controllerId).add(timerId);
