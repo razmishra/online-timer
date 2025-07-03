@@ -65,28 +65,25 @@ export default function ViewerPageContent() {
     ? 'fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center w-screen h-screen'
     : 'relative z-10 w-full h-full flex items-center justify-center py-12 px-4';
 
-  // Add rotation style for fullscreen
+  // Remove rotation style for fullscreen
   const rotatedStyle = isFullscreen
     ? {
-        transform: 'rotate(90deg)',
-        width: '100vh',
-        height: '100vw',
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transformOrigin: 'center',
-        // Center after rotation
-        translate: '-50% -50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }
+      width: '100vw',
+      height: '100vh',
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+      transform: 'translate(-50%, -50%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }
     : {};
 
   // Dynamic font size for timer
   const timerFontSize = isFullscreen
-    ? 'text-[16vw] md:text-[14vw] lg:text-[12vw] xl:text-[10vw]'
-    : 'text-[10vw] md:text-[8vw] lg:text-[7vw] xl:text-[6vw]';
+    ? 'text-[13vw] md:text-[11vw] lg:text-[8vw] xl:text-[6vw]'
+    : 'text-[15vw] md:text-[8vw] lg:text-[7vw] xl:text-[6vw]';
 
   return (
     <div ref={containerRef} className="viewer-fullscreen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center relative overflow-hidden min-h-screen">
@@ -140,7 +137,21 @@ export default function ViewerPageContent() {
       </div>
       {/* Full screen timer container */}
       <div className={timerContainerClass} style={rotatedStyle}>
-        <Timer timerState={currentTimer} showMessage={true} className={timerFontSize + ' w-full h-full flex-1'} />
+        <Timer 
+          timerState={currentTimer || {
+            remaining: 0,
+            duration: 0,
+            isRunning: false,
+            isFlashing: false,
+            message: '',
+            backgroundColor: '#1e293b',
+            textColor: '#f1f5f9',
+            fontSize: 'text-6xl',
+            styling: { timerView: 'normal' },
+          }}
+          showMessage={true}
+          className={timerFontSize + ' w-full h-full flex-1'}
+        />
       </div>
       {/* Timer selection menu (if no timer in URL) */}
       {!timerIdFromUrl && timerList.length > 0 && (

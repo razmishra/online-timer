@@ -38,7 +38,8 @@ export default function ControllerPage() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [timerView, setTimerView] = useState('normal');
-
+  const [timerExceedsLimit, setTimerExceedsLimit] = useState(false);
+  
   // Set viewer URL when component mounts or timer selection changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -84,6 +85,10 @@ export default function ControllerPage() {
     if (!selectedTimerId) return;
     const [minutes, seconds] = setTimerInput.split(':').map(Number);
     const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
+    if (totalSeconds > 180000) {
+      alert('Timer duration cannot exceed 50 hours.');
+      return;
+    }
     if (totalSeconds > 0) {
       setTimer(selectedTimerId, totalSeconds);
     }
@@ -182,7 +187,16 @@ export default function ControllerPage() {
               <div className="p-6">
                 <div className="aspect-video bg-slate-900/50 rounded-xl overflow-hidden border border-slate-700/50">
                   <Timer 
-                    timerState={currentTimer} 
+                    timerState={currentTimer ? {
+                      ...currentTimer,
+                      styling: {
+                        ...currentTimer.styling,
+                        timerView,
+                        backgroundColor,
+                        textColor,
+                        fontSize,
+                      },
+                    } : null}
                     showMessage={true}
                     className="h-full w-full"
                     isPreview={true}
@@ -219,7 +233,16 @@ export default function ControllerPage() {
                       <input
                         type="text"
                         value={createTimerInput}
-                        onChange={(e) => setCreateTimerInput(e.target.value)}
+                        onChange={(e) => {
+                          setCreateTimerInput(e.target.value);
+                          const [minutes, seconds] = e.target.value.split(':').map(Number);
+                          const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
+                          if (totalSeconds > 180000) {
+                            setTimerExceedsLimit(true);
+                          } else {
+                            setTimerExceedsLimit(false);
+                          }
+                        }}
                         placeholder="MM:SS"
                         className="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-slate-400"
                         required
@@ -232,6 +255,16 @@ export default function ControllerPage() {
                       </button>
                     </div>
                   </form>
+                  {timerExceedsLimit ? <div className="text-sm text-red-400 mt-2">
+                    <p>
+                      <span className="font-semibold">Note:</span> Timer duration cannot exceed 50 hours.
+                    </p>
+                  </div> : <div className="text-sm text-slate-400 mt-2">
+                    <p>
+                      <span className="font-semibold">Tip:</span> Enter time as <span className="font-mono bg-slate-700/50 px-1 rounded">MM:SS</span> or just minutes (e.g., <span className="font-mono bg-slate-700/50 px-1 rounded">5</span> for 5 minutes, <span className="font-mono bg-slate-700/50 px-1 rounded">5:30</span> for 5 minutes 30 seconds).
+                    </p>
+                  </div>
+                  }
                 </div>
 
                 {/* Timer List */}
@@ -544,18 +577,21 @@ export default function ControllerPage() {
                           <option value="text-9xl">Extra Large</option>
                         </select>
                       </div>
-                      
-                      {/* <div>
+                      <div>
                         <label className="block text-sm font-medium text-slate-300 mb-2">Timer View</label>
                         <select
                           value={timerView}
-                          onChange={e => setTimerView(e.target.value)}
+                          onChange={e => {
+                            setTimerView(e.target.value);
+                            handleUpdateStyling();
+                          }}
                           className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-white"
                         >
-                          <option value="normal">Normal</option>
-                          <option value="flip">Flip Clock</option>
+                          <option value="normal">Countdown</option>
+                          {/* <option value="flip">Flip Clock</option> */}
+                          <option value="countup">Count Up</option>
                         </select>
-                      </div> */}
+                      </div>
                       
                       <div className="flex flex-col sm:flex-row gap-2">
                         <button

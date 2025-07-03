@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 const FlipClockTimer = dynamic(() => import('./FlipClock'), { ssr: false });
+import { useEffect, useState, useRef } from 'react';
 
 const formatTime = (seconds) => {
   // Safety check for invalid values
@@ -36,23 +37,56 @@ export default function Timer({ timerState, showMessage = true, className = '', 
     </div>
     );
   }
-  const { remaining, message, backgroundColor, textColor, fontSize, isRunning, isFlashing, styling = {} } = timerState;
+  const { remaining, message, backgroundColor, textColor, fontSize, isRunning, isFlashing, styling = {}, duration } = timerState;
   const isNegative = remaining < 0;
   const timerView = styling.timerView || 'normal';
-  console.log(styling,"styling")
   // Enhanced flash animation for negative time
   const flashClass = isFlashing 
     ? isNegative 
       ? 'animate-pulse bg-red-900' 
       : 'animate-pulse' 
     : '';
-  
+
+  // --- Smooth Count Up Logic ---
+  const [localElapsed, setLocalElapsed] = useState(duration - remaining);
+  const lastServerElapsed = useRef(duration - remaining);
+  const lastIsRunning = useRef(isRunning);
+  const lastTimerView = useRef(timerView);
+
+  useEffect(() => {
+    // Sync localElapsed with server when timerView or running state changes, or on server update
+    if (timerView === 'countup') {
+      const serverElapsed = duration - remaining;
+      if (lastServerElapsed.current !== serverElapsed || lastIsRunning.current !== isRunning || lastTimerView.current !== timerView) {
+        setLocalElapsed(serverElapsed);
+        lastServerElapsed.current = serverElapsed;
+        lastIsRunning.current = isRunning;
+        lastTimerView.current = timerView;
+      }
+    }
+  }, [timerView, isRunning, duration, remaining]);
+
+  useEffect(() => {
+    if (timerView === 'countup' && isRunning) {
+      const interval = setInterval(() => {
+        setLocalElapsed((prev) => prev + 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timerView, isRunning]);
+
+  let displayTime = remaining;
+  if (timerView === 'countup') {
+    displayTime = isRunning ? localElapsed : duration - remaining;
+    if (displayTime < 0) displayTime = 0;
+  }
+
   if (timerView === 'flip') {
     // Calculate target time for countdown
     const now = Date.now();
     const absRemaining = Math.max(0, Math.abs(remaining));
     const targetTime = now + absRemaining * 1000;
-    console.log("showing flip clock");
+    // console.log("showing flip clock");
     return (
       <div className={`flex flex-col items-center justify-center text-center p-8 ${className}`}
         style={{ backgroundColor, color: textColor }}>
@@ -64,6 +98,7 @@ export default function Timer({ timerState, showMessage = true, className = '', 
       </div>
     );
   }
+
   return (
     <div 
       className={`flex flex-col items-center justify-center text-center p-8 ${className} ${flashClass}`}
@@ -79,12 +114,11 @@ export default function Timer({ timerState, showMessage = true, className = '', 
         style={{ 
           color: isNegative ? '#f87171' : textColor,
           textShadow: isNegative ? '0 0 20px rgba(248, 113, 113, 0.5)' : 'none',
-          fontSize: !isPreview ? (showMessage && message ? '12vw' : '20vw') : ''
+          fontSize: !isPreview ? (showMessage && message ? '12vw' : '17vw') : ''
         }}
       >
-        {formatTime(remaining)}
+        {formatTime(displayTime)}
       </div>
-      
       {/* Message Display */}
       {showMessage && message && (
         <div 
@@ -101,14 +135,12 @@ export default function Timer({ timerState, showMessage = true, className = '', 
           {message}
         </div>
       )}
-      
       {isRunning && isPreview && (
         <div className="mt-4 flex items-center space-x-2">
           <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
           <span className="text-lg opacity-75">LIVE</span>
         </div>
       )}
-      
       {isNegative && (
         <div className="mt-4 flex items-center space-x-2">
           <div className="w-3 h-3 bg-red-500 rounded-full animate-ping"></div>

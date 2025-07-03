@@ -36,6 +36,7 @@ class Timer {
     this.id = id;
     this.name = name;
     this.duration = duration; // in seconds
+    this.originalDuration = duration; // Store the original duration for reset
     this.remaining = duration;
     this.isRunning = false;
     this.startTime = null;
@@ -82,29 +83,27 @@ class Timer {
 
   reset() {
     this.isRunning = false;
-    this.remaining = this.duration;
+    this.duration = this.originalDuration; // Restore to original duration
+    this.remaining = this.originalDuration;
     this.startTime = null;
-    
     if (this.interval) {
       clearInterval(this.interval);
       this.interval = null;
     }
-    
     this.update();
     console.log(`Timer ${this.id} reset`);
   }
 
   setDuration(duration) {
     this.duration = duration;
+    this.originalDuration = duration; // Update original duration on set
     this.remaining = duration;
     this.isRunning = false;
     this.startTime = null;
-    
     if (this.interval) {
       clearInterval(this.interval);
       this.interval = null;
     }
-    
     this.update();
   }
 
