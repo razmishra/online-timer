@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSocket } from '../hooks/useSocket';
+import { useSocket } from '../context/SocketContext';
 import Timer from '../components/Timer';
 import QRCode from 'qrcode';
 
@@ -40,14 +40,34 @@ export default function ControllerPage() {
   const [timerView, setTimerView] = useState('normal');
   const [timerExceedsLimit, setTimerExceedsLimit] = useState(false);
   
-  // Set viewer URL when component mounts or timer selection changes
+  // Check if any timer is currently running
+  // Check both timerList and currentTimer to handle page refresh scenarios
+  const isAnyTimerRunning = timerList.some(timer => timer.isRunning) || (currentTimer && currentTimer.isRunning);
+  console.log(isAnyTimerRunning," --isAnyTimerRunning")
+  console.log(timerList," --timerList")
+  
+  // Get the active timer (the one that's currently running)
+  // Prioritize currentTimer if it's running, otherwise find from timerList
+  const activeTimer = (currentTimer && currentTimer.isRunning) ? currentTimer : timerList.find(timer => timer.isRunning);
+  
+  // Determine which timer ID to use for sharing and controls
+  const effectiveTimerId = isAnyTimerRunning ? (activeTimer?.id || null) : selectedTimerId;
+  console.log({
+    timerListLength: timerList.length,
+    currentTimerRunning: currentTimer?.isRunning,
+    selectedTimerId,
+    effectiveTimerId,
+    isAnyTimerRunning,
+    activeTimerId: activeTimer?.id
+  }, " --Timer State Debug")
+  // Set viewer URL when component mounts or effective timer selection changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const baseUrl = `${window.location.origin}/viewer`;
       setViewerUrl(baseUrl);
       
-      // Generate QR code with timer ID if selected
-      const qrUrl = selectedTimerId ? `${baseUrl}?timer=${selectedTimerId}` : baseUrl;
+      // Generate QR code with effective timer ID
+      const qrUrl = effectiveTimerId ? `${baseUrl}?timer=${effectiveTimerId}` : baseUrl;
       QRCode.toDataURL(qrUrl, {
         width: 200,
         margin: 2,
@@ -61,7 +81,7 @@ export default function ControllerPage() {
         console.error('Error generating QR code:', err);
       });
     }
-  }, [selectedTimerId]);
+  }, [effectiveTimerId]);
 
   useEffect(() => {
     if (currentTimer && currentTimer.styling && currentTimer.styling.timerView) {
@@ -82,7 +102,7 @@ export default function ControllerPage() {
 
   const handleSetTimer = (e) => {
     e.preventDefault();
-    if (!selectedTimerId) return;
+    if (!effectiveTimerId) return;
     const [minutes, seconds] = setTimerInput.split(':').map(Number);
     const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
     if (totalSeconds > 180000) {
@@ -90,25 +110,25 @@ export default function ControllerPage() {
       return;
     }
     if (totalSeconds > 0) {
-      setTimer(selectedTimerId, totalSeconds);
+      setTimer(effectiveTimerId, totalSeconds);
     }
   };
 
   const handleUpdateMessage = (e) => {
     e.preventDefault();
-    if (!selectedTimerId) return;
-    updateMessage(selectedTimerId, messageInput);
+    if (!effectiveTimerId) return;
+    updateMessage(effectiveTimerId, messageInput);
     setMessageInput('');
   };
 
   const handleUpdateStyling = () => {
-    if (!selectedTimerId) return;
-    updateStyling(selectedTimerId, { backgroundColor, textColor, fontSize, timerView });
+    if (!effectiveTimerId) return;
+    updateStyling(effectiveTimerId, { backgroundColor, textColor, fontSize, timerView });
   };
 
   const handleCopyLink = async () => {
     try {
-      const fullUrl = selectedTimerId ? `${viewerUrl}?timer=${selectedTimerId}` : viewerUrl;
+      const fullUrl = effectiveTimerId ? `${viewerUrl}?timer=${effectiveTimerId}` : viewerUrl;
       await navigator.clipboard.writeText(fullUrl);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
@@ -118,15 +138,15 @@ export default function ControllerPage() {
   };
 
   const handleToggleFlash = () => {
-    if (!selectedTimerId || !currentTimer) return;
-    toggleFlash(selectedTimerId, !currentTimer.isFlashing);
+    if (!effectiveTimerId || !currentTimer) return;
+    toggleFlash(effectiveTimerId, !currentTimer.isFlashing);
   };
 
   const handleAdjustTime = (seconds) => {
-    if (!selectedTimerId || !currentTimer) return;
+    if (!effectiveTimerId || !currentTimer) return;
     // Only block if subtracting more than remaining
     if (seconds < 0 && Math.abs(seconds) > currentTimer.remaining) return;
-    adjustTimer(selectedTimerId, seconds);
+    adjustTimer(effectiveTimerId, seconds);
   };
 
   const formatTime = (seconds) => {
@@ -141,6 +161,20 @@ export default function ControllerPage() {
       setSelectedTimerId(null);
       setCurrentTimer(null);
     }
+  };
+
+  const handleTimerSelect = (timerId) => {
+    if (!isConnected) return;
+    
+    // If any timer is running, don't allow switching
+    if (isAnyTimerRunning) {
+      return;
+    }
+    
+    setSelectedTimerId(timerId);
+    setTimeout(() => {
+      joinTimer(timerId);
+    }, 0);
   };
 
   return (
@@ -239,8 +273,10 @@ export default function ControllerPage() {
                           const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
                           if (totalSeconds > 180000) {
                             setTimerExceedsLimit(true);
+                            return;
                           } else {
                             setTimerExceedsLimit(false);
+                            // return;
                           }
                         }}
                         placeholder="MM:SS"
@@ -287,31 +323,50 @@ export default function ControllerPage() {
                       {timerList.map((timer) => (
                         <div
                           key={timer.id}
-                          onClick={() => {
-                            if (isConnected) {
-                              setSelectedTimerId(timer.id);
-                              setTimeout(() => {
-                                joinTimer(timer.id);
-                              }, 0);
-                            }
-                          }}
-                          className={`p-4 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
-                            selectedTimerId === timer.id
+                          onClick={() => handleTimerSelect(timer.id)}
+                          className={`p-4 rounded-xl transition-all duration-200 transform ${
+                            isAnyTimerRunning 
+                              ? 'cursor-not-allowed opacity-60' 
+                              : 'cursor-pointer hover:scale-[1.02]'
+                          } ${
+                            effectiveTimerId === timer.id
                               ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/50 shadow-lg'
                               : 'bg-slate-700/50 hover:bg-slate-700/70 border border-slate-600/50'
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <h4 className="font-semibold text-white truncate mr-2">{timer.name}</h4>
-                            <span className="text-xs font-medium text-slate-400 bg-slate-600/50 px-2 py-1 rounded-lg whitespace-nowrap">
-                              {timer.connectedCount}/3
-                            </span>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-white truncate">{timer.name}</h4>
+                              <p className="text-xs text-slate-500 font-mono mt-1">ID: {timer.id}</p>
+                            </div>
+                            <div className="flex items-center space-x-2 ml-2">
+                              {timer.isRunning && (
+                                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                              )}
+                              <span className="text-xs font-medium text-slate-400 bg-slate-600/50 px-2 py-1 rounded-lg whitespace-nowrap">
+                                {timer.connectedCount}/3
+                              </span>
+                            </div>
                           </div>
                           <p className="text-sm text-slate-400 mt-1">
                             Duration: {formatTime(timer.duration)}
                           </p>
                         </div>
                       ))}
+                    </div>
+                  )}
+                  
+                  {/* Note about timer switching */}
+                  {isAnyTimerRunning && (
+                    <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <svg className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <p className="text-xs text-amber-400">
+                          <span className="font-semibold">Timer is running:</span> Stop or reset the active timer to switch to another timer.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -324,12 +379,19 @@ export default function ControllerPage() {
                     </svg>
                     Share Timer
                   </h3>
-                  {selectedTimerId ? (
+                  {effectiveTimerId ? (
                     <div className="space-y-4">
+                      {isAnyTimerRunning && (
+                        <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                          <p className="text-xs text-emerald-400 text-center">
+                            <span className="font-semibold">Active Timer:</span> Sharing the currently running timer
+                          </p>
+                        </div>
+                      )}
                       <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
-                          value={`${viewerUrl}?timer=${selectedTimerId}`}
+                          value={`${viewerUrl}?timer=${effectiveTimerId}`}
                           readOnly
                           className="flex-1 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-sm text-slate-300 font-mono min-w-0"
                         />
@@ -341,7 +403,7 @@ export default function ControllerPage() {
                         </button>
                       </div>
                       <a
-                        href={`${viewerUrl}?timer=${selectedTimerId}`}
+                        href={`${viewerUrl}?timer=${effectiveTimerId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 text-center text-sm"
@@ -370,7 +432,7 @@ export default function ControllerPage() {
               {/* Right Column - Controls & Customization */}
               <div className="space-y-6">
                 {/* Timer Controls */}
-                {selectedTimerId && currentTimer && (
+                {effectiveTimerId && currentTimer && (
                   <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 p-6">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                       <svg className="w-5 h-5 mr-2 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -424,21 +486,21 @@ export default function ControllerPage() {
                     {/* Control Buttons */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       <button
-                        onClick={() => startTimer(selectedTimerId)}
+                        onClick={() => startTimer(effectiveTimerId)}
                         disabled={currentTimer.isRunning || currentTimer.remaining <= 0}
                         className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 text-white font-semibold py-3 px-2 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none text-sm"
                       >
                         Start
                       </button>
                       <button
-                        onClick={() => pauseTimer(selectedTimerId)}
+                        onClick={() => pauseTimer(effectiveTimerId)}
                         disabled={!currentTimer.isRunning}
                         className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 text-white font-semibold py-3 px-2 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none text-sm"
                       >
                         Pause
                       </button>
                       <button
-                        onClick={() => resetTimer(selectedTimerId)}
+                        onClick={() => resetTimer(effectiveTimerId)}
                         className="bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-700 hover:to-gray-700 text-white font-semibold py-3 px-2 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm"
                       >
                         Reset
@@ -467,7 +529,7 @@ export default function ControllerPage() {
 
                     {/* Delete Timer */}
                     <button
-                      onClick={() => handleDeleteTimer(selectedTimerId)}
+                      onClick={() => handleDeleteTimer(effectiveTimerId)}
                       className="w-full mt-4 bg-red-600/20 hover:bg-red-600/30 text-red-400 font-semibold py-2 px-4 rounded-lg transition-all duration-200 border border-red-600/30 text-sm"
                     >
                       Delete Timer
@@ -476,7 +538,7 @@ export default function ControllerPage() {
                 )}
 
                 {/* Message Control */}
-                {selectedTimerId && (
+                {effectiveTimerId && (
                   <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 p-6">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                       <svg className="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -498,7 +560,7 @@ export default function ControllerPage() {
                         onClick={(e) => {
                           e.preventDefault();
                           if (messageInput.trim()) {
-                            updateMessage(selectedTimerId, messageInput);
+                            updateMessage(effectiveTimerId, messageInput);
                             setMessageInput('');
                           }
                         }}
@@ -507,7 +569,7 @@ export default function ControllerPage() {
                         Send
                       </button>
                       <button
-                        onClick={() => clearMessage(selectedTimerId)}
+                        onClick={() => clearMessage(effectiveTimerId)}
                         className="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 text-sm"
                       >
                         Clear
@@ -517,7 +579,7 @@ export default function ControllerPage() {
                 )}
 
                 {/* Styling Controls */}
-                {selectedTimerId && (
+                {effectiveTimerId && (
                   <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 p-6">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                       <svg className="w-5 h-5 mr-2 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

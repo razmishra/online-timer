@@ -25,6 +25,9 @@ const timers = new Map(); // timerId -> Timer instance
 const deviceToTimer = new Map(); // deviceId -> timerId
 const controllerTimers = new Map(); // controllerId -> Set of timerIds
 
+// Dynamic max connections per timer
+const MAX_CONNECTIONS_PER_TIMER = 2;
+
 // Helper function to generate unique IDs
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -165,7 +168,7 @@ class Timer {
   }
 
   addDevice(deviceId) {
-    if (this.connectedDevices.size < 3) {
+    if (this.connectedDevices.size < MAX_CONNECTIONS_PER_TIMER) {
       this.connectedDevices.add(deviceId);
       this.update();
       return true;
@@ -277,12 +280,14 @@ io.on('connection', (socket) => {
       const wasAdded = timer.addDevice(socket.id);
       if (wasAdded) {
         deviceToTimer.set(socket.id, timerId);
-      }
-      const timerState = timer.getState();
-      socket.emit('timer-joined', timerState);
-      // Only emit timer list if this is the controller (owner)
-      if (timer.controllerId === controllerId) {
-        emitTimerListForController(socket, controllerId);
+        const timerState = timer.getState();
+        socket.emit('timer-joined', timerState);
+        // Only emit timer list if this is the controller (owner)
+        if (timer.controllerId === controllerId) {
+          emitTimerListForController(socket, controllerId);
+        }
+      } else {
+        socket.emit('timer-full', { timerId, failedSocketId: socket.id });
       }
     } else {
       socket.emit('timer-not-found', { timerId });
@@ -297,9 +302,11 @@ io.on('connection', (socket) => {
       const wasAdded = timer.addDevice(socket.id);
       if (wasAdded) {
         deviceToTimer.set(socket.id, timerId);
+        const timerState = timer.getState();
+        socket.emit('timer-joined', timerState);
+      } else {
+        socket.emit('timer-full', { timerId, failedSocketId: socket.id });
       }
-      const timerState = timer.getState();
-      socket.emit('timer-joined', timerState);
     } else {
       socket.emit('timer-not-found', { timerId });
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Cookies from 'js-cookie';
 
@@ -11,12 +11,33 @@ function generateUUID() {
   );
 }
 
-export const useSocket = () => {
+const MAX_CONNECTIONS_PER_TIMER = 4; // Keep in sync with server
+
+export const useSocket = (setFailedSocketIds = null) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [timerList, setTimerList] = useState([]);
   const [currentTimer, setCurrentTimer] = useState(null);
   const [selectedTimerId, setSelectedTimerId] = useState(null);
+  const [timerFullMessage, setTimerFullMessage] = useState(null);
+  const [socketId, setSocketId] = useState(null);
+
+  const autoReconnectDone = useRef(false);
+
+  // Get the last selected timer ID from localStorage
+  const getLastSelectedTimerId = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('lastSelectedTimerId');
+    }
+    return null;
+  }, []);
+
+  // Save the selected timer ID to localStorage
+  const saveSelectedTimerId = useCallback((timerId) => {
+    if (typeof window !== 'undefined' && timerId) {
+      localStorage.setItem('lastSelectedTimerId', timerId);
+    }
+  }, []);
 
   // Controller ID logic
   let controllerId = null;
@@ -35,7 +56,9 @@ export const useSocket = () => {
     setSocket(socketInstance);
 
     socketInstance.on('connect', () => {
+      // console.log('connected to socket', socketInstance.id);
       setIsConnected(true);
+      setSocketId(socketInstance.id);
       // Request timers for this controllerId on connect/reconnect
       if (controllerId) {
         socketInstance.emit('get-timers', { controllerId });
@@ -48,31 +71,67 @@ export const useSocket = () => {
 
     socketInstance.on('timer-list', (timers) => {
       setTimerList(timers);
+      
+      // Only run auto-reconnect once after initial load
+      if (!autoReconnectDone.current && timers.length > 0 && !currentTimer) {
+        const lastSelectedId = getLastSelectedTimerId();
+        const runningTimer = timers.find(timer => timer.isRunning);
+        // Priority: running timer first, then last selected timer
+        const timerToJoin = runningTimer || timers.find(timer => timer.id === lastSelectedId);
+        if (timerToJoin) {
+          // console.log('Auto-reconnecting to timer:', timerToJoin.id, 'isRunning:', timerToJoin.isRunning);
+          socketInstance.emit('join-timer', { timerId: timerToJoin.id, controllerId });
+        }
+        autoReconnectDone.current = true;
+      }
     });
 
     socketInstance.on('timer-joined', (timerState) => {
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
+      saveSelectedTimerId(timerState.id);
     });
 
     socketInstance.on('timer-update', (timerState) => {
       setCurrentTimer(timerState);
+      if (timerState.connectedCount < MAX_CONNECTIONS_PER_TIMER) {
+        setTimerFullMessage(null);
+        // Clear failed socket IDs when timer is no longer full
+        if (setFailedSocketIds) {
+          // console.log('Clearing failed socket IDs - timer no longer full');
+          setFailedSocketIds(new Set());
+        }
+      }
     });
 
     socketInstance.on('timer-created', (timerState) => {
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
+      saveSelectedTimerId(timerState.id);
     });
 
     socketInstance.on('timer-deleted', (data) => {
       if (selectedTimerId === data.timerId) {
         setCurrentTimer(null);
         setSelectedTimerId(null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('lastSelectedTimerId');
+        }
       }
     });
 
-    socketInstance.on('timer-full', (data) => {
-      // No-op for production
+    socketInstance.on('timer-full', ({ timerId, failedSocketId }) => {
+      // console.log('timer-full received for timer', timerId, 'failedSocketId', failedSocketId);
+      if (socketInstance.id === failedSocketId) {
+        setTimerFullMessage('This timer is full. Maximum viewers allowed have already connected.');
+        // Add the failed socket ID to the context's failed list
+        if (setFailedSocketIds) {
+          setFailedSocketIds(prev => {
+            const newSet = new Set([...prev, failedSocketId]);
+            return newSet;
+          });
+        }
+      }
     });
 
     socketInstance.on('timer-not-found', (data) => {
@@ -84,70 +143,75 @@ export const useSocket = () => {
     };
   }, []);
 
-  const createTimer = (name, duration, styling = {}) => {
+  const createTimer = useCallback((name, duration, styling = {}) => {
     socket?.emit('create-timer', { name, duration, controllerId, styling });
-  };
+  }, [socket, controllerId]);
 
-  const deleteTimer = (timerId) => {
+  const deleteTimer = useCallback((timerId) => {
     socket?.emit('delete-timer', { timerId, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  const joinTimer = (timerId) => {
+  const joinTimer = useCallback((timerId) => {
     if (socket && isConnected) {
       socket.emit('join-timer', { timerId, controllerId });
     }
-  };
+  }, [socket, isConnected, controllerId]);
 
-  const viewTimer = (timerId) => {
+  const viewTimer = useCallback((timerId) => {
     if (socket && isConnected) {
       socket.emit('view-timer', { timerId, controllerId });
     }
-  };
+  }, [socket, isConnected, controllerId]);
 
-  const setTimer = (timerId, duration) => {
+  const setTimer = useCallback((timerId, duration) => {
     socket?.emit('set-timer', { timerId, duration, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  const startTimer = (timerId) => {
+  const startTimer = useCallback((timerId) => {
     socket?.emit('start-timer', { timerId, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  const pauseTimer = (timerId) => {
+  const pauseTimer = useCallback((timerId) => {
     socket?.emit('pause-timer', { timerId, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  const resetTimer = (timerId) => {
+  const resetTimer = useCallback((timerId) => {
     socket?.emit('reset-timer', { timerId, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  const adjustTimer = (timerId, seconds) => {
+  const adjustTimer = useCallback((timerId, seconds) => {
     socket?.emit('adjust-timer', { timerId, seconds, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  const updateMessage = (timerId, message) => {
+  const updateMessage = useCallback((timerId, message) => {
     socket?.emit('update-message', { timerId, message, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  const updateStyling = (timerId, styling) => {
+  const updateStyling = useCallback((timerId, styling) => {
     if (socket && isConnected) {
       socket.emit('update-styling', { timerId, styling, controllerId });
     }
-  };
+  }, [socket, isConnected, controllerId]);
 
-  const clearMessage = (timerId) => {
+  const clearMessage = useCallback((timerId) => {
     socket?.emit('clear-message', { timerId, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  const toggleFlash = (timerId, isFlashing) => {
+  const toggleFlash = useCallback((timerId, isFlashing) => {
     socket?.emit('toggle-flash', { timerId, isFlashing, controllerId });
-  };
+  }, [socket, controllerId]);
 
-  return {
+  const setSelectedTimerIdWithStorage = useCallback((timerId) => {
+    setSelectedTimerId(timerId);
+    saveSelectedTimerId(timerId);
+  }, [saveSelectedTimerId]);
+
+  return useMemo(() => ({
     isConnected,
     timerList,
     currentTimer,
     selectedTimerId,
-    setSelectedTimerId,
+    setSelectedTimerId: setSelectedTimerIdWithStorage,
     createTimer,
     deleteTimer,
     joinTimer,
@@ -162,5 +226,29 @@ export const useSocket = () => {
     clearMessage,
     toggleFlash,
     setCurrentTimer,
-  };
+    timerFullMessage,
+    socketId,
+  }), [
+    isConnected,
+    timerList,
+    currentTimer,
+    selectedTimerId,
+    setSelectedTimerIdWithStorage,
+    createTimer,
+    deleteTimer,
+    joinTimer,
+    viewTimer,
+    setTimer,
+    startTimer,
+    pauseTimer,
+    resetTimer,
+    adjustTimer,
+    updateMessage,
+    updateStyling,
+    clearMessage,
+    toggleFlash,
+    setCurrentTimer,
+    timerFullMessage,
+    socketId,
+  ]);
 };
