@@ -62,7 +62,7 @@ export default function ViewerPageContent() {
 
   // Dynamic styles for timer container
   const timerContainerClass = isFullscreen
-    ? 'fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center w-screen h-screen'
+    ? 'fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center w-screen h-screen pt-20'
     : 'relative z-10 w-full h-full flex items-center justify-center py-12 px-4';
 
   // Remove rotation style for fullscreen
@@ -80,10 +80,10 @@ export default function ViewerPageContent() {
     }
     : {};
 
-  // Dynamic font size for timer
+  // Dynamic font size for timer with better typography
   const timerFontSize = isFullscreen
-    ? 'text-[13vw] md:text-[11vw] lg:text-[8vw] xl:text-[6vw]'
-    : 'text-[15vw] md:text-[8vw] lg:text-[7vw] xl:text-[6vw]';
+    ? 'text-[19vw] md:text-[14vw] lg:text-[10vw] xl:text-[8vw] font-bold tracking-tight'
+    : 'text-[19vw] md:text-[14vw] lg:text-[10vw] xl:text-[8vw] font-bold tracking-tight';
 
   // Check if current socket is in the failed list
   const shouldShowTimerFullMessage = timerFullMessage && isCurrentSocketFailed();
@@ -109,48 +109,78 @@ export default function ViewerPageContent() {
             <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
             <div className="absolute top-40 left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
           </div>
-          {/* Fullscreen Toggle Button */}
-          <div className="absolute top-6 left-6 z-20 flex gap-2">
-            <button
-              className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center gap-2 bg-white/20 text-white hover:bg-blue-600/80`}
-              onClick={() => setIsFullscreen((f) => !f)}
-              aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-            >
-              {isFullscreen ? (
-                // Portrait icon (exit fullscreen)
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                  <rect x="7" y="3" width="10" height="18" rx="2" className="fill-none stroke-current" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 8h6M9 16h6" />
-                </svg>
-              ) : (
-                // Landscape icon (enter fullscreen)
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                  <rect x="3" y="7" width="18" height="10" rx="2" className="fill-none stroke-current" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 9h8M8 15h8" />
-                </svg>
-              )}
-              <span className="hidden md:inline">{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
-            </button>
+
+          {/* Header Bar - Always visible, even in fullscreen */}
+          <div className="absolute top-0 left-0 right-0 z-30 viewer-header">
+            <div className="flex items-center justify-between px-6 py-4">
+              {/* Company Branding - Top Left */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 company-logo rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="hidden sm:block">
+                  <h1 className="text-white font-bold text-lg">StageTimer</h1>
+                  <p className="text-white/70 text-xs">Professional Timer Solutions</p>
+                </div>
+              </div>
+
+              {/* Timer Name - Top Center */}
+              <div className="flex-1 text-center px-4">
+                {currentTimer?.name ? (
+                  <div className="max-w-md mx-auto">
+                    <h2 className="text-white timer-name text-lg md:text-xl truncate">
+                      {currentTimer.name}
+                    </h2>
+                    {currentTimer?.id && (
+                      <p className="text-white/60 text-xs font-mono mt-1">
+                        ID: {currentTimer.id}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-white/60 text-sm">
+                    {timerIdFromUrl ? 'Loading timer...' : 'Select a timer'}
+                  </div>
+                )}
+              </div>
+
+              {/* Fullscreen Toggle - Top Right */}
+              <div className="flex items-center space-x-3">
+                {/* Connection status indicator */}
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full connection-indicator ${isConnected ? 'bg-green-400 animate-pulse connected' : 'bg-red-400 disconnected'}`}></div>
+                  <span className="text-white/70 text-xs font-medium hidden sm:inline">
+                    {isConnected ? 'Connected' : 'Disconnected'}
+                  </span>
+                </div>
+                
+                {/* Fullscreen Toggle Button */}
+                <button
+                  className="header-button px-3 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 text-white"
+                  onClick={() => setIsFullscreen((f) => !f)}
+                  aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                >
+                  {isFullscreen ? (
+                    // Portrait icon (exit fullscreen)
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <rect x="7" y="3" width="10" height="18" rx="2" className="fill-none stroke-current" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 8h6M9 16h6" />
+                    </svg>
+                  ) : (
+                    // Landscape icon (enter fullscreen)
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <rect x="3" y="7" width="18" height="10" rx="2" className="fill-none stroke-current" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 9h8M8 15h8" />
+                    </svg>
+                  )}
+                  <span className="hidden md:inline">{isFullscreen ? 'Exit' : 'Fullscreen'}</span>
+                </button>
+              </div>
+            </div>
           </div>
-          {/* Exit Fullscreen Button (top-right, only in fullscreen) */}
-          {isFullscreen && (
-            <button
-              className="fixed top-6 right-6 z-50 bg-white/20 hover:bg-red-600/80 text-white rounded-full p-3 shadow-lg transition-all duration-200"
-              onClick={() => setIsFullscreen(false)}
-              aria-label="Exit Fullscreen"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-          {/* Connection status indicator */}
-          <div className="absolute top-6 right-6 flex items-center space-x-2 z-20">
-            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
-            <span className="text-white/70 text-sm font-medium">
-              {isConnected ? 'Connected' : 'Disconnected'}
-            </span>
-          </div>
+
           {/* Full screen timer container */}
           <div className={timerContainerClass} style={rotatedStyle}>
             <Timer 
@@ -169,6 +199,7 @@ export default function ViewerPageContent() {
               className={timerFontSize + ' w-full h-full flex-1'}
             />
           </div>
+
           {/* Timer selection menu (if no timer in URL) */}
           {!timerIdFromUrl && timerList.length > 0 && (
             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 z-20">
@@ -186,6 +217,7 @@ export default function ViewerPageContent() {
               </div>
             </div>
           )}
+          
           {/* No timers available message */}
           {!timerIdFromUrl && timerList.length === 0 && isConnected && (
             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 z-20">

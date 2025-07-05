@@ -108,13 +108,12 @@ export default function Timer({ timerState, showMessage = true, className = '', 
       }}
     >
       <div 
-        className={`timer-display ${fontSize} font-mono ${isRunning ? 'animate-pulse' : ''} ${
+        className={`timer-display ${fontSize} font-mono ${
           isNegative ? 'text-red-400 font-bold' : ''
         }`}
         style={{ 
           color: isNegative ? '#f87171' : textColor,
           textShadow: isNegative ? '0 0 20px rgba(248, 113, 113, 0.5)' : 'none',
-          fontSize: !isPreview ? (showMessage && message ? '12vw' : '17vw') : ''
         }}
       >
         {formatTime(displayTime)}
@@ -122,12 +121,11 @@ export default function Timer({ timerState, showMessage = true, className = '', 
       {/* Message Display */}
       {showMessage && message && (
         <div 
-          className="mt-8 max-w-4xl break-words px-4"
+          className={`mt-8 max-w-4xl break-words px-4 ${
+            !isPreview ? 'text-4xl md:text-5xl lg:text-6xl' : 'text-lg'
+          } font-bold leading-tight`}
           style={{ 
             color: textColor,
-            fontSize: !isPreview ? (message.length > 50 ? '6vw' : '10vw') : '',
-            fontWeight: 'bold',
-            lineHeight: '1.2',
             wordWrap: 'break-word',
             overflowWrap: 'break-word'
           }}

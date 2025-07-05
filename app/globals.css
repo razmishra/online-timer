@@ -149,9 +149,9 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Improved timer styling for viewer */
+/* Enhanced timer styling for viewer */
 .viewer-fullscreen .timer-display {
-  font-size: clamp(3rem, 15vw, 8rem);
+  font-size: 19vw;
   font-weight: 900;
   text-shadow: 
     0 0 10px rgba(255, 255, 255, 0.3),
@@ -159,6 +159,61 @@ html, body {
     0 0 30px rgba(255, 255, 255, 0.1);
   letter-spacing: 0.05em;
   line-height: 1;
+  font-family: 'Orbitron', 'Rajdhani', 'Audiowide', 'Chakra Petch', 'Exo 2', 'Titillium Web', 'Russo One', 'Arial Black', sans-serif;
+}
+
+/* Header bar styling */
+.viewer-header {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  /* -webkit-backdrop-filter: blur(20px); */
+  /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* Company branding */
+.company-logo {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* Timer name styling */
+.timer-name {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+}
+
+/* Enhanced button styling */
+.header-button {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.header-button:hover {
+  background: rgba(59, 130, 246, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* Connection status indicator */
+.connection-indicator {
+  transition: all 0.3s ease;
+}
+
+.connection-indicator.connected {
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.connection-indicator.disconnected {
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
 
 /* Smooth transitions for all interactive elements */

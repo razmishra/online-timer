@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Orbitron, Rajdhani, Exo_2, Titillium_Web, Russo_One } from "next/font/google";
 import "./globals.css";
 import { SocketProvider } from "./context/SocketContext";
 
@@ -21,7 +22,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} antialiased`}
       >
         <SocketProvider>
           {children}
