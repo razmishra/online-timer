@@ -331,3 +331,7 @@ html, body {
     font-size: 3vw;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}

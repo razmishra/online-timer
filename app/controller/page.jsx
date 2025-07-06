@@ -189,7 +189,7 @@ export default function ControllerPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h1 className="text-xl font-bold text-white">Timer Controller</h1>
+              <h1 className="text-xl font-bold text-white">Shared Timer Controller</h1>
             </div>
             <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
               isConnected 

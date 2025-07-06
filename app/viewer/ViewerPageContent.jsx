@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSocket } from '../context/SocketContext';
 import Timer from '../components/Timer';
 import { useSearchParams } from 'next/navigation';
+import { Expand, Shrink } from 'lucide-react';
 
 export default function ViewerPageContent() {
   const { 
@@ -22,6 +23,11 @@ export default function ViewerPageContent() {
   // Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef(null);
+
+  // Add local state for progress bar
+  const [progressBar, setProgressBar] = useState(1); // 1 = 100%
+  const prevTimerId = useRef(null);
+  const prevDuration = useRef(null);
 
   useEffect(() => {
     if (timerIdFromUrl && isConnected) {
@@ -59,6 +65,30 @@ export default function ViewerPageContent() {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
+
+  // Update progress bar only when timer is running or timer resets
+  useEffect(() => {
+    if (!currentTimer || !currentTimer.duration) return;
+    // If timer changed or reset, reset progress
+    if (currentTimer.id !== prevTimerId.current || currentTimer.duration !== prevDuration.current) {
+      setProgressBar(1);
+      prevTimerId.current = currentTimer.id;
+      prevDuration.current = currentTimer.duration;
+      return;
+    }
+    let progress = 0;
+    if (currentTimer.styling?.timerView === 'countup') {
+      progress = (currentTimer.duration - currentTimer.remaining) / currentTimer.duration;
+    } else {
+      progress = (currentTimer.duration - currentTimer.remaining) / currentTimer.duration;
+    }
+    if (progress < 0) progress = 0;
+    if (progress > 1) progress = 1;
+    // Only update if running
+    if (currentTimer.isRunning) {
+      setProgressBar(progress);
+    }
+  }, [currentTimer]);
 
   // Dynamic styles for timer container
   const timerContainerClass = isFullscreen
@@ -121,7 +151,7 @@ export default function ViewerPageContent() {
                   </svg>
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-white font-bold text-lg">StageTimer</h1>
+                  <h1 className="text-white font-bold text-lg">Shared Timer</h1>
                   <p className="text-white/70 text-xs">Professional Timer Solutions</p>
                 </div>
               </div>
@@ -163,17 +193,9 @@ export default function ViewerPageContent() {
                   aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
                 >
                   {isFullscreen ? (
-                    // Portrait icon (exit fullscreen)
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                      <rect x="7" y="3" width="10" height="18" rx="2" className="fill-none stroke-current" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 8h6M9 16h6" />
-                    </svg>
+                    <Shrink className="w-5 h-5" />
                   ) : (
-                    // Landscape icon (enter fullscreen)
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                      <rect x="3" y="7" width="18" height="10" rx="2" className="fill-none stroke-current" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 9h8M8 15h8" />
-                    </svg>
+                    <Expand className="w-5 h-5" />
                   )}
                   <span className="hidden md:inline">{isFullscreen ? 'Exit' : 'Fullscreen'}</span>
                 </button>
@@ -182,22 +204,45 @@ export default function ViewerPageContent() {
           </div>
 
           {/* Full screen timer container */}
-          <div className={timerContainerClass} style={rotatedStyle}>
-            <Timer 
-              timerState={currentTimer || {
-                remaining: 0,
-                duration: 0,
-                isRunning: false,
-                isFlashing: false,
-                message: '',
-                backgroundColor: '#1e293b',
-                textColor: '#f1f5f9',
-                fontSize: 'text-6xl',
-                styling: { timerView: 'normal' },
-              }}
-              showMessage={true}
-              className={timerFontSize + ' w-full h-full flex-1'}
-            />
+          <div className={timerContainerClass + ' min-h-screen min-w-full flex items-center justify-center'} style={{...rotatedStyle, minHeight: '100vh', minWidth: '100vw'}}>
+            <div className="w-full h-full flex flex-col items-center justify-center">
+              <Timer 
+                timerState={currentTimer || {
+                  remaining: 0,
+                  duration: 0,
+                  isRunning: false,
+                  isFlashing: false,
+                  message: '',
+                  backgroundColor: '#1e293b',
+                  textColor: '#f1f5f9',
+                  fontSize: 'text-6xl',
+                  styling: { timerView: 'normal' },
+                }}
+                showMessage={true}
+                className={timerFontSize + ' w-full h-full flex-1'}
+              />
+              {/* Progress Bar (attached, not floating) */}
+              {currentTimer && currentTimer.duration > 0 && timerIdFromUrl && (
+                (() => {
+                  // Use timer background color
+                  const barBg = currentTimer.backgroundColor || '#1e293b';
+                  return (
+                    <div className="w-full" style={{ background: barBg }}>
+                      <div className="relative w-full h-3">
+                        <div
+                          className="absolute right-0 top-0 h-full"
+                          style={{
+                            width: `${(1 - progressBar) * 100}%`,
+                            background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)',
+                            transition: currentTimer.isRunning ? 'width 0.5s linear' : 'none',
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })()
+              )}
+            </div>
           </div>
 
           {/* Timer selection menu (if no timer in URL) */}

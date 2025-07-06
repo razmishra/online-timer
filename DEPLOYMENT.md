@@ -49,7 +49,7 @@ const io = new Server(server, {
 {
   "name": "stagetimer-server",
   "version": "1.0.0",
-  "description": "Socket.IO server for Stage Timer App",
+  "description": "Socket.IO server for Shared Timer App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

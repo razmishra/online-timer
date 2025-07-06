@@ -1,12 +1,12 @@
-# Stage Timer Server
+# Shared Timer Server
 
-This is the standalone Socket.IO server for the Stage Timer App. It needs to be deployed separately from the frontend because Vercel doesn't support WebSocket connections.
+This is the standalone Socket.IO server for the Shared Timer App. It needs to be deployed separately from the frontend because Vercel doesn't support WebSocket connections.
 
 ## Deployment to Railway
 
 ### Step 1: Create a new repository for the server
 
-1. Create a new GitHub repository called `stagetimer-server`
+1. Create a new GitHub repository called `shared-timer-server`
 2. Clone it to your local machine:
    ```bash
    git clone https://github.com/yourusername/stagetimer-server.git
