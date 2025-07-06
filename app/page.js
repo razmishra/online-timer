@@ -1,5 +1,6 @@
 'use client'
 import { Clock, Users, Share2, Zap, Monitor, GraduationCap, Calendar, Focus, ArrowRight, Play, Menu, X } from 'lucide-react'
+import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -25,10 +26,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Clock className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Shared Timer</span>
+              <Link href="/" className="flex items-center space-x-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl transition-shadow">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent group-hover:underline border-0 outline-none">Shared Timer</span>
+              </Link>
             </div>
             
             <nav className="hidden md:flex items-center space-x-8">
@@ -45,7 +48,7 @@ export default function HomePage() {
             </button>
           </div>
         </div>
-      </header>
+      </header>on
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
@@ -92,9 +95,9 @@ export default function HomePage() {
         <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-3xl"></div>
         
-        <div className="relative grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+        <div className="relative flex flex-col md:flex-row md:items-center gap-12 md:gap-20">
           {/* Left Content */}
-          <div className="space-y-12">
+          <div className="space-y-12 flex-1">
             <div className="space-y-8">
               <div className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100 shadow-sm">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -118,7 +121,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-5">
               <div className="flex flex-col items-start w-full">
                 <button
-                  className="group bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-12 py-6 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 w-full"
+                  className="group bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-8 py-4 md:px-12 md:py-6 rounded-xl md:rounded-2xl font-semibold text-base md:text-lg shadow-lg md:shadow-xl hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 w-full"
                   onClick={() => router.push('/controller')}
                 >
                   <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -127,9 +130,27 @@ export default function HomePage() {
                 </button>
                 <span className="block mt-2 text-sm text-gray-500 font-medium">No credit card or sign up required</span>
               </div>
-              {/* <button className="bg-white hover:bg-gray-50 text-gray-700 px-12 py-6 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-gray-200 w-full sm:w-auto">
-                View Demo
-              </button> */}
+            </div>
+            {/* Timer Mockup Image for mobile (below CTA) */}
+            <div className="block md:hidden mt-8">
+              <div className="bg-black rounded-2xl p-5 shadow-inner relative">
+                <div className="bg-gray-900 rounded-xl overflow-hidden aspect-video relative shadow-2xl">
+                  <Image
+                    src="/timer-screenshot.png"
+                    alt="Timer Interface"
+                    className="w-full h-full object-cover rounded-lg"
+                    width={800}
+                    height={450}
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5 rounded-lg"></div>
+                  <div className="absolute top-3 right-6 flex items-center gap-2 bg-red-500 text-white px-2 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-bold shadow-lg">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    LIVE
+                  </div>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-2xl pointer-events-none"></div>
+              </div>
             </div>
 
             {/* Enhanced Stats */}
@@ -149,8 +170,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right Content - Enhanced Desktop Mockup */}
-          <div className="relative lg:ml-12">
+          {/* Right Content - Enhanced Desktop Mockup (desktop only) */}
+          <div className="relative flex-1 mb-10 md:mb-0 md:ml-12 hidden md:block">
             {/* Floating Background Elements */}
             <div className="absolute -top-8 -left-8 w-24 h-24 bg-gradient-to-br from-blue-200/40 to-purple-200/40 rounded-full animate-pulse"></div>
             <div className="absolute -bottom-12 -right-12 w-36 h-36 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full animate-pulse delay-1000"></div>
@@ -229,7 +250,7 @@ export default function HomePage() {
         </div>
 
         {/* Enhanced Additional Hero Content */}
-        <div className="mt-24 text-center">
+        {/* <div className="mt-24 text-center">
           <div className="inline-flex items-center gap-12 bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
             <div className="flex items-center gap-4 group hover:scale-105 transition-transform">
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center group-hover:from-green-200 group-hover:to-green-300 transition-colors">
@@ -250,7 +271,7 @@ export default function HomePage() {
               <span className="text-base font-semibold text-gray-700">Any Device</span>
             </div>
           </div>
-        </div>
+        </div> */}
       </section>
 
       {/* How It Works Section */}
