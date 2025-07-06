@@ -1,5 +1,6 @@
 'use client'
 import { Clock, Users, Share2, Zap, Monitor, GraduationCap, Calendar, Focus, ArrowRight, Play, Menu, X } from 'lucide-react'
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -163,10 +164,13 @@ export default function HomePage() {
                   {/* Screen Content */}
                   <div className="bg-gray-900 rounded-xl overflow-hidden aspect-video relative shadow-2xl">
                     {/* Your Timer Image */}
-                    <img 
-                      src="/timer-screenshot.png" 
+                    <Image
+                      src="/timer-screenshot.png"
                       alt="Timer Interface"
                       className="w-full h-full object-cover rounded-lg"
+                      width={800}
+                      height={450}
+                      priority
                     />
                     
                     {/* Enhanced Overlay Effects */}
@@ -373,7 +377,7 @@ export default function HomePage() {
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
               Why Choose Us
             </h2>
-            <p className="text-xl text-gray-600 font-light">Everything you need, nothing you don't</p>
+            <p className="text-xl text-gray-600 font-light">Everything you need, nothing you don&apos;t</p>
           </div>
           
           <div className="grid sm:grid-cols-2 gap-8">
@@ -430,7 +434,7 @@ export default function HomePage() {
                 Ready to sync up?
               </h2>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                Create your first shared timer in seconds. No sign-up required.
+                Create your first shared timer in seconds. No sign up required.
               </p>
               <button className="bg-white text-gray-900 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-gray-100 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl" onClick={() => router.push('/controller')}>
                 Get Started Now
