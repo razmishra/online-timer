@@ -145,19 +145,7 @@ class Timer {
       if (io && io.sockets && io.sockets.sockets) {
         const socket = io.sockets.sockets.get(deviceId);
         if (socket) {
-          const timerState = {
-            id: this.id,
-            name: this.name,
-            duration: this.duration,
-            remaining: this.remaining,
-            isRunning: this.isRunning,
-            message: this.message,
-            backgroundColor: this.backgroundColor,
-            textColor: this.textColor,
-            fontSize: this.fontSize,
-            isFlashing: this.isFlashing,
-            connectedCount: this.connectedDevices.size
-          };
+          const timerState = this.getState();
           socket.emit('timer-update', timerState);
         } else {
           console.log(`Socket ${deviceId} not found, removing from connected devices`);

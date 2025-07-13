@@ -9,6 +9,7 @@ import Link from 'next/link';
 export default function ControllerPage() {
   const {
     isConnected,
+    isConnecting,
     timerList,
     currentTimer,
     setCurrentTimer,
@@ -195,14 +196,28 @@ export default function ControllerPage() {
               </Link>
             </div>
             <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-              isConnected 
-                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                : 'bg-red-500/20 text-red-400 border border-red-500/30'
+              isConnecting
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : isConnected 
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
             }`}>
-              <div className={`w-2 h-2 rounded-full ${
-                isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
-              }`}></div>
-              <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+              {isConnecting ? (
+                <>
+                  <svg className="w-3 h-3 animate-spin mr-1 text-blue-400" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                  <span>Connecting...</span>
+                </>
+              ) : (
+                <>
+                  <div className={`w-2 h-2 rounded-full ${
+                    isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
+                  }`}></div>
+                  <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -648,7 +663,12 @@ export default function ControllerPage() {
                           value={timerView}
                           onChange={e => {
                             setTimerView(e.target.value);
-                            handleUpdateStyling();
+                            updateStyling(effectiveTimerId, {
+                              backgroundColor,
+                              textColor,
+                              fontSize,
+                              timerView: e.target.value,
+                            });
                           }}
                           className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-white"
                         >

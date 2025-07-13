@@ -16,6 +16,7 @@ const MAX_CONNECTIONS_PER_TIMER = 4; // Keep in sync with server
 export const useSocket = (setFailedSocketIds = null) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(true);
   const [timerList, setTimerList] = useState([]);
   const [currentTimer, setCurrentTimer] = useState(null);
   const [selectedTimerId, setSelectedTimerId] = useState(null);
@@ -58,6 +59,7 @@ export const useSocket = (setFailedSocketIds = null) => {
     socketInstance.on('connect', () => {
       // console.log('connected to socket', socketInstance.id);
       setIsConnected(true);
+      setIsConnecting(false);
       setSocketId(socketInstance.id);
       // Request timers for this controllerId on connect/reconnect
       if (controllerId) {
@@ -67,6 +69,7 @@ export const useSocket = (setFailedSocketIds = null) => {
 
     socketInstance.on('disconnect', () => {
       setIsConnected(false);
+      setIsConnecting(false);
     });
 
     socketInstance.on('timer-list', (timers) => {
@@ -208,6 +211,7 @@ export const useSocket = (setFailedSocketIds = null) => {
 
   return useMemo(() => ({
     isConnected,
+    isConnecting,
     timerList,
     currentTimer,
     selectedTimerId,
@@ -230,6 +234,7 @@ export const useSocket = (setFailedSocketIds = null) => {
     socketId,
   }), [
     isConnected,
+    isConnecting,
     timerList,
     currentTimer,
     selectedTimerId,
