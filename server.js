@@ -26,7 +26,7 @@ const deviceToTimer = new Map(); // deviceId -> timerId
 const controllerTimers = new Map(); // controllerId -> Set of timerIds
 
 // Dynamic max connections per timer
-const MAX_CONNECTIONS_PER_TIMER = 2;
+const MAX_CONNECTIONS_PER_TIMER = 4;
 
 // Helper function to generate unique IDs
 function generateId() {
@@ -71,14 +71,17 @@ class Timer {
     if (this.isRunning) {
       this.isRunning = false;
       const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-      this.remaining = this.duration - elapsed;
-      this.duration = Math.abs(this.remaining);
-      
+      if (this.timerView === 'countup') {
+        this.remaining = elapsed;
+        this.duration = this.remaining; // For countup, duration is how long we've counted up
+      } else {
+        this.remaining = this.duration - elapsed;
+        this.duration = this.remaining; // For countdown, duration is now the remaining time
+      }
       if (this.interval) {
         clearInterval(this.interval);
         this.interval = null;
       }
-      
       this.update();
       console.log(`Timer ${this.id} paused`);
     }

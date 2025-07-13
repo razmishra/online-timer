@@ -5,6 +5,7 @@ import { useSocket } from '../context/SocketContext';
 import Timer from '../components/Timer';
 import { useSearchParams } from 'next/navigation';
 import { Expand, Shrink } from 'lucide-react';
+import { BRAND_NAME } from '../constants';
 
 export default function ViewerPageContent() {
   const { 
@@ -151,7 +152,7 @@ export default function ViewerPageContent() {
                   </svg>
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-white font-bold text-lg">Shared Timer</h1>
+                  <h1 className="text-white font-bold text-lg">{BRAND_NAME}</h1>
                   <p className="text-white/70 text-xs">Professional Timer Solutions</p>
                 </div>
               </div>

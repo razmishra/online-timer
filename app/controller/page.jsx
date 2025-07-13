@@ -5,6 +5,7 @@ import { useSocket } from '../context/SocketContext';
 import Timer from '../components/Timer';
 import QRCode from 'qrcode';
 import Link from 'next/link';
+import { BRAND_NAME } from '../constants';
 
 export default function ControllerPage() {
   const {
@@ -45,8 +46,8 @@ export default function ControllerPage() {
   // Check if any timer is currently running
   // Check both timerList and currentTimer to handle page refresh scenarios
   const isAnyTimerRunning = timerList.some(timer => timer.isRunning) || (currentTimer && currentTimer.isRunning);
-  console.log(isAnyTimerRunning," --isAnyTimerRunning")
-  console.log(timerList," --timerList")
+  // console.log(isAnyTimerRunning," --isAnyTimerRunning")
+  // console.log(timerList," --timerList")
   
   // Get the active timer (the one that's currently running)
   // Prioritize currentTimer if it's running, otherwise find from timerList
@@ -54,14 +55,14 @@ export default function ControllerPage() {
   
   // Determine which timer ID to use for sharing and controls
   const effectiveTimerId = isAnyTimerRunning ? (activeTimer?.id || null) : selectedTimerId;
-  console.log({
-    timerListLength: timerList.length,
-    currentTimerRunning: currentTimer?.isRunning,
-    selectedTimerId,
-    effectiveTimerId,
-    isAnyTimerRunning,
-    activeTimerId: activeTimer?.id
-  }, " --Timer State Debug")
+  // console.log({
+  //   timerListLength: timerList.length,
+  //   currentTimerRunning: currentTimer?.isRunning,
+  //   selectedTimerId,
+  //   effectiveTimerId,
+  //   isAnyTimerRunning,
+  //   activeTimerId: activeTimer?.id
+  // }, " --Timer State Debug")
   // Set viewer URL when component mounts or effective timer selection changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -192,7 +193,7 @@ export default function ControllerPage() {
                 </svg>
               </div>
               <Link href="/" className="focus:outline-none rounded-xl">
-                <h1 className="text-xl font-bold text-white cursor-pointer">Shared Timer Controller</h1>
+                <h1 className="text-xl font-bold text-white cursor-pointer">{BRAND_NAME}</h1>
               </Link>
             </div>
             <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${

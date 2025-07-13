@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { BRAND_NAME } from "./constants";
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,7 +31,7 @@ export default function HomePage() {
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                   <Clock className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent group-hover:underline border-0 outline-none">Shared Timer</span>
+                <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent group-hover:underline border-0 outline-none">{BRAND_NAME}</span>
               </Link>
             </div>
             
@@ -58,7 +59,7 @@ export default function HomePage() {
           {/* Drawer */}
           <div className="fixed top-0 right-0 z-50 w-72 max-w-full h-full bg-white shadow-2xl border-l border-gray-200 flex flex-col animate-slide-in transition-transform duration-300">
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Shared Timer</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Share My Timer</span>
               <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
                 <X className="w-6 h-6 text-gray-600" />
               </button>
@@ -472,11 +473,11 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center">
                 <Clock className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-gray-900">Shared Timer</span>
+              <span className="text-2xl font-bold text-gray-900">{BRAND_NAME}</span>
             </div>
             <div className="border-t border-gray-200 pt-6">
               <p className="text-gray-500 text-sm">
-                © 2025 Shared Timer. All rights reserved.
+                © 2025 {BRAND_NAME}. All rights reserved.
               </p>
             </div>
           </div>

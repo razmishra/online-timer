@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BRAND_NAME } from "./constants";
 
 export default function NotFound() {
   return (
@@ -11,7 +12,7 @@ export default function NotFound() {
           Go to Homepage
         </Link>
       </div>
-      <p className="mt-8 text-slate-500 text-sm">&mdash; stagetimerapp &mdash;</p>
+      <p className="mt-8 text-slate-500 text-sm">&mdash; {BRAND_NAME} &mdash;</p>
     </div>
   );
 } 
