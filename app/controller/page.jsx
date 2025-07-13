@@ -92,6 +92,14 @@ export default function ControllerPage() {
     }
   }, [currentTimer]);
 
+  // State for current time and date
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleCreateTimer = (e) => {
     e.preventDefault();
     const [minutes, seconds] = createTimerInput.split(':').map(Number);
@@ -227,37 +235,227 @@ export default function ControllerPage() {
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-full">
           {/* Timer Preview - Takes full width on mobile, 5 columns on desktop */}
-          <div className="lg:col-span-5">
-            <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 overflow-hidden h-full">
-              <div className="p-6 border-b border-slate-700/50">
-                <h2 className="text-lg font-semibold text-white flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Live Preview
-                </h2>
-              </div>
-              <div className="p-6">
-                <div className="aspect-video bg-slate-900/50 rounded-xl overflow-hidden border border-slate-700/50">
-                  <Timer 
-                    timerState={currentTimer ? {
-                      ...currentTimer,
-                      styling: {
-                        ...currentTimer.styling,
-                        timerView,
-                        backgroundColor,
-                        textColor,
-                        fontSize,
-                      },
-                    } : null}
-                    showMessage={true}
-                    className="h-full w-full"
-                    isPreview={true}
-                  />
+          <div className="lg:col-span-5 w-full">
+          {/* Main Container with Enhanced Styling */}
+          <div className="relative group w-full">
+            {/* Animated Background Glow */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-teal-500/20 rounded-2xl sm:rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition-all duration-700 animate-pulse"></div>
+            
+            {/* Main Panel */}
+            <div className="relative bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-700/60 overflow-hidden h-full w-full">
+              {/* Decorative Top Border */}
+              <div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-teal-500 opacity-80"></div>
+              
+              {/* Header Section with Enhanced Design */}
+              <div className="relative p-4 sm:p-6 lg:p-8 border-b border-slate-700/40">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-teal-500/5"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
+                
+                <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    {/* Enhanced Icon with Glow Effect */}
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-blue-400/30 rounded-xl sm:rounded-2xl blur-md"></div>
+                      <div className="relative bg-gradient-to-br from-blue-500/20 to-purple-500/20 p-2 sm:p-3 lg:p-4 rounded-xl sm:rounded-2xl border border-blue-400/30">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+                        Live Preview
+                      </h2>
+                      <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">Real-time timer visualization</p>
+                    </div>
+                  </div>
+                  
+                  {/* Status Indicator */}
+                  <div className="flex items-center space-x-2 self-start sm:self-auto">
+                    <div className="w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
+                    <span className="text-emerald-400 text-xs sm:text-sm font-semibold">LIVE</span>
+                  </div>
                 </div>
+              </div>
+
+              {/* Content Section */}
+              <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+                {/* Timer Preview with Enhanced Container */}
+                <div className="relative group/preview">
+                  {/* Floating Glow Effect */}
+                  <div className="absolute -inset-1 sm:-inset-2 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-teal-500/20 rounded-2xl sm:rounded-3xl blur-lg opacity-0 group-hover/preview:opacity-100 transition-all duration-500"></div>
+                  
+                  {/* Preview Container */}
+                  <div className="relative">
+                    {/* Glass Morphism Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-xl sm:rounded-2xl"></div>
+                    <div className="relative aspect-video bg-gradient-to-br from-slate-900/80 via-slate-800/60 to-slate-900/80 rounded-xl sm:rounded-2xl overflow-hidden border border-slate-600/50 shadow-2xl">
+                      {/* Inner Glow */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5"></div>
+                      
+                      {/* Timer Component */}
+                      <div className="relative h-full w-full">
+                        <Timer 
+                          timerState={currentTimer ? {
+                            ...currentTimer,
+                            styling: {
+                              ...currentTimer.styling,
+                              timerView,
+                              backgroundColor,
+                              textColor,
+                              fontSize,
+                            },
+                          } : null}
+                          showMessage={true}
+                          className="h-full w-full"
+                          isPreview={true}
+                        />
+                      </div>
+                      
+                      {/* Corner Decorations */}
+                      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-400/60 rounded-full animate-ping"></div>
+                      <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-purple-400/60 rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enhanced Timer Controls */}
+                {effectiveTimerId && currentTimer && (
+                  <div className="space-y-4 sm:space-y-6">
+                    {/* Section Header */}
+                    <div className="text-center">
+                      <div className="inline-flex items-center space-x-2 sm:space-x-3">
+                        <div className="w-4 sm:w-8 h-0.5 bg-gradient-to-r from-transparent to-blue-400 rounded-full"></div>
+                        <h3 className="text-base sm:text-lg font-bold text-slate-200">Timer Controls</h3>
+                        <div className="w-4 sm:w-8 h-0.5 bg-gradient-to-l from-transparent to-purple-400 rounded-full"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Control Buttons with Enhanced Design */}
+                    <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                      {/* Start Button */}
+                      <button
+                        onClick={() => startTimer(effectiveTimerId)}
+                        disabled={currentTimer.isRunning || currentTimer.remaining <= 0}
+                        className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-700 disabled:to-slate-800 disabled:text-slate-500 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-emerald-500/30 hover:shadow-2xl transform hover:-translate-y-1 disabled:transform-none disabled:hover:shadow-none w-full sm:w-auto"
+                      >
+                        {/* Button Glow Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        
+                        {/* Animated Background */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/0 via-emerald-400/20 to-emerald-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                        
+                        <span className="relative flex items-center justify-center space-x-2">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm sm:text-base">Start</span>
+                        </span>
+                      </button>
+                      
+                      {/* Pause Button */}
+                      <button
+                        onClick={() => pauseTimer(effectiveTimerId)}
+                        disabled={!currentTimer.isRunning}
+                        className="group relative overflow-hidden bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:from-slate-700 disabled:to-slate-800 disabled:text-slate-500 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-amber-500/30 hover:shadow-2xl transform hover:-translate-y-1 disabled:transform-none disabled:hover:shadow-none w-full sm:w-auto"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-amber-400/0 via-amber-400/20 to-amber-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                        
+                        <span className="relative flex items-center justify-center space-x-2">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm sm:text-base">Pause</span>
+                        </span>
+                      </button>
+                      
+                      {/* Reset Button */}
+                      <button
+                        onClick={() => resetTimer(effectiveTimerId)}
+                        className="group relative overflow-hidden bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-500 hover:to-gray-500 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-slate-500/30 hover:shadow-2xl transform hover:-translate-y-1 w-full sm:w-auto"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-slate-400/0 via-slate-400/20 to-slate-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                        
+                        <span className="relative flex items-center justify-center space-x-2">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm sm:text-base">Reset</span>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Enhanced Current Time Display */}
+                <div className="relative group/time">
+                  {/* Background with Glass Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-800/60 via-slate-700/40 to-slate-800/60 rounded-2xl sm:rounded-3xl"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-2xl sm:rounded-3xl"></div>
+                  
+                  {/* Content */}
+                  <div className="relative p-4 sm:p-6 lg:p-8 border border-slate-600/40 rounded-2xl sm:rounded-3xl backdrop-blur-sm">
+                    {/* Floating Particles */}
+                    <div className="absolute top-3 sm:top-6 right-4 sm:right-8 w-0.5 h-0.5 sm:w-1 sm:h-1 bg-blue-400/60 rounded-full animate-bounce"></div>
+                    <div className="absolute top-6 sm:top-12 right-6 sm:right-12 w-0.5 h-0.5 bg-purple-400/60 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    <div className="absolute bottom-4 sm:bottom-8 left-4 sm:left-8 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-teal-400/60 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+                    
+                    <div className="text-center space-y-3 sm:space-y-4">
+                      {/* Time Label */}
+                      <div className="inline-flex items-center space-x-2 bg-slate-700/50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-slate-600/50">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-slate-300 text-xs sm:text-sm font-semibold uppercase tracking-wider">Current Time</span>
+                      </div>
+                      
+                      {/* Time Display */}
+                      <div className="space-y-1 sm:space-y-2">
+                        <div className="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent tracking-wider">
+                          {(() => {
+                            let timeStr = now.toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit', 
+                              second: '2-digit', 
+                              hour12: true 
+                            });
+                            timeStr = timeStr.replace(/\s?(am|pm)$/i, (match) => match.toUpperCase());
+                            return timeStr;
+                          })()}
+                        </div>
+                        
+                        {/* Date Display */}
+                        <div className="text-slate-400 text-sm sm:text-base lg:text-lg font-medium">
+                          {now.toLocaleDateString([], { 
+                            weekday: 'long',
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                        </div>
+                      </div>
+                      
+                      {/* Timezone Info */}
+                      {/* <div className="text-slate-500 text-xs sm:text-sm">
+                        {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                      </div> */}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Accent with Animation */}
+              <div className="relative h-1.5 sm:h-2 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-teal-500 opacity-60"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
               </div>
             </div>
           </div>
+        </div>
 
           {/* Main Controls - Takes full width on mobile, 7 columns on desktop */}
           <div className="lg:col-span-7">
