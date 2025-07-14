@@ -2,7 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Orbitron, Rajdhani, Exo_2, Titillium_Web, Russo_One } from "next/font/google";
 import "./globals.css";
 import { SocketProvider } from "./context/SocketContext";
-import { BRAND_NAME } from "./constants";
+import Script from 'next/script';
+import AnalyticsTracker from './components/AnalyticsTracker';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,12 +52,29 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-599CEW0ESH"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-599CEW0ESH');
+          `}
+        </Script>
+      </head>
       <body
         className={`${geistSans.variable} antialiased`}
       >
         <SocketProvider>
+          <AnalyticsTracker />
           {children}
         </SocketProvider>
       </body>
