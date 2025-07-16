@@ -6,6 +6,7 @@ import Timer from '../components/Timer';
 import QRCode from 'qrcode';
 import Link from 'next/link';
 import { BRAND_NAME } from '../constants';
+import posthog from 'posthog-js';
 
 export default function ControllerPage() {
   const {
@@ -106,6 +107,17 @@ export default function ControllerPage() {
     const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
     if (totalSeconds > 0 && timerName.trim()) {
       createTimer(timerName.trim(), totalSeconds, { timerView, backgroundColor, textColor, fontSize });
+      // PostHog event for timer creation
+      if (posthog.__initialized) {
+        posthog.capture('timer_created', {
+          name: timerName.trim(),
+          duration: totalSeconds,
+          timerView,
+          backgroundColor,
+          textColor,
+          fontSize,
+        });
+      }
       setCreateTimerInput('');
       setTimerName('');
     }
@@ -122,6 +134,13 @@ export default function ControllerPage() {
     }
     if (totalSeconds > 0) {
       setTimer(effectiveTimerId, totalSeconds);
+      // PostHog event for set timer
+      if (posthog.__initialized) {
+        posthog.capture('timer_set', {
+          timerId: effectiveTimerId,
+          duration: totalSeconds,
+        });
+      }
     }
   };
 
@@ -129,12 +148,29 @@ export default function ControllerPage() {
     e.preventDefault();
     if (!effectiveTimerId) return;
     updateMessage(effectiveTimerId, messageInput);
+    // PostHog event for sending message
+    if (posthog.__initialized) {
+      posthog.capture('timer_message_sent', {
+        timerId: effectiveTimerId,
+        message: messageInput,
+      });
+    }
     setMessageInput('');
   };
 
   const handleUpdateStyling = () => {
     if (!effectiveTimerId) return;
     updateStyling(effectiveTimerId, { backgroundColor, textColor, fontSize, timerView });
+    // PostHog event for styling change
+    if (posthog.__initialized) {
+      posthog.capture('timer_styling_changed', {
+        timerId: effectiveTimerId,
+        backgroundColor,
+        textColor,
+        fontSize,
+        timerView,
+      });
+    }
   };
 
   const handleCopyLink = async () => {
@@ -143,6 +179,10 @@ export default function ControllerPage() {
       await navigator.clipboard.writeText(fullUrl);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+      // PostHog event for copying link
+      if (posthog.__initialized) {
+        posthog.capture('timer_link_copied', { timerId: effectiveTimerId });
+      }
     } catch (err) {
       console.error('Failed to copy link:', err);
     }
@@ -151,6 +191,13 @@ export default function ControllerPage() {
   const handleToggleFlash = () => {
     if (!effectiveTimerId || !currentTimer) return;
     toggleFlash(effectiveTimerId, !currentTimer.isFlashing);
+    // PostHog event for flash control
+    if (posthog.__initialized) {
+      posthog.capture('timer_flash_toggled', {
+        timerId: effectiveTimerId,
+        isFlashing: !currentTimer.isFlashing,
+      });
+    }
   };
 
   const handleAdjustTime = (seconds) => {
@@ -158,6 +205,13 @@ export default function ControllerPage() {
     // Only block if subtracting more than remaining
     if (seconds < 0 && Math.abs(seconds) > currentTimer.remaining) return;
     adjustTimer(effectiveTimerId, seconds);
+    // PostHog event for adjust time
+    if (posthog.__initialized) {
+      posthog.capture('timer_adjusted', {
+        timerId: effectiveTimerId,
+        seconds,
+      });
+    }
   };
 
   const formatTime = (seconds) => {
@@ -171,6 +225,12 @@ export default function ControllerPage() {
     if (selectedTimerId === timerId) {
       setSelectedTimerId(null);
       setCurrentTimer(null);
+    }
+    // PostHog event for timer deletion
+    if (posthog.__initialized) {
+      posthog.capture('timer_deleted', {
+        timerId,
+      });
     }
   };
 
@@ -337,7 +397,7 @@ export default function ControllerPage() {
                     <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
                       {/* Start Button */}
                       <button
-                        onClick={() => startTimer(effectiveTimerId)}
+                        onClick={() => { startTimer(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_started', { timerId: effectiveTimerId }); }}
                         disabled={currentTimer.isRunning || currentTimer.remaining <= 0}
                         className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-700 disabled:to-slate-800 disabled:text-slate-500 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-emerald-500/30 hover:shadow-2xl transform hover:-translate-y-1 disabled:transform-none disabled:hover:shadow-none w-full sm:w-auto"
                       >
@@ -357,7 +417,7 @@ export default function ControllerPage() {
                       
                       {/* Pause Button */}
                       <button
-                        onClick={() => pauseTimer(effectiveTimerId)}
+                        onClick={() => { pauseTimer(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_paused', { timerId: effectiveTimerId }); }}
                         disabled={!currentTimer.isRunning}
                         className="group relative overflow-hidden bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:from-slate-700 disabled:to-slate-800 disabled:text-slate-500 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-amber-500/30 hover:shadow-2xl transform hover:-translate-y-1 disabled:transform-none disabled:hover:shadow-none w-full sm:w-auto"
                       >
@@ -374,7 +434,7 @@ export default function ControllerPage() {
                       
                       {/* Reset Button */}
                       <button
-                        onClick={() => resetTimer(effectiveTimerId)}
+                        onClick={() => { resetTimer(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_reset', { timerId: effectiveTimerId }); }}
                         className="group relative overflow-hidden bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-500 hover:to-gray-500 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-slate-500/30 hover:shadow-2xl transform hover:-translate-y-1 w-full sm:w-auto"
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -624,6 +684,7 @@ export default function ControllerPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 text-center text-sm"
+                        onClick={() => { if(posthog.__initialized){posthog.capture('viewer_link_opened', { timerId: effectiveTimerId }); } }}
                       >
                         Open Viewer
                       </a>
@@ -703,21 +764,21 @@ export default function ControllerPage() {
                     {/* Control Buttons */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       <button
-                        onClick={() => startTimer(effectiveTimerId)}
+                        onClick={() => { startTimer(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_started', { timerId: effectiveTimerId }); }}
                         disabled={currentTimer.isRunning || currentTimer.remaining <= 0}
                         className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 text-white font-semibold py-3 px-2 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none text-sm"
                       >
                         Start
                       </button>
                       <button
-                        onClick={() => pauseTimer(effectiveTimerId)}
+                        onClick={() => { pauseTimer(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_paused', { timerId: effectiveTimerId }); }}
                         disabled={!currentTimer.isRunning}
                         className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 disabled:from-slate-600 disabled:to-slate-700 disabled:text-slate-400 text-white font-semibold py-3 px-2 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none text-sm"
                       >
                         Pause
                       </button>
                       <button
-                        onClick={() => resetTimer(effectiveTimerId)}
+                        onClick={() => { resetTimer(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_reset', { timerId: effectiveTimerId }); }}
                         className="bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-700 hover:to-gray-700 text-white font-semibold py-3 px-2 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm"
                       >
                         Reset
@@ -779,6 +840,9 @@ export default function ControllerPage() {
                           if (messageInput.trim()) {
                             updateMessage(effectiveTimerId, messageInput);
                             setMessageInput('');
+                            if (posthog.__initialized) {
+                              posthog.capture('timer_message_cleared', { timerId: effectiveTimerId });
+                            }
                           }
                         }}
                         className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex-1 text-sm"
@@ -786,7 +850,7 @@ export default function ControllerPage() {
                         Send
                       </button>
                       <button
-                        onClick={() => clearMessage(effectiveTimerId)}
+                        onClick={() => { clearMessage(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_message_cleared', { timerId: effectiveTimerId }); }}
                         className="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 text-sm"
                       >
                         Clear

@@ -6,6 +6,7 @@ import Timer from '../components/Timer';
 import { useSearchParams } from 'next/navigation';
 import { Expand, Shrink } from 'lucide-react';
 import { BRAND_NAME } from '../constants';
+import posthog from 'posthog-js';
 
 export default function ViewerPageContent() {
   const { 
@@ -49,9 +50,17 @@ export default function ViewerPageContent() {
       else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
       else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
       else if (el.msRequestFullscreen) el.msRequestFullscreen();
+      // PostHog event for entering fullscreen
+      if (posthog.__initialized) {
+        posthog.capture('viewer_fullscreen_entered');
+      }
     } else {
       if (document.fullscreenElement) {
         document.exitFullscreen();
+        // PostHog event for exiting fullscreen
+        if (posthog.__initialized) {
+          posthog.capture('viewer_fullscreen_exited');
+        }
       }
     }
   }, [isFullscreen]);

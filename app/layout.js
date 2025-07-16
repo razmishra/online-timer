@@ -47,7 +47,7 @@ export const metadata = {
     title: 'ShareMyTimer - Real-Time Online Timer Sharing',
     description: 'Create and share real-time synchronized timers for teams, events, and classrooms. Free, no sign up required.',
     images: ['/shareMyTimerWithoutTxt.png'],
-    site: '@yourtwitter',
+    site: '@RajneeshMi436',
   },
 };
 

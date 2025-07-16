@@ -5,10 +5,16 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BRAND_NAME } from "./constants";
+import posthog from 'posthog-js';
+import TutorialSection from './components/TutorialSection';
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isVideoHovered, setIsVideoHovered] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Helper for smooth scroll to anchor
   function handleAnchorClick(e, id) {
@@ -39,7 +45,7 @@ export default function HomePage() {
               <a href="#features" className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200 hover:scale-105">Features</a>
               <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200 hover:scale-105">How it Works</a>
               <a href="#use-cases" className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200 hover:scale-105">Use Cases</a>
-              <button className="bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" onClick={() => router.push('/controller')}>
+              <button className="bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" onClick={() => { if(posthog.__initialized){posthog.capture('get_started_clicked', {location: 'header'});} router.push('/controller'); }}>
                 Get Started
               </button>
             </nav>
@@ -70,7 +76,7 @@ export default function HomePage() {
               <a href="#use-cases" className="py-3 px-2 text-gray-700 hover:text-gray-900 font-medium rounded-lg transition-colors" onClick={e => handleAnchorClick(e, 'use-cases')}>Use Cases</a>
               <button
                 className="mt-6 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl w-full"
-                onClick={() => { setMobileMenuOpen(false); router.push('/controller'); }}
+                onClick={() => { setMobileMenuOpen(false); if(posthog.__initialized){posthog.capture('get_started_clicked', {location: 'mobile_menu'});} router.push('/controller'); }}
               >
                 Get Started
               </button>
@@ -123,7 +129,7 @@ export default function HomePage() {
               <div className="flex flex-col items-start w-full">
                 <button
                   className="group bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-8 py-4 md:px-12 md:py-6 rounded-xl md:rounded-2xl font-semibold text-base md:text-lg shadow-lg md:shadow-xl hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 w-full"
-                  onClick={() => router.push('/controller')}
+                  onClick={() => { if(posthog.__initialized){posthog.capture('try_for_free_clicked');} router.push('/controller'); }}
                 >
                   <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   Try for free in the browser
@@ -214,66 +220,13 @@ export default function HomePage() {
                   {/* Screen Reflection Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-2xl pointer-events-none"></div>
                 </div>
-                
-                {/* Laptop Keyboard Area with Details */}
-                {/* <div className="mt-6 h-10 bg-gradient-to-b from-gray-700 via-gray-750 to-gray-800 rounded-b-2xl relative">
-                  <div className="absolute inset-x-0 top-2 h-1 bg-gradient-to-r from-transparent via-gray-600 to-transparent rounded-full"></div>
-                </div>
-              </div> */}
-              
-              {/* Laptop Stand with Shadow */}
-              {/* <div className="w-40 h-6 bg-gradient-to-b from-gray-600 to-gray-700 rounded-b-xl mx-auto transform rotate-1 shadow-lg"></div>
-              <div className="w-32 h-2 bg-gray-300/20 rounded-full mx-auto mt-2 blur-sm"></div> */}
-            {/* </div> */}
 
-            {/* Enhanced Floating UI Elements */}
-            {/* <div className="absolute top-12 -left-12 bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-xl border border-gray-100 animate-bounce delay-500 hover:scale-105 transition-transform">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-semibold text-gray-700">3 viewers online</span>
-              </div>
-            </div> */}
-            
-            {/* <div className="absolute bottom-20 -right-8 bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-xl border border-gray-100 animate-bounce delay-1000 hover:scale-105 transition-transform">
-              <div className="flex items-center gap-3">
-                <Share2 className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-semibold text-gray-700">Link copied!</span>
-              </div>
-            </div> */}
-
-            {/* <div className="absolute top-1/2 -right-16 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl p-4 shadow-xl animate-bounce delay-700 hover:scale-105 transition-transform">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span className="text-sm font-bold">Synced!</span>
-              </div>
-            </div> */}
           </div>
         </div>
-
-        {/* Enhanced Additional Hero Content */}
-        {/* <div className="mt-24 text-center">
-          <div className="inline-flex items-center gap-12 bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300">
-            <div className="flex items-center gap-4 group hover:scale-105 transition-transform">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center group-hover:from-green-200 group-hover:to-green-300 transition-colors">
-                <Zap className="w-6 h-6 text-green-600" />
-              </div>
-              <span className="text-base font-semibold text-gray-700">Instant Setup</span>
-            </div>
-            <div className="flex items-center gap-4 group hover:scale-105 transition-transform">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-colors">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-              <span className="text-base font-semibold text-gray-700">Unlimited Viewers</span>
-            </div>
-            <div className="flex items-center gap-4 group hover:scale-105 transition-transform">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center group-hover:from-purple-200 group-hover:to-purple-300 transition-colors">
-                <Monitor className="w-6 h-6 text-purple-600" />
-              </div>
-              <span className="text-base font-semibold text-gray-700">Any Device</span>
-            </div>
-          </div>
-        </div> */}
       </section>
+
+      {/* Tutorial Section */}
+      <TutorialSection isPlaying ={isVideoPlaying} isHovered={isVideoHovered} setIsPlaying={setIsVideoPlaying} setIsHovered={setIsVideoHovered} hasError={hasError} setHasError={setHasError} isLoading={isLoading} setIsLoading={setIsLoading} />
 
       {/* How It Works Section */}
       <section id="how-it-works" className="px-6 py-24 bg-gray-50/50">

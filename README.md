@@ -124,3 +124,22 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Analytics (PostHog)
+
+This app uses [PostHog](https://posthog.com/) for analytics and event tracking. To enable PostHog, set the following environment variables in your `.env.local` file:
+
+```
+NEXT_PUBLIC_POSTHOG_KEY=your_project_api_key
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com # or your self-hosted PostHog instance
+```
+
+### What is tracked?
+- Page views
+- Session start
+- All click events (but not scrolls)
+- Timer creation and deletion
+- Key funnel actions (Get Started, Try for Free, Copy Link, Open Viewer)
+- Viewer fullscreen enter/exit
+
+You can add more custom events using `posthog.capture('event_name', { ... })` in your components.
