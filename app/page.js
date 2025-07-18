@@ -1,8 +1,8 @@
 'use client'
-import { Clock, Users, Share2, Zap, Monitor, GraduationCap, Calendar, Focus, ArrowRight, Play, Menu, X } from 'lucide-react'
+import { Clock, Users, Share2, Zap, Monitor, GraduationCap, Calendar, Focus, ArrowRight, Play, Menu, X, Send, MessageCircle, Heart, CheckCircle2  } from 'lucide-react'
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { BRAND_NAME } from "./constants";
 import posthog from 'posthog-js';
@@ -15,6 +15,11 @@ export default function HomePage() {
   const [isVideoHovered, setIsVideoHovered] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const feedbackRef = useRef(null);
+  const [feedback, setFeedback] = useState('');
+  const [feedbackError, setFeedbackError] = useState('');
+  const [feedbackSuccess, setFeedbackSuccess] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   // Helper for smooth scroll to anchor
   function handleAnchorClick(e, id) {
@@ -25,6 +30,36 @@ export default function HomePage() {
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, 200);
   }
+
+  // Feedback form submit
+  const handleFeedbackSubmit = async (e) => {
+    e.preventDefault();
+    setFeedbackError('');
+    setFeedbackSuccess('');
+    if (!feedback.trim()) {
+      setFeedbackError('Please enter your feedback.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback }),
+      });
+      if (res.ok) {
+        setFeedback('');
+        setFeedbackSuccess('Thank you for your valuable feedback!');
+      } else {
+        const data = await res.json();
+        setFeedbackError(data.error || 'Something went wrong.');
+      }
+    } catch (err) {
+      setFeedbackError('Could not send feedback. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -55,7 +90,7 @@ export default function HomePage() {
             </button>
           </div>
         </div>
-      </header>on
+      </header>feedbackRef
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
@@ -347,7 +382,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section id="features" className="px-6 py-24 bg-gray-50/50">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
               Why Choose Us
@@ -418,6 +453,119 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Feedback Form Section */}
+      <section id="feedback" className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-blue-50/50 via-indigo-50/30 to-purple-50/50 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <div className="absolute top-4 left-4 sm:top-10 sm:left-10 w-20 h-20 sm:w-32 sm:h-32 bg-blue-200/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-4 right-4 sm:bottom-10 sm:right-10 w-24 h-24 sm:w-40 sm:h-40 bg-purple-200/20 rounded-full blur-3xl"></div>
+      
+      <div className="max-w-sm sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto relative">
+        {/* Header section */}
+        <div className="text-center mb-8 sm:mb-10 md:mb-12">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 shadow-lg">
+            <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-3 sm:mb-4 px-2">
+          What should we improve?
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-xs sm:max-w-lg md:max-w-2xl mx-auto leading-relaxed px-4">
+            Your thoughts help us create better experiences. Every message matters to us!
+          </p>
+        </div>
+
+        {/* Feedback form */}
+        <div 
+          ref={feedbackRef} 
+          className="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 md:p-8 lg:p-10 border border-white/50 hover:shadow-2xl transition-all duration-300 mx-2 sm:mx-0"
+        >
+          <form onSubmit={handleFeedbackSubmit} className="space-y-4 sm:space-y-6">
+            {/* Textarea with enhanced styling */}
+            <div className="relative">
+              <textarea
+                className={`w-full border-2 rounded-2xl px-6 py-4 text-lg resize-none transition-all duration-200 bg-white text-gray-900 focus:bg-white placeholder-gray-400 ${
+                  feedbackError 
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' 
+                    : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
+                } focus:outline-none focus:ring-4 disabled:opacity-60 disabled:cursor-not-allowed px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-sm sm:text-base md:text-lg rounded-xl sm:rounded-2xl`}
+                placeholder="Share your thoughts, suggestions, or experiences..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                disabled={submitting}
+                required
+                rows={3}
+              />
+            </div>
+
+            {/* Status messages */}
+            {feedbackError && (
+              <div className="flex items-center gap-2 text-red-600 bg-red-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-red-200 text-sm sm:text-base">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <span className="font-medium">{feedbackError}</span>
+              </div>
+            )}
+            
+            {feedbackSuccess && (
+              <div className="flex items-center gap-2 sm:gap-3 text-green-700 bg-green-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-green-200 text-sm sm:text-base">
+                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
+                <span className="font-medium">{feedbackSuccess}</span>
+              </div>
+            )}
+
+            {/* Submit button */}
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className={`group relative inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all duration-200 w-full sm:w-auto justify-center ${
+                  submitting || !feedback.trim()
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 hover:shadow-lg hover:scale-105 active:scale-95'
+                }`}
+                disabled={submitting || !feedback.trim()}
+              >
+                {submitting ? (
+                  <>
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                    <span>Send Feedback</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Appreciation note */}
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-center gap-2 text-gray-500">
+              <Heart className="w-4 h-4 text-red-400" />
+              <span className="text-xs sm:text-sm">Made with care by our team</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Trust indicators */}
+        <div className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm text-gray-500 px-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+            <span>Secure & Private</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+            <span className="hidden sm:inline">Read by Real People</span>
+            <span className="sm:hidden">Real People</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+            <span className="hidden sm:inline">Quick Response</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
       <footer className="px-6 py-12 bg-gray-50 border-t border-gray-100">
         <div className="max-w-6xl mx-auto">

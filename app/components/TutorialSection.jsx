@@ -68,9 +68,6 @@ const TutorialSection = (props) => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 px-2">
             How to Use ShareMyTimer
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed px-2">
-            Watch this quick tutorial to see how easy it is to create, control, and share real-time timers for your team, event, or classroom.
-          </p>
         </div>
 
         {/* Browser Tab Interface */}
