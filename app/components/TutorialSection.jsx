@@ -64,11 +64,11 @@ const TutorialSection = (props) => {
       <div className="relative bg-white/90 backdrop-blur-sm rounded-none md:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-12 transition-all duration-700 hover:shadow-3xl">
         
         {/* Header */}
-        <div className="text-center mb-8 sm:mb-12 animate-fade-in">
+        {/* <div className="text-center mb-8 sm:mb-12 animate-fade-in">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 px-2">
             How to Use ShareMyTimer
           </h2>
-        </div>
+        </div> */}
 
         {/* Browser Tab Interface */}
         <div className="w-full max-w-6xl mx-auto animate-fade-in animation-delay-300">
