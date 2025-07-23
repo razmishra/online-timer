@@ -1,9 +1,11 @@
+import {
+  ClerkProvider
+} from '@clerk/nextjs';
 import { Geist, Geist_Mono } from "next/font/google";
-import { Orbitron, Rajdhani, Exo_2, Titillium_Web, Russo_One } from "next/font/google";
-import "./globals.css";
-import { SocketProvider } from "./context/SocketContext";
 import Script from 'next/script';
 import AnalyticsTracker from './components/AnalyticsTracker';
+import { SocketProvider } from "./context/SocketContext";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +56,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
 
   return (
+    <ClerkProvider>
     <html lang="en">
       <head>
         {/* Google Analytics */}
@@ -79,5 +82,6 @@ export default function RootLayout({ children }) {
         </SocketProvider>
       </body>
     </html>
+    </ClerkProvider>
   );
 }

@@ -1,13 +1,12 @@
 'use client'
-import { Clock, Users, Share2, Zap, Monitor, GraduationCap, Calendar, Focus, ArrowRight, Play, Menu, X, Send, MessageCircle, Heart, CheckCircle2, AlertCircle, CheckCircle  } from 'lucide-react'
-import Link from 'next/link';
+import { AlertCircle, ArrowRight, Calendar, CheckCircle, CheckCircle2, Clock, Focus, GraduationCap, Heart, MessageCircle, Monitor, Play, Send, Share2, Users, Zap } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { BRAND_NAME } from "./constants";
 import posthog from 'posthog-js';
-import TutorialSection from './components/TutorialSection';
-
+import { useRef, useState } from 'react';
+import TutorialSection from './components/(landingPage)/TutorialSection';
+import Navbar from './components/Navbar';
+import { BRAND_NAME } from "./constants";
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
@@ -63,73 +62,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Enhanced Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link href="/" className="flex items-center space-x-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl transition-shadow">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                  <Clock className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent group-hover:underline border-0 outline-none">{BRAND_NAME}</span>
-              </Link>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200 hover:scale-105">Features</a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200 hover:scale-105">How it Works</a>
-              <a href="#use-cases" className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200 hover:scale-105">Use Cases</a>
-              <button className="bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" onClick={() => { if(posthog.__initialized){posthog.capture('get_started_clicked', {location: 'header'});} router.push('/controller'); }}>
-                Get Started
-              </button>
-            </nav>
-            
-            <button className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
-              <Menu className="w-6 h-6 text-gray-600" />
-            </button>
-          </div>
-        </div>
-      </header>feedbackRef
-
-      {/* Mobile Menu Drawer */}
-      {mobileMenuOpen && (
-        <>
-          {/* Backdrop */}
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-opacity duration-300" onClick={() => setMobileMenuOpen(false)}></div>
-          {/* Drawer */}
-          <div className="fixed top-0 right-0 z-50 w-72 max-w-full h-full bg-white shadow-2xl border-l border-gray-200 flex flex-col animate-slide-in transition-transform duration-300">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Share My Timer</span>
-              <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
-                <X className="w-6 h-6 text-gray-600" />
-              </button>
-            </div>
-            <nav className="flex flex-col gap-2 px-6 py-6 flex-1">
-              <a href="#features" className="py-3 px-2 text-gray-700 hover:text-gray-900 font-medium rounded-lg transition-colors" onClick={e => handleAnchorClick(e, 'features')}>Features</a>
-              <a href="#how-it-works" className="py-3 px-2 text-gray-700 hover:text-gray-900 font-medium rounded-lg transition-colors" onClick={e => handleAnchorClick(e, 'how-it-works')}>How it Works</a>
-              <a href="#use-cases" className="py-3 px-2 text-gray-700 hover:text-gray-900 font-medium rounded-lg transition-colors" onClick={e => handleAnchorClick(e, 'use-cases')}>Use Cases</a>
-              <button
-                className="mt-6 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl w-full"
-                onClick={() => { setMobileMenuOpen(false); if(posthog.__initialized){posthog.capture('get_started_clicked', {location: 'mobile_menu'});} router.push('/controller'); }}
-              >
-                Get Started
-              </button>
-            </nav>
-          </div>
-          {/* Slide-in animation */}
-          <style jsx global>{`
-            @keyframes slide-in {
-              from { transform: translateX(100%); }
-              to { transform: translateX(0); }
-            }
-            .animate-slide-in {
-              animation: slide-in 0.3s cubic-bezier(0.4,0,0.2,1);
-            }
-          `}</style>
-        </>
-      )}
-
+      <Navbar/>
       {/* Enhanced Hero Section */}
       <section className="relative px-6 py-20 md:py-28 max-w-7xl mx-auto overflow-hidden">
         {/* Background Elements */}
