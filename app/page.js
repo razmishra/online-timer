@@ -280,8 +280,8 @@ export default function HomePage() {
           Why We Built This
           </h1>
           <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-            We're a real-time, multi-device timer that syncs moments, people, and screens instantly. 
-            Whether you're alone or managing a group, timing should just work.
+            We&apos;re a real-time, multi-device timer that syncs moments, people, and screens instantly. 
+            Whether you&apos;re alone or managing a group, timing should just work.
           </p>
         </div>
 
@@ -304,7 +304,7 @@ export default function HomePage() {
                 <h2 className="text-2xl font-bold text-gray-900 group-hover:text-red-900 transition-colors">One of The Problems</h2>
               </div>
               <p className="text-lg text-gray-600 group-hover:text-red-700 leading-relaxed mb-4 transition-colors">
-                Ever hosted a live session where timers just didn't match across screens?
+                Ever hosted a live session where timers just didn&apos;t match across screens?
               </p>
               <p className="text-gray-600 group-hover:text-red-600 leading-relaxed transition-colors">
                 One device lags, someone starts early, and it throws off the entire flow of your workout, 
@@ -440,7 +440,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
-              Who's It For?
+              Who&apos;s It For?
             </h2>
             <p className="text-xl text-gray-600 font-light">Perfect for any group activity</p>
           </div>
@@ -451,7 +451,7 @@ export default function HomePage() {
                 <Monitor className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900">Remote Work</h3>
-              <p className="text-gray-600 leading-relaxed">Sync meetings and breaks across time zones</p>
+              <p className="text-gray-600 leading-relaxed">Sync meetings and breaks across time zones or use it solo across your devices</p>
             </div>
             
             <div className="group bg-white p-8 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-center space-y-4 border border-gray-100">
