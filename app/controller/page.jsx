@@ -686,7 +686,7 @@ export default function ControllerPage() {
                         className="block w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 text-center text-sm"
                         onClick={() => { if(posthog.__initialized){posthog.capture('viewer_link_opened', { timerId: effectiveTimerId }); } }}
                       >
-                        Open Viewer
+                        Open View Mode
                       </a>
                       {qrCodeDataUrl && (
                         <div className="text-center">
