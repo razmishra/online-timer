@@ -248,6 +248,116 @@ export default function ControllerPage() {
     }, 0);
   };
 
+  // Helper function to calculate total seconds
+const calculateTotalSeconds = (inputValue) => {
+  if (!inputValue) return 0;
+  
+  if (inputValue.includes(':')) {
+    const [mins, secs] = inputValue.split(':');
+    return (parseInt(mins) || 0) * 60 + (parseInt(secs) || 0);
+  } else {
+    return (parseInt(inputValue) || 0) * 60;
+  }
+};
+
+// onKeyDown - Prevents invalid input before it appears
+const handleTimerKeyDown = (e) => {
+  const key = e.key;
+  
+  // Allow control keys
+  if ([
+    'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'
+  ].includes(key) || e.ctrlKey || e.metaKey) {
+    return;
+  }
+  
+  // Only allow digits and colon
+  if (!/[\d:]/.test(key)) {
+    e.preventDefault();
+    return;
+  }
+  
+  const currentValue = createTimerInput;
+  
+  // Colon restrictions
+  if (key === ':') {
+    if (currentValue.includes(':') || currentValue === '') {
+      e.preventDefault();
+      return;
+    }
+  }
+  
+  // Digit restrictions after colon (max 2 digits)
+  if (/\d/.test(key) && currentValue.includes(':')) {
+    const afterColon = currentValue.split(':')[1] || '';
+    const selectionStart = e.target.selectionStart;
+    const selectionEnd = e.target.selectionEnd;
+    
+    if (afterColon.length >= 2 && selectionStart === selectionEnd) {
+      e.preventDefault();
+      return;
+    }
+  }
+  
+  // Check if new value would exceed limit
+  const selectionStart = e.target.selectionStart;
+  const selectionEnd = e.target.selectionEnd;
+  const newValue = currentValue.slice(0, selectionStart) + key + currentValue.slice(selectionEnd);
+  
+  if (calculateTotalSeconds(newValue) > 180000) {
+    e.preventDefault();
+    setTimerExceedsLimit(true);
+    return;
+  }
+};
+
+// onChange - Cleans up and validates final input
+const handleTimerInputChange = (e) => {
+  let value = e.target.value;
+  
+  // Clean input: only digits and colon
+  value = value.replace(/[^\d:]/g, '');
+  
+  // Remove extra colons
+  if ((value.match(/:/g) || []).length > 1) {
+    const firstColonIndex = value.indexOf(':');
+    value = value.slice(0, firstColonIndex + 1) + value.slice(firstColonIndex + 1).replace(/:/g, '');
+  }
+  
+  // Format and validate MM:SS
+  if (value.includes(':')) {
+    const [minutes, seconds] = value.split(':');
+    let limitedSeconds = (seconds || '').slice(0, 2); // Max 2 digits
+    
+    // Cap seconds at 59
+    if (limitedSeconds && parseInt(limitedSeconds) > 59) {
+      limitedSeconds = '59';
+    }
+    
+    value = minutes + ':' + limitedSeconds;
+  }
+  
+  // Check time limit
+  const totalSeconds = calculateTotalSeconds(value);
+  if (totalSeconds > 180000) {
+    setTimerExceedsLimit(true);
+    return; // Don't update if exceeds limit
+  } else {
+    setTimerExceedsLimit(false);
+  }
+  
+  setCreateTimerInput(value);
+};
+
+const sanitizeInput = (input) => {
+  return input.replace(/<[^>]*>/g, ''); // Removes all HTML tags
+};
+
+const handleTimerNameChange = (e) => {
+  setTimerName(sanitizeInput(e.target.value));
+};
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Header */}
@@ -535,7 +645,7 @@ export default function ControllerPage() {
                     <input
                       type="text"
                       value={timerName}
-                      onChange={(e) => setTimerName(e.target.value)}
+                      onChange={handleTimerNameChange}
                       placeholder="Timer name"
                       className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-slate-400"
                       required
@@ -544,18 +654,8 @@ export default function ControllerPage() {
                       <input
                         type="text"
                         value={createTimerInput}
-                        onChange={(e) => {
-                          setCreateTimerInput(e.target.value);
-                          const [minutes, seconds] = e.target.value.split(':').map(Number);
-                          const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
-                          if (totalSeconds > 180000) {
-                            setTimerExceedsLimit(true);
-                            return;
-                          } else {
-                            setTimerExceedsLimit(false);
-                            // return;
-                          }
-                        }}
+                        onChange={handleTimerInputChange}
+                        onKeyDown={handleTimerKeyDown}
                         placeholder="MM:SS"
                         className="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-slate-400"
                         required
@@ -726,6 +826,7 @@ export default function ControllerPage() {
                           type="text"
                           value={setTimerInput}
                           onChange={(e) => setSetTimerInput(e.target.value)}
+                          onKeyDown={handleTimerKeyDown}
                           placeholder="MM:SS"
                           className="flex-1 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-slate-400 text-sm"
                         />
