@@ -63,6 +63,16 @@ function PaymentPage() {
             </div>
           </div>
         </section>
+        
+        <section className="relative max-w-7xl mx-auto overflow-hidden">
+          <div className="pt-16 pb-8">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed underline">
+               Note: We are under verification, we'll update the LIVE API keys soon
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* Pricing Cards */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
