@@ -28,18 +28,18 @@ const formatTime = (seconds) => {
 };
 
 export default function Timer({ timerState, showMessage = true, className = '', isPreview = false }) {
-  if(!timerState){
-    return (
-      <div className={`flex flex-col items-center justify-center text-center p-8 ${className}`}>
-      <div className="text-4xl font-light text-white/60 mb-4">⏱️</div>
-      <div className="text-2xl font-medium text-white/70">No timer selected</div>
-      <div className="text-sm text-white/50 mt-2">Waiting for timer to start...</div>
-    </div>
-    );
-  }
-  const { remaining, message, backgroundColor, textColor, fontSize, isRunning, isFlashing, styling = {}, duration } = timerState;
+  // if(!timerState){
+  //   return (
+  //     <div className={`flex flex-col items-center justify-center text-center p-8 ${className}`}>
+  //     <div className="text-4xl font-light text-white/60 mb-4">⏱️</div>
+  //     <div className="text-2xl font-medium text-white/70">No timer selected</div>
+  //     <div className="text-sm text-white/50 mt-2">Waiting for timer to start...</div>
+  //   </div>
+  //   );
+  // }
+  const { remaining, message, backgroundColor, textColor, fontSize, isRunning, isFlashing, styling = {}, duration } = timerState ?? {};
   const isNegative = remaining < 0;
-  const timerView = styling.timerView || 'normal';
+  const timerView = styling?.timerView || 'normal';
   // Enhanced flash animation for negative time
   const flashClass = isFlashing 
     ? isNegative 
@@ -81,6 +81,16 @@ export default function Timer({ timerState, showMessage = true, className = '', 
     if (displayTime < 0) displayTime = 0;
   }
 
+ if(!timerState){
+    return (
+      <div className={`flex flex-col items-center justify-center text-center p-8 ${className}`}>
+      <div className="text-4xl font-light text-white/60 mb-4">⏱️</div>
+      <div className="text-2xl font-medium text-white/70">No timer selected</div>
+      <div className="text-sm text-white/50 mt-2">Waiting for timer to start...</div>
+    </div>
+    );
+  }
+  
   if (timerView === 'flip') {
     // Calculate target time for countdown
     const now = Date.now();

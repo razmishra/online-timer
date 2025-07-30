@@ -6,6 +6,7 @@ import Script from 'next/script';
 import AnalyticsTracker from './components/AnalyticsTracker';
 import { SocketProvider } from "./context/SocketContext";
 import "./globals.css";
+import UserPlanProvider from './context/UserPlanProvider';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,10 +77,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} antialiased`}
       >
-        <SocketProvider>
-          <AnalyticsTracker />
-          {children}
-        </SocketProvider>
+        <UserPlanProvider>
+          <SocketProvider>
+            <AnalyticsTracker />
+            {children}
+          </SocketProvider>
+        </UserPlanProvider>
       </body>
     </html>
     </ClerkProvider>

@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { Expand, Shrink } from 'lucide-react';
 import { BRAND_NAME } from '../constants';
 import posthog from 'posthog-js';
+import useUserPlanStore from '@/stores/userPlanStore';
 
 export default function ViewerPageContent() {
   const { 
@@ -18,7 +19,9 @@ export default function ViewerPageContent() {
     isCurrentSocketFailed
   } = useSocket();
   const searchParams = useSearchParams();
-  
+
+  const userCurrentPlan = useUserPlanStore(state => state.plan)
+  const { maxConnectionsAllowed } = userCurrentPlan
   // Get timer ID from URL parameter
   const timerIdFromUrl = searchParams.get('timer');
 
@@ -33,7 +36,7 @@ export default function ViewerPageContent() {
 
   useEffect(() => {
     if (timerIdFromUrl && isConnected) {
-      viewTimer(timerIdFromUrl);
+      viewTimer(timerIdFromUrl, maxConnectionsAllowed);
     } else if (!timerIdFromUrl && isConnected && timerList.length > 0) {
       // No timer in URL, showing timer selection
     } else if (!timerIdFromUrl && isConnected && timerList.length === 0) {

@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Cookies from 'js-cookie';
+import { useAuth, useUser } from '@clerk/nextjs';
+import useUserPlanStore from '@/stores/userPlanStore';
 
 // Helper to generate UUID
 function generateUUID() {
@@ -10,8 +12,6 @@ function generateUUID() {
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
   );
 }
-
-const MAX_CONNECTIONS_PER_TIMER = 4; // Keep in sync with server
 
 export const useSocket = (setFailedSocketIds = null) => {
   const [socket, setSocket] = useState(null);
@@ -22,8 +22,10 @@ export const useSocket = (setFailedSocketIds = null) => {
   const [selectedTimerId, setSelectedTimerId] = useState(null);
   const [timerFullMessage, setTimerFullMessage] = useState(null);
   const [socketId, setSocketId] = useState(null);
-
   const autoReconnectDone = useRef(false);
+
+  const currentActivePlan = useUserPlanStore(state=>state.plan)
+  const {maxConnectionsAllowed, maxTimersAllowed} = currentActivePlan;
 
   // Get the last selected timer ID from localStorage
   const getLastSelectedTimerId = useCallback(() => {
@@ -97,7 +99,7 @@ export const useSocket = (setFailedSocketIds = null) => {
 
     socketInstance.on('timer-update', (timerState) => {
       setCurrentTimer(timerState);
-      if (timerState.connectedCount < MAX_CONNECTIONS_PER_TIMER) {
+      if (timerState.connectedCount < maxConnectionsAllowed) {
         setTimerFullMessage(null);
         // Clear failed socket IDs when timer is no longer full
         if (setFailedSocketIds) {
@@ -137,6 +139,15 @@ export const useSocket = (setFailedSocketIds = null) => {
       }
     });
 
+    socketInstance.on('limit-exceeded', ({ type, message }) => {
+      // console.log(type," --type")
+      // console.log(message," --message")
+      // setLimitExceededMsg(message);
+      // if(type==="timers") setTimerLimitExceeded(true)
+      // if(type==="viewers") setViewerLimitExceeded(true)
+      useUserPlanStore.getState().showPopup(type, message);
+    });
+
     socketInstance.on('timer-not-found', (data) => {
       // No-op for production
     });
@@ -146,8 +157,8 @@ export const useSocket = (setFailedSocketIds = null) => {
     };
   }, []);
 
-  const createTimer = useCallback((name, duration, styling = {}) => {
-    socket?.emit('create-timer', { name, duration, controllerId, styling });
+  const createTimer = useCallback((name, duration, maxConnectionsAllowed, maxTimersAllowed, styling = {}) => {
+    socket?.emit('create-timer', { name, duration, controllerId, maxConnectionsAllowed, maxTimersAllowed, styling });
   }, [socket, controllerId]);
 
   const deleteTimer = useCallback((timerId) => {
