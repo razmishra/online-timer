@@ -131,11 +131,11 @@ export default function HomePage() {
             {/* Enhanced Stats */}
             <div className="flex items-center gap-12 pt-6">
               <div className="text-center">
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">130+</div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">250+</div>
                 <div className="text-sm text-gray-600 font-medium">Timers Created</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">1K+</div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">3K+</div>
                 <div className="text-sm text-gray-600 font-medium">Sessions Shared</div>
               </div>
               <div className="text-center">

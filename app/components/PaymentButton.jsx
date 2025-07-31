@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { BRAND_NAME } from "../constants";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
+import useUserPlanStore from "@/stores/userPlanStore";
 
 const PaymentButton = ({
   amount,
@@ -17,6 +18,7 @@ const PaymentButton = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user } = useUser();
+  const setPlan = useUserPlanStore((state) => state.setPlan);
 
   const router = useRouter();
   const makePayment = async () => {
@@ -70,7 +72,8 @@ const PaymentButton = ({
                 verifyData.message || "Payment verification failed"
               );
             }
-
+            // console.log(verifyData.plan," --verifyData.plan")
+            setPlan(verifyData.plan)
             // Show success modal
             setPaymentStatus("success");
             // alert("Payment successful!");

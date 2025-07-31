@@ -24,6 +24,7 @@ export async function POST(req) {
       return NextResponse.json({ message: "Can not find email Id", error: true }, { status: 401 });
     }
 
+    await connectToDatabase();
     const userDetails = await User.findOne({ userID: userId }).select("planExpiresAt");
     if (!userDetails) {
       return NextResponse.json(
@@ -158,7 +159,19 @@ export async function POST(req) {
     });
 
     return NextResponse.json(
-      { message: "Payment verified successfully", error: false },
+      {
+        message: "Payment verified successfully",
+        error: false,
+        plan: {
+          planId: subscriptionPlan,
+          planVersion: plan.version,
+          maxConnectionsAllowed: plan.maxConnectionsAllowed,
+          maxTimersAllowed: plan.maxTimersAllowed,
+          customLogoAndTitleEnabled: plan.customLogoAndTitleEnabled,
+          customBgEnabled: plan.customBgEnabled,
+          subscriptDuration,
+        },
+      },
       { status: 200 }
     );
   } catch (error) {

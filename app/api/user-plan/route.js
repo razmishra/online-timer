@@ -50,7 +50,6 @@ export async function GET(req) {
     const planExpiresAt = new Date(user.planExpiresAt);
     const currentDate = new Date();
     const subscriptionExpired = planExpiresAt <= currentDate;
-    console.log(subscriptionExpired," --subscriptionExpired")
     if ( subscriptionExpired ) {
       await User.updateOne(
         { userID: userId },
