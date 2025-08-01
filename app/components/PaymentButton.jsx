@@ -51,6 +51,11 @@ const PaymentButton = ({
         name: { BRAND_NAME },
         description: "Payment for your order",
         order_id: data.order.id,
+        options: {
+          checkout: {
+            name: {BRAND_NAME},
+          },
+        },
         handler: async function (response) {
           try {
             // Verify payment

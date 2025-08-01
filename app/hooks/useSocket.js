@@ -26,7 +26,7 @@ export const useSocket = (setFailedSocketIds = null) => {
 
   const currentActivePlan = useUserPlanStore(state=>state.plan)
   const {maxConnectionsAllowed, maxTimersAllowed} = currentActivePlan;
-  console.log(maxConnectionsAllowed, maxTimersAllowed, " data in the useSocket")
+  // console.log(maxConnectionsAllowed, maxTimersAllowed, " data in the useSocket")
   // Get the last selected timer ID from localStorage
   const getLastSelectedTimerId = useCallback(() => {
     if (typeof window !== 'undefined') {

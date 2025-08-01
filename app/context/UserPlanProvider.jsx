@@ -11,7 +11,7 @@ export default function UserPlanProvider({ children }) {
 
   useEffect(() => {
     async function fetchPlan() {
-      console.log("Fetching plan for userId:", userId);
+      // console.log("Fetching plan for userId:", userId);
       try {
         const res = await fetch(`/api/user-plan?userId=${userId}`);
         if (!res.ok) throw new Error(`Failed to fetch plan: ${res.status}`);
