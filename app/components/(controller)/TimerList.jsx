@@ -3,11 +3,13 @@
 import React, { useState, useCallback } from 'react';
 import posthog from 'posthog-js';
 import Modal from './Modal';
+import useUserPlanStore from '@/stores/userPlanStore';
 
 const TimerList = React.memo(({ timerList, isAnyTimerRunning, effectiveTimerId, setSelectedTimerId, setCurrentTimer, joinTimer, deleteTimer }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timerIdToDelete, setTimerIdToDelete] = useState(null);
-
+  const currentActivePlan = useUserPlanStore(store => store.plan)
+  const { maxConnectionsAllowed } = currentActivePlan
   const formatTime = useCallback((seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -95,7 +97,7 @@ const TimerList = React.memo(({ timerList, isAnyTimerRunning, effectiveTimerId, 
                     <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                   )}
                   <span className="text-xs font-medium text-slate-400 bg-slate-600/50 px-2 py-1 rounded-lg whitespace-nowrap">
-                    {timer.connectedCount}/3
+                    {timer.connectedCount}/{maxConnectionsAllowed-1}
                   </span>
                   <button
                     onClick={(e) => {

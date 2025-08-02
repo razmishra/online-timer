@@ -20,8 +20,10 @@ export default function ViewerPageContent() {
   } = useSocket();
   const searchParams = useSearchParams();
 
-  const userCurrentPlan = useUserPlanStore(state => state.plan)
-  const { maxConnectionsAllowed } = userCurrentPlan
+  // Get plan data and loading state from store using separate selectors
+  const plan = useUserPlanStore(state => state.plan);
+  const isLoading = useUserPlanStore(state => state.isLoading);
+
   // Get timer ID from URL parameter
   const timerIdFromUrl = searchParams.get('timer');
 
@@ -34,15 +36,42 @@ export default function ViewerPageContent() {
   const prevTimerId = useRef(null);
   const prevDuration = useRef(null);
 
+  // Track if we've already called viewTimer to prevent multiple calls
+  const hasInitializedRef = useRef(false);
+  const lastTimerIdRef = useRef(null);
+  const lastConnectionStatusRef = useRef(false);
+
+  // Only call viewTimer when plan is loaded and conditions are met
   useEffect(() => {
-    if (timerIdFromUrl && isConnected) {
-      viewTimer(timerIdFromUrl, maxConnectionsAllowed);
-    } else if (!timerIdFromUrl && isConnected && timerList.length > 0) {
-      // No timer in URL, showing timer selection
-    } else if (!timerIdFromUrl && isConnected && timerList.length === 0) {
-      // No timer in URL and no timers available
+    // Don't proceed if plan is still loading
+    if (isLoading) return;
+    
+    // Don't proceed if not connected
+    if (!isConnected) return;
+
+    // Check if we need to reset initialization due to timer ID or connection change
+    const timerIdChanged = lastTimerIdRef.current !== timerIdFromUrl;
+    const connectionChanged = lastConnectionStatusRef.current !== isConnected;
+    
+    if (timerIdChanged || connectionChanged) {
+      hasInitializedRef.current = false;
+      lastTimerIdRef.current = timerIdFromUrl;
+      lastConnectionStatusRef.current = isConnected;
     }
-  }, [timerIdFromUrl, isConnected, viewTimer, timerList]);
+
+    // Don't proceed if already initialized for current state
+    if (hasInitializedRef.current) return;
+
+    if (timerIdFromUrl) {
+      console.log(plan.maxConnectionsAllowed, "maxConnectionsAllowed in the viewer (UPDATED VALUE)");
+      // Now we're guaranteed to have the updated plan value
+      viewTimer(timerIdFromUrl, plan.maxConnectionsAllowed);
+      hasInitializedRef.current = true;
+    } else if (timerList.length >= 0) {
+      // Mark as initialized even for timer selection or no timers case
+      hasInitializedRef.current = true;
+    }
+  }, [timerIdFromUrl, isConnected, isLoading, plan.maxConnectionsAllowed, timerList.length]);
 
   // Handle Fullscreen API
   useEffect(() => {
@@ -102,6 +131,27 @@ export default function ViewerPageContent() {
       setProgressBar(progress);
     }
   }, [currentTimer]);
+
+  // Show loading screen while plan is being fetched
+  if (isLoading) {
+    return (
+      <div className="viewer-fullscreen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center relative overflow-hidden min-h-screen">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <h1 className="text-white text-xl font-bold mb-2">Loading Timer Settings...</h1>
+            <p className="text-white/70">Please wait while we fetch your plan details.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Function to handle manual timer selection (also uses updated plan values)
+  const handleTimerSelection = (timerId) => {
+    console.log(plan.maxConnectionsAllowed, "maxConnectionsAllowed for manual selection (UPDATED VALUE)");
+    viewTimer(timerId, plan.maxConnectionsAllowed);
+  };
 
   // Dynamic styles for timer container
   const timerContainerClass = isFullscreen
@@ -266,7 +316,7 @@ export default function ViewerPageContent() {
                 {timerList.map((timer) => (
                   <button
                     key={timer.id}
-                    onClick={() => viewTimer(timer.id)}
+                    onClick={() => handleTimerSelection(timer.id)}
                     className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105"
                   >
                     {timer.name}
@@ -295,4 +345,4 @@ export default function ViewerPageContent() {
       )}
     </div>
   );
-} 
+}

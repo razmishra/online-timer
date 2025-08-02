@@ -25,7 +25,8 @@ export const useSocket = (setFailedSocketIds = null) => {
   const autoReconnectDone = useRef(false);
 
   const currentActivePlan = useUserPlanStore(state=>state.plan)
-  const {maxConnectionsAllowed, maxTimersAllowed} = currentActivePlan;
+  const isLoading = useUserPlanStore(state=>state.isLoading)
+  const {maxConnectionsAllowed} = currentActivePlan;
   // console.log(maxConnectionsAllowed, maxTimersAllowed, " data in the useSocket")
   // Get the last selected timer ID from localStorage
   const getLastSelectedTimerId = useCallback(() => {
@@ -53,6 +54,7 @@ export const useSocket = (setFailedSocketIds = null) => {
   }
 
   useEffect(() => {
+    if(isLoading) return
     // Use environment variable for server URL, fallback to localhost for development
     const serverUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3001';
     const socketInstance = io(serverUrl);
@@ -155,7 +157,7 @@ export const useSocket = (setFailedSocketIds = null) => {
     return () => {
       socketInstance.disconnect();
     };
-  }, []);
+  }, [isLoading]);
 
   const createTimer = useCallback((name, duration, maxConnectionsAllowed, maxTimersAllowed, styling = {}) => {
     socket?.emit('create-timer', { name, duration, controllerId, maxConnectionsAllowed, maxTimersAllowed, styling });
@@ -165,26 +167,26 @@ export const useSocket = (setFailedSocketIds = null) => {
     socket?.emit('delete-timer', { timerId, controllerId });
   }, [socket, controllerId]);
 
-  const joinTimer = useCallback((timerId) => {
-    if (socket && isConnected) {
-      socket.emit('join-timer', { timerId, controllerId, maxConnectionsAllowed });
+  const joinTimer = useCallback((timerId, maxConnectionsAllowed) => {
+    if (socket && isConnected && !isLoading) {
+      socket.emit('join-timer', { timerId, controllerId, maxConnectionsAllowed, isLoading });
     }
-  }, [socket, isConnected, controllerId]);
+  }, [socket, isConnected, controllerId, maxConnectionsAllowed, isLoading]);
 
-  const viewTimer = useCallback((timerId) => {
-    if (socket && isConnected) {
+  const viewTimer = useCallback((timerId, maxConnectionsAllowed) => {
+    if (socket && isConnected && !isLoading) {
       console.log("before sending view-timer", maxConnectionsAllowed)
       socket.emit('view-timer', { timerId, controllerId, maxConnectionsAllowed });
     }
-  }, [socket, isConnected, controllerId]);
+  }, [socket, isConnected, controllerId, maxConnectionsAllowed, isLoading]);
 
   const setTimer = useCallback((timerId, duration) => {
     socket?.emit('set-timer', { timerId, duration, controllerId });
   }, [socket, controllerId]);
 
   const startTimer = useCallback((timerId) => {
-    socket?.emit('start-timer', { timerId, controllerId });
-  }, [socket, controllerId]);
+    socket?.emit('start-timer', { timerId, controllerId, maxConnectionsAllowed });
+  }, [socket, controllerId, maxConnectionsAllowed]);
 
   const pauseTimer = useCallback((timerId) => {
     socket?.emit('pause-timer', { timerId, controllerId });
