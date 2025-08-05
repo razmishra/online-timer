@@ -12,7 +12,7 @@ const MessageControl = React.memo(({ effectiveTimerId, updateMessage, clearMessa
     if (posthog.__initialized) {
       posthog.capture('timer_message_sent', { timerId: effectiveTimerId, message: messageInput });
     }
-    setMessageInput('');
+    // setMessageInput('');
   }, [effectiveTimerId, messageInput, updateMessage]);
 
   return (
@@ -40,7 +40,7 @@ const MessageControl = React.memo(({ effectiveTimerId, updateMessage, clearMessa
           Send
         </button>
         <button
-          onClick={() => { clearMessage(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_message_cleared', { timerId: effectiveTimerId }); }}
+          onClick={() => { clearMessage(effectiveTimerId); if (posthog.__initialized) posthog.capture('timer_message_cleared', { timerId: effectiveTimerId }); setMessageInput('') }}
           className="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 text-sm"
         >
           Unsend

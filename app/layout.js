@@ -7,6 +7,13 @@ import AnalyticsTracker from './components/AnalyticsTracker';
 import { SocketProvider } from "./context/SocketContext";
 import "./globals.css";
 import UserPlanProvider from './context/UserPlanProvider';
+import { Dancing_Script } from 'next/font/google';
+
+const dancingScript = Dancing_Script({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '700'], // specify weights if needed
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,7 +65,7 @@ export default function RootLayout({ children }) {
 
   return (
     <ClerkProvider>
-    <html lang="en">
+    <html lang="en" className={dancingScript.className}>
       <head>
         {/* Google Analytics */}
         <Script

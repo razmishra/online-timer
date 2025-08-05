@@ -335,3 +335,63 @@ html, body {
 html {
   scroll-behavior: smooth;
 }
+
+@keyframes slowRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes slowRotateReverse {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes fadePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes pixelBlink {
+  0%, 30%, 60%, 100% { opacity: 1; }
+  15%, 45%, 75% { opacity: 0.5; }
+}
+
+@keyframes slowGlow {
+  0%, 100% { text-shadow: 0 0 10px #63b3ed88; }
+  50% { text-shadow: 0 0 20px #63b3edcc; }
+}
+
+@keyframes swaySlow {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes flowSunset {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Scrollbar styling for settings popover overflow */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150,150,150,0.3) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(150,150,150,0.3);
+  border-radius: 10px;
+}
+
+@keyframes flashTimer {
+  0%, 100% { color: var(--text-color-primary); }
+  50% { color: #ff3333; text-shadow: 0 0 30px #ff3333, 0 0 20px #fff, 0 0 5px var(--accent-color); }
+}

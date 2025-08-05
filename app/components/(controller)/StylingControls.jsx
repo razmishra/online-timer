@@ -42,7 +42,7 @@ const StylingControls = React.memo(({ effectiveTimerId, updateStyling, toggleFla
         Styling
       </h3>
       <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Background</label>
             <div className="flex items-center gap-2">
@@ -77,8 +77,8 @@ const StylingControls = React.memo(({ effectiveTimerId, updateStyling, toggleFla
               />
             </div>
           </div>
-        </div>
-        <div>
+        </div> */}
+        {/* <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">Font Size</label>
           <select
             value={fontSize}
@@ -90,7 +90,7 @@ const StylingControls = React.memo(({ effectiveTimerId, updateStyling, toggleFla
             <option value="text-8xl">Large</option>
             <option value="text-9xl">Extra Large</option>
           </select>
-        </div>
+        </div> */}
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">Timer View</label>
           <select
