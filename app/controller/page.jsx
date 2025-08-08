@@ -1115,6 +1115,7 @@ export default function ControllerPage() {
     clearMessage,
     toggleFlash,
     joinTimer,
+    joiningCode,
   } = useSocket();
 
   const [viewerUrl, setViewerUrl] = useState('');
@@ -1228,6 +1229,7 @@ export default function ControllerPage() {
                     viewerUrl={viewerUrl}
                     effectiveTimerId={effectiveTimerId}
                     isAnyTimerRunning={isAnyTimerRunning}
+                    joiningCode={joiningCode}
                     />
                     </>
                   )}

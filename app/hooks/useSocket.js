@@ -22,6 +22,7 @@ export const useSocket = (setFailedSocketIds = null) => {
   const [selectedTimerId, setSelectedTimerId] = useState(null);
   const [timerFullMessage, setTimerFullMessage] = useState(null);
   const [socketId, setSocketId] = useState(null);
+  const [joiningCode, setJoiningCode] = useState(null)
   const autoReconnectDone = useRef(false);
 
   const currentActivePlan = useUserPlanStore(state=>state.plan)
@@ -97,6 +98,7 @@ export const useSocket = (setFailedSocketIds = null) => {
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
       saveSelectedTimerId(timerState.id);
+      setJoiningCode(timerState.joiningCode);
     });
 
     socketInstance.on('timer-update', (timerState) => {
@@ -111,10 +113,26 @@ export const useSocket = (setFailedSocketIds = null) => {
       }
     });
 
-    socketInstance.on('timer-created', (timerState) => {
+    socketInstance.on('timer-created', async (timerState) => {
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
       saveSelectedTimerId(timerState.id);
+      try {
+        const response = await fetch("/api/create-joining-code",{
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            timerId: timerState.id
+          }),
+        })
+        const result = await response.json();
+        if(!result?.error){
+          socketInstance.emit("update-joining-code",{timerId: timerState.id, joiningCode: result?.joiningCode, controllerId})
+          setJoiningCode(result?.joiningCode)
+        }
+      } catch (error) {
+        console.log("error creating joining code in frontend")
+      }
     });
 
     socketInstance.on('timer-deleted', (data) => {
@@ -246,6 +264,7 @@ export const useSocket = (setFailedSocketIds = null) => {
     setCurrentTimer,
     timerFullMessage,
     socketId,
+    joiningCode,
   }), [
     isConnected,
     isConnecting,
@@ -269,5 +288,6 @@ export const useSocket = (setFailedSocketIds = null) => {
     setCurrentTimer,
     timerFullMessage,
     socketId,
+    joiningCode,
   ]);
 };

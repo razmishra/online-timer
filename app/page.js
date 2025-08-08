@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import { BRAND_NAME } from "./constants";
 import WhyWeBuiltThis from './components/(landingPage)/WhyWeBuiltThisSection';
 import Testimonials from './components/(landingPage)/TestimonialsSections';
+import HeroJoinInput from './components/(landingPage)/HeroInput';
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
@@ -106,6 +107,9 @@ export default function HomePage() {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <span className="block mt-2 text-sm text-gray-500 font-medium">No credit card or sign up required</span>
+                <div className="mt-6">
+                  <HeroJoinInput router={router} />
+                </div>
               </div>
             </div>
             {/* Timer Mockup Image for mobile (below CTA) */}

@@ -3,7 +3,7 @@ import { connectToDatabase } from '../../../utils/db';
 import Feedback from '../../../utils/models/Feedback';
 import nodemailer from 'nodemailer';
 
-const MONGODB_DB = process.env.MONGODB_DB || 'stagetimerapp';
+const MONGODB_DB = process.env.MONGODB_DB || 'sharemytimer';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const SENDER_EMAIL = process.env.SENDER_EMAIL;
 const SMTP_HOST = process.env.SMTP_HOST;

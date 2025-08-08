@@ -2,10 +2,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import QRCode from 'qrcode';
 import posthog from 'posthog-js';
+import { Check, Copy } from 'lucide-react';
 
-const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning }) => {
+const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning, joiningCode = null }) => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [joiningCodeCopied, setJoiningCodeCopied] = useState(false);
 
   useEffect(() => {
     const qrUrl = effectiveTimerId ? `${viewerUrl}?timer=${effectiveTimerId}` : viewerUrl;
@@ -36,6 +38,16 @@ const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning 
     }
   }, [effectiveTimerId, viewerUrl]);
 
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(joiningCode);
+      setJoiningCodeCopied(true);
+      setTimeout(() => setJoiningCodeCopied(false), 2000);   // reset after 2 s
+    } catch (err) {
+      console.error('Copy failed', err);
+    }
+  },[effectiveTimerId, joiningCode])
+
   return (
     <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 p-6">
       <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
@@ -53,12 +65,43 @@ const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning 
               </p>
             </div>
           )}
+          <label htmlFor="joiningCode" className="text-sm text-slate-400">Joining code</label>
+          <div className="space-y-1">                  {/* outer stack */}
+            {/* Row 1: input + copy button */}
+            <div className="relative">
+              <input
+                type="text"
+                value={joiningCode}
+                readOnly
+                className="w-full pr-10 px-3 py-2 bg-slate-700/50 border border-slate-600
+                          rounded-lg text-sm text-slate-300 font-mono focus:outline-0"
+              />
+
+              {/* copy icon, truly centered */}
+              <button
+                onClick={handleCopy}
+                aria-label="Copy link"
+                className="absolute inset-y-0 right-2 my-auto text-slate-400
+                          hover:text-white transition-colors cursor-pointer"
+              >
+                {joiningCodeCopied
+                  ? <Check className="w-4 h-4 text-emerald-400" />
+                  : <Copy  className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {/* Row 2: helper text */}
+            <p className="text-xs text-slate-400">
+              Give this code to others so they can join the same timer session.
+            </p>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={`${viewerUrl}?timer=${effectiveTimerId}`}
               readOnly
-              className="flex-1 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-sm text-slate-300 font-mono min-w-0"
+              className="flex-1 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-sm text-slate-300 font-mono min-w-0 focus:outline-0"
             />
             <button
               onClick={handleCopyLink}
