@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.25.5",
     "crypto": "^1.0.1",
+    "framer-motion": "^12.23.12",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
     "lucide-react": "^0.525.0",

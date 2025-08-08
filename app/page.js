@@ -7,6 +7,8 @@ import { useRef, useState } from 'react';
 import TutorialSection from './components/(landingPage)/TutorialSection';
 import Navbar from './components/Navbar';
 import { BRAND_NAME } from "./constants";
+import WhyWeBuiltThis from './components/(landingPage)/WhyWeBuiltThisSection';
+import Testimonials from './components/(landingPage)/TestimonialsSections';
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
@@ -76,7 +78,7 @@ export default function HomePage() {
             <div className="space-y-8">
               <div className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100 shadow-sm">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                Real-time synchronized timers
+                Syncing is our responsibility
                 <div className="w-1 h-1 bg-blue-300 rounded-full"></div>
               </div>
               
@@ -197,105 +199,7 @@ export default function HomePage() {
       <TutorialSection isPlaying ={isVideoPlaying} isHovered={isVideoHovered} setIsPlaying={setIsVideoPlaying} setIsHovered={setIsVideoHovered} hasError={hasError} setHasError={setHasError} isLoading={isLoading} setIsLoading={setIsLoading} />
 
       {/* Who're we */}
-      <section className="px-6 py-24 bg-white relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-100 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-purple-100 rounded-full opacity-30 animate-bounce" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-green-100 rounded-full opacity-25 animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-20 right-1/3 w-16 h-16 bg-yellow-100 rounded-full opacity-20 animate-bounce" style={{animationDelay: '0.5s'}}></div>
-      </div>
-
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* Main Headline with Gradient Text */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-          Why We Built This
-          </h1>
-          <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-            We&apos;re a real-time, multi-device timer that syncs moments, people, and screens instantly. 
-            Whether you&apos;re alone or managing a group, timing should just work.
-          </p>
-        </div>
-
-        {/* Problem and Solution Boxes with Cool Effects */}
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {/* Problem Box */}
-          <div className="group bg-gray-50 hover:bg-red-50 rounded-2xl p-8 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden border border-transparent hover:border-red-100">
-            {/* Subtle Pattern Overlay */}
-            <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity">
-              <div className="absolute inset-0" style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ef4444' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-              }}></div>
-            </div>
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-red-100 group-hover:bg-red-200 rounded-lg transition-colors">
-                  <AlertCircle className="w-6 h-6 text-red-500 group-hover:scale-110 transition-transform" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 group-hover:text-red-900 transition-colors">One of The Problems</h2>
-              </div>
-              <p className="text-lg text-gray-600 group-hover:text-red-700 leading-relaxed mb-4 transition-colors">
-                Ever hosted a live session where timers just didn&apos;t match across screens?
-              </p>
-              <p className="text-gray-600 group-hover:text-red-600 leading-relaxed transition-colors">
-                One device lags, someone starts early, and it throws off the entire flow of your workout, 
-                game, exam, or online event. Coordination becomes chaos.
-              </p>
-              
-              {/* Decorative Element */}
-              {/* <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-red-100 rounded-full opacity-20 group-hover:opacity-30 group-hover:scale-110 transition-all duration-500"></div> */}
-            </div>
-          </div>
-
-          {/* Solution Box */}
-          <div className="group bg-gray-50 hover:bg-green-50 rounded-2xl p-8 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden border border-transparent hover:border-green-100">
-            {/* Subtle Pattern Overlay */}
-            <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity">
-              <div className="absolute inset-0" style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-              }}></div>
-            </div>
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-green-100 group-hover:bg-green-200 rounded-lg transition-colors">
-                  <CheckCircle className="w-6 h-6 text-green-500 group-hover:scale-110 transition-transform" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 group-hover:text-green-900 transition-colors">Our Solution</h2>
-              </div>
-              <p className="text-lg text-gray-600 group-hover:text-green-700 leading-relaxed mb-4 transition-colors">
-                <strong className="text-blue-600 group-hover:text-green-600 transition-colors">ShareMyTimer</strong> keeps everyone on the same countdown, in perfect real-time synchronization.
-              </p>
-              <p className="text-gray-600 group-hover:text-green-600 leading-relaxed transition-colors">
-                No installations, no logins, no hassle. Just one timer, shared through a link — 
-                perfect for event organizers, study partners, or anyone who wants consistent time sync.
-              </p>
-              
-              {/* Decorative Element */}
-              {/* <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-green-100 rounded-full opacity-20 group-hover:opacity-30 group-hover:scale-110 transition-all duration-500"></div> */}
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Call to Action */}
-        <div className="text-center">
-          <div className="inline-block relative group">
-            <div className=""></div>
-            <button
-                className="group bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white px-8 py-4 md:px-12 md:py-6 rounded-xl md:rounded-2xl font-semibold text-base md:text-lg shadow-lg md:shadow-xl hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 w-full"
-                onClick={()=>router.push('/controller')}
-            >
-               <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-              Try ShareMyTimer Now
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </section>
+    <WhyWeBuiltThis router={router}/>
 
       {/* How It Works Section */}
       <section id="how-it-works" className="px-6 py-24 sm:py-10 bg-gray-50/50">
@@ -467,6 +371,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <Testimonials/>
 
       {/* CTA Section */}
       <section className="px-6 py-24">

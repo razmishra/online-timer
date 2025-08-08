@@ -140,12 +140,12 @@ const PaymentButton = ({
   );
 };
 export default memo(PaymentButton);
-// // Overview of the Payment FlowBefore diving into the specifics,
-// //  here’s a high-level overview of how Razorpay payments work in your Next.js application:Order
-// // Creation: The client (frontend) sends a request to your server’s /api/order endpoint with the payment amount. The server uses the Razorpay Node.js SDK to create an order and returns an order_id along with other details.
-// // Payment Initiation: The frontend uses the order_id and Razorpay’s JavaScript checkout script to display a payment modal where the user enters payment details (e.g., card, UPI).
-// // Payment Completion: After the user completes the payment, Razorpay sends a response to the frontend with razorpay_order_id, razorpay_payment_id, and razorpay_signature.
-// // Payment Verification: The frontend sends these details to your server’s /api/verify endpoint, which verifies the payment’s authenticity using a cryptographic signature. If verified, you can update your database or perform other actions (e.g., mark the order as paid).
-// // User Feedback: The user is notified of the payment’s success or failure.
+// Overview of the Payment Flow Before diving into the specifics,
+// here’s a high-level overview of how Razorpay payments work in your Next.js application:Order
+// Creation: The client (frontend) sends a request to your server’s /api/order endpoint with the payment amount. The server uses the Razorpay Node.js SDK to create an order and returns an order_id along with other details.
+// Payment Initiation: The frontend uses the order_id and Razorpay’s JavaScript checkout script to display a payment modal where the user enters payment details (e.g., card, UPI).
+// Payment Completion: After the user completes the payment, Razorpay sends a response to the frontend with razorpay_order_id, razorpay_payment_id, and razorpay_signature.
+// Payment Verification: The frontend sends these details to your server’s /api/verify endpoint, which verifies the payment’s authenticity using a cryptographic signature. If verified, you can update your database or perform other actions (e.g., mark the order as paid).
+// User Feedback: The user is notified of the payment’s success or failure.
 
-// // This flow ensures secure, server-side order creation and payment verification, protecting against tampering.
+// This flow ensures secure, server-side order creation and payment verification, protecting against tampering.
