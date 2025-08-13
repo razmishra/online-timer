@@ -92,7 +92,8 @@ export default function HomePage() {
               
               <p className="text-xl md:text-2xl text-gray-600 leading-relaxed font-light max-w-lg">
                 {/* Real-time timer sharing for teams, events, and classrooms.<br /> */}
-                <span className="block mt-3 text-gray-500">Control the timer from your phone. Display it fullscreen anywhere.</span>
+                <span className="block mt-3 text-gray-500"> <span className='font-bold'>Collaborative timer</span> for creators, teams and events.
+                Control the timer from your phone. Display it fullscreen anywhere.</span>
               </p>
             </div>
             

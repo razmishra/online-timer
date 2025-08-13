@@ -3,12 +3,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import QRCode from 'qrcode';
 import posthog from 'posthog-js';
 import { Check, Copy } from 'lucide-react';
+import { useAuth } from '@clerk/nextjs';
 
 const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning, joiningCode = null }) => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
   const [joiningCodeCopied, setJoiningCodeCopied] = useState(false);
-
+  const { isSignedIn } = useAuth()
   useEffect(() => {
     const qrUrl = effectiveTimerId ? `${viewerUrl}?timer=${effectiveTimerId}` : viewerUrl;
     QRCode.toDataURL(qrUrl, {
@@ -71,14 +72,15 @@ const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning,
             <div className="relative">
               <input
                 type="text"
-                value={joiningCode}
+                placeholder='Login to see the joining code'
+                value={isSignedIn ? joiningCode : ""}
                 readOnly
                 className="w-full pr-10 px-3 py-2 bg-slate-700/50 border border-slate-600
                           rounded-lg text-sm text-slate-300 font-mono focus:outline-0"
               />
 
               {/* copy icon, truly centered */}
-              <button
+              {isSignedIn && <button
                 onClick={handleCopy}
                 aria-label="Copy link"
                 className="absolute inset-y-0 right-2 my-auto text-slate-400
@@ -87,7 +89,7 @@ const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning,
                 {joiningCodeCopied
                   ? <Check className="w-4 h-4 text-emerald-400" />
                   : <Copy  className="w-4 h-4" />}
-              </button>
+              </button>}
             </div>
 
             {/* Row 2: helper text */}

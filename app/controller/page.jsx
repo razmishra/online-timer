@@ -1237,6 +1237,11 @@ export default function ControllerPage() {
               <div className="space-y-6">
                 {timerList?.length>0 && effectiveTimerId && currentTimer && (
                   <>
+                    <MessageControl
+                      effectiveTimerId={effectiveTimerId}
+                      updateMessage={updateMessage}
+                      clearMessage={clearMessage}
+                    />
                     <TimerControls
                       effectiveTimerId={effectiveTimerId}
                       currentTimer={currentTimer}
@@ -1253,11 +1258,6 @@ export default function ControllerPage() {
                       joinTimer={joinTimer}
                       // maxTimersAllowed={maxTimersAllowed}
                       // maxConnectionsAllowed={maxConnectionsAllowed}
-                    />
-                    <MessageControl
-                      effectiveTimerId={effectiveTimerId}
-                      updateMessage={updateMessage}
-                      clearMessage={clearMessage}
                     />
                     <StylingControls
                       effectiveTimerId={effectiveTimerId}

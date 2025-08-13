@@ -28,7 +28,7 @@ const MessageControl = React.memo(({ effectiveTimerId, updateMessage, clearMessa
           type="text"
           value={messageInput}
           onChange={(e) => setMessageInput(e.target.value)}
-          placeholder="Enter message to display..."
+          placeholder="Send message to everyone..."
           className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 text-white placeholder-slate-400"
         />
       </form>

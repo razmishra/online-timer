@@ -47,7 +47,7 @@ export async function POST(request) {
     await connectToDatabase();
     const joininCodeAlreadyExists = await JoiningCode.findOne({
       timerId: timerId,
-      expiresAt: { $lt: new Date() },
+      expiresAt: { $gt: new Date() },
     });
     if (joininCodeAlreadyExists) {
       return NextResponse.json(
