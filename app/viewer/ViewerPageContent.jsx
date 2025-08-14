@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../context/SocketContext";
 import Timer from "../components/Timer";
 import { useSearchParams } from "next/navigation";
@@ -17,6 +17,7 @@ export default function ViewerPageContent() {
   const plan = useUserPlanStore(state => state.plan);
   const isLoading = useUserPlanStore(state => state.isLoading);
   const timerIdFromUrl = searchParams.get("timer");
+  const isEmbed = searchParams.get("embed") === "true";
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef(null);
@@ -161,17 +162,19 @@ export default function ViewerPageContent() {
       <div
         className="flex items-center justify-center min-h-screen"
         style={{
-          background: theme.gradient,
+          background: isEmbed ? "transparent" : theme.gradient,
           fontFamily: theme.fontFamily,
           color: theme.textColorPrimary,
         }}
       >
         <style>{themeAnimations}</style>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-current mx-auto mb-6" />
-          <h1 className="text-2xl font-semibold mb-2">Loading Timer Settings...</h1>
-          <p>Please wait while we fetch your plan details.</p>
-        </div>
+        {!isEmbed && (
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-current mx-auto mb-6" />
+            <h1 className="text-2xl font-semibold mb-2">Loading Timer Settings...</h1>
+            <p>Please wait while we fetch your plan details.</p>
+          </div>
+        )}
       </div>
     );
   }
@@ -183,109 +186,115 @@ export default function ViewerPageContent() {
         ref={containerRef}
         className="flex flex-col min-h-screen relative select-none"
         style={{
-          background: cssVars["--theme-gradient"],
+          background: isEmbed ? "transparent" : cssVars["--theme-gradient"],
           color: cssVars["--text-color-primary"],
           fontFamily: cssVars["--font-family"],
           overflow: "hidden",
         }}
       >
         {/* Background rotating blobs */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            top: "-220px",
-            left: "-220px",
-            width: "600px",
-            height: "600px",
-            borderRadius: "50%",
-            backgroundColor: cssVars["--accent-color"],
-            opacity: 0.15,
-            animation: "slowRotate 35s linear infinite",
-            zIndex: 0,
-          }}
-        />
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            bottom: "-220px",
-            right: "-220px",
-            width: "600px",
-            height: "600px",
-            borderRadius: "50%",
-            backgroundColor: cssVars["--bar-color"],
-            opacity: 0.12,
-            animation: "slowRotateReverse 40s linear infinite",
-            zIndex: 0,
-          }}
-        />
+        {!isEmbed && (
+          <>
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: "-220px",
+                left: "-220px",
+                width: "600px",
+                height: "600px",
+                borderRadius: "50%",
+                backgroundColor: cssVars["--accent-color"],
+                opacity: 0.15,
+                animation: "slowRotate 35s linear infinite",
+                zIndex: 0,
+              }}
+            />
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                bottom: "-220px",
+                right: "-220px",
+                width: "600px",
+                height: "600px",
+                borderRadius: "50%",
+                backgroundColor: cssVars["--bar-color"],
+                opacity: 0.12,
+                animation: "slowRotateReverse 40s linear infinite",
+                zIndex: 0,
+              }}
+            />
+          </>
+        )}
 
         {/* Header */}
-        <header
-          className="flex items-center justify-between px-6 py-4 sticky top-0 backdrop-blur-sm bg-white/10 z-30 border-b border-solid"
-          style={{ borderColor: cssVars["--border-color"] }}
-        >
-          <Link href="/" className="flex items-center space-x-3" aria-label="Go to homepage">
-            <div
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/30"
-              aria-hidden="true"
-            >
-              {/* Your SVG logo */}
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke={cssVars["--text-color-primary"]}
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                viewBox="0 0 24 24"
+        {!isEmbed && (
+          <header
+            className="flex items-center justify-between px-6 py-4 sticky top-0 backdrop-blur-sm bg-white/10 z-30 border-b border-solid"
+            style={{ borderColor: cssVars["--border-color"] }}
+          >
+            <Link href="/" className="flex items-center space-x-3" aria-label="Go to homepage">
+              <div
+                className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/30"
+                aria-hidden="true"
               >
-                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+                {/* Your SVG logo */}
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke={cssVars["--text-color-primary"]}
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="text-lg font-bold tracking-wider cursor-pointer" style={{ color: cssVars["--text-color-primary"] }}>
+                {BRAND_NAME}
+              </div>
+            </Link>
+            <div className="flex-1 text-center text-lg font-semibold max-w-lg truncate">
+              {currentTimer?.name || (timerIdFromUrl ? "Loading timer..." : "Select a timer")}
             </div>
-            <div className="text-lg font-bold tracking-wider cursor-pointer" style={{ color: cssVars["--text-color-primary"] }}>
-              {BRAND_NAME}
-            </div>
-          </Link>
-          <div className="flex-1 text-center text-lg font-semibold max-w-lg truncate">
-            {currentTimer?.name || (timerIdFromUrl ? "Loading timer..." : "Select a timer")}
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center space-x-2">
-              <span
-                className={`w-3 h-3 rounded-full ${
-                  isConnected ? "bg-green-400 animate-pulse" : "bg-red-500"
-                }`}
-                aria-label={isConnected ? "Connected" : "Disconnected"}
-              />
-              <span className="hidden sm:inline text-sm opacity-70">
-                {isConnected ? "Connected" : "Disconnected"}
-              </span>
-            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center space-x-2">
+                <span
+                  className={`w-3 h-3 rounded-full ${
+                    isConnected ? "bg-green-400 animate-pulse" : "bg-red-500"
+                  }`}
+                  aria-label={isConnected ? "Connected" : "Disconnected"}
+                />
+                <span className="hidden sm:inline text-sm opacity-70">
+                  {isConnected ? "Connected" : "Disconnected"}
+                </span>
+              </div>
 
-            <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              aria-label={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-              className="px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition focus:outline-none focus:ring-2 focus:ring-offset-1"
-              style={{ color: cssVars["--text-color-primary"] }}
-            >
-              {isFullscreen ? <Shrink size={20} /> : <Expand size={20} />}
-            </button>
+              <button
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                aria-label={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                className="px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition focus:outline-none focus:ring-2 focus:ring-offset-1"
+                style={{ color: cssVars["--text-color-primary"] }}
+              >
+                {isFullscreen ? <Shrink size={20} /> : <Expand size={20} />}
+              </button>
 
-            <button
-              onClick={toggleSettings}
-              aria-label="Open Settings"
-              className="px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition focus:outline-none focus:ring-2 focus:ring-offset-1"
-              style={{ color: cssVars["--text-color-primary"] }}
-            >
-              <Settings size={20} />
-            </button>
-          </div>
-        </header>
+              <button
+                onClick={toggleSettings}
+                aria-label="Open Settings"
+                className="px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition focus:outline-none focus:ring-2 focus:ring-offset-1"
+                style={{ color: cssVars["--text-color-primary"] }}
+              >
+                <Settings size={20} />
+              </button>
+            </div>
+          </header>
+        )}
 
         {/* Settings popover */}
-        {showSettings && (
+        {!isEmbed && showSettings && (
           <div
             ref={settingsRef}
             className="absolute top-16 right-6 z-50 rounded-2xl border shadow-lg backdrop-blur-xl"
@@ -364,7 +373,7 @@ export default function ViewerPageContent() {
             />
 
             {/* Progress bar fixed at bottom */}
-            {currentTimer && currentTimer.duration > 0 && timerIdFromUrl && (
+            {!isEmbed && currentTimer && currentTimer.duration > 0 && timerIdFromUrl && (
               <div
                 className="fixed bottom-0 left-0 right-0 h-4 w-full z-50 rounded-t-lg shadow-inner"
                 style={{
@@ -387,7 +396,7 @@ export default function ViewerPageContent() {
         </main>
 
         {/* Timer selection overlay */}
-        {!timerIdFromUrl && timerList.length > 0 && (
+        {!isEmbed && !timerIdFromUrl && timerList.length > 0 && (
           <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 z-20 max-w-lg w-full mx-4">
             <h3 className="text-center text-white text-lg font-semibold mb-4">Select a Timer</h3>
             <div className="flex flex-wrap justify-center gap-3 max-h-52 overflow-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-300">
@@ -406,14 +415,14 @@ export default function ViewerPageContent() {
         )}
 
         {/* No timer available */}
-        {!timerIdFromUrl && timerList.length === 0 && isConnected && (
+        {!isEmbed && !timerIdFromUrl && timerList.length === 0 && isConnected && (
           <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 z-20 max-w-xs w-full mx-5 text-center">
             <p className="text-white text-lg">No timers available</p>
           </div>
         )}
 
         {/* Timer full message */}
-        {timerFullMessage && isCurrentSocketFailed() && (
+        {!isEmbed && timerFullMessage && isCurrentSocketFailed() && (
           <div className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-700 text-white px-6 py-3 rounded-xl shadow-lg z-50 flex items-center gap-3 max-w-md font-semibold">
             <svg
               className="w-6 h-6 flex-shrink-0"

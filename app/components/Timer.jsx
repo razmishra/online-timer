@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 const FlipClockTimer = dynamic(() => import("./FlipClock"), { ssr: false });
 import { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 
 const formatTime = (seconds) => {
   if (seconds === undefined || seconds === null || isNaN(seconds)) return "00:00";
@@ -17,6 +18,8 @@ const formatTime = (seconds) => {
 };
 
 export default function Timer({ timerState, showMessage = true, className = "", isPreview = false }) {
+  const searchParams = useSearchParams();
+  const isEmbed = searchParams.get("embed") === "true";
   const { remaining, message, isRunning, isFlashing, styling = {}, duration } = timerState ?? {};
   const timerView = styling?.timerView || "normal";
 
@@ -59,9 +62,13 @@ export default function Timer({ timerState, showMessage = true, className = "", 
   if (!timerState) {
     return (
       <div className={`flex flex-col items-center justify-center text-center p-8 ${className}`}>
-        <div className="text-4xl font-light text-white/60 mb-4">⏱️</div>
-        <div className="text-2xl font-medium text-white/70">No timer selected</div>
-        <div className="text-sm text-white/50 mt-2">Waiting for timer to start...</div>
+        {!isEmbed && (
+          <>
+            <div className="text-4xl font-light text-white/60 mb-4">⏱️</div>
+            <div className="text-2xl font-medium text-white/70">No timer selected</div>
+            <div className="text-sm text-white/50 mt-2">Waiting for timer to start...</div>
+          </>
+        )}
       </div>
     );
   }
@@ -91,8 +98,8 @@ export default function Timer({ timerState, showMessage = true, className = "", 
   }
 
   return (
-    <div className={`flex flex-col items-center justify-center text-center ${className}`}>
-     <div
+    <div className={`flex flex-col items-center justify-center text-center ${className}`} style={{ background: isEmbed ? "transparent" : "inherit" }}>
+      <div
         className={`font-mono font-bold leading-none ${isFlashing ? "animate-pulse text-red-500" : ""}`}
         style={{
           fontSize: ((showMessage && message) || (isPreview)) ? "min(10vw, 7rem)" : "min(19vw, 17rem)",
@@ -116,24 +123,24 @@ export default function Timer({ timerState, showMessage = true, className = "", 
       </div>
       {showMessage && message && (
         <div
-        className="mb-10 max-w-4xl px-6 break-words"
-        style={{
-          fontSize: 'min(8vw, 4.5rem)',           // Large but more natural reading size
-          color: 'var(--text-color-primary)',     // Theme primary color (usually text color)
-          fontWeight: 700,                        // Bold, but not extreme
-          fontFamily: "'Helvetica Neue', Arial, sans-serif", // Use a clean, readable text font
-          lineHeight: 1.1,
-          textTransform: 'none',                  // Normal casing for message text
-          textShadow: 'none',                     // Remove glow for clarity
-          userSelect: 'none',
-          maxWidth: '90vw',
-          marginBottom: '2rem',
-        }}
-        role="banner" // semantics: message is important info
-        aria-live="polite"
-      >
-        {message}
-      </div>
+          className="mb-10 max-w-4xl px-6 break-words"
+          style={{
+            fontSize: 'min(8vw, 4.5rem)',
+            color: 'var(--text-color-primary)',
+            fontWeight: 700,
+            fontFamily: "'Helvetica Neue', Arial, sans-serif",
+            lineHeight: 1.1,
+            textTransform: 'none',
+            textShadow: 'none',
+            userSelect: 'none',
+            maxWidth: '90vw',
+            marginBottom: '2rem',
+          }}
+          role="banner"
+          aria-live="polite"
+        >
+          {message}
+        </div>
       )}
     </div>
   );
