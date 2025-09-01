@@ -22,7 +22,7 @@ const DEFAULT_ITEMS = [
     author: "Matteo",
     handle: "@senseofwondr",
     avatarUrl:
-      "https://pbs.twimg.com/profile_images/1940080191230885888/H77jwv_H_400x400.jpg",
+      "https://pbs.twimg.com/profile_images/1958602829800620032/Er9QARTY_400x400.jpg",
     sourceUrl: "https://x.com/senseofwondr/status/1951296875937566956",
     sourceType: "twitter",
   },

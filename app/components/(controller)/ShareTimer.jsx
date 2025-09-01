@@ -72,7 +72,7 @@ const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning,
             <div className="relative">
               <input
                 type="text"
-                placeholder='Login to see the joining code'
+                placeholder='Login to see a sharable code'
                 value={isSignedIn ? joiningCode : ""}
                 readOnly
                 className="w-full pr-10 px-3 py-2 bg-slate-700/50 border border-slate-600
