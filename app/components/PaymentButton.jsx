@@ -23,7 +23,7 @@ const PaymentButton = ({
 
   const router = useRouter();
   const makePayment = async () => {
-    if (!user && amount>0) {
+    if (!user && amount>0) { 
       return; // SignInButton will handle the sign-in flow
     }
 
