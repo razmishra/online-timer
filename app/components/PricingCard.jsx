@@ -35,12 +35,7 @@ export default function PricingCard({
   setShowModal,
   setPaymentStatus,
 }) {
-  const [hoveredFeature, setHoveredFeature] = useState(null);
   const IconComponent = planIcons[name] || Users;
-
-  const getFeatureTooltip = (feature) => {
-    return featureTooltips[feature] || `Learn more about ${feature.toLowerCase()}`;
-  };
 
   return (
     <div className="relative group">
