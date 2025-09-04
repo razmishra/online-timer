@@ -1,8 +1,8 @@
 "use client";
 
 import { memo, useState } from "react";
-import { Loader2 } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { CreditCard, Crown, Loader2, Zap } from "lucide-react";
+import { useUser, SignInButton } from "@clerk/nextjs"; // Import SignInButton
 import { BRAND_NAME } from "../constants";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ const PaymentButton = ({
   setPaymentStatus = false,
   subscriptionPlan = "free",
   subscriptDuration = "free",
+  popular = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -22,13 +23,18 @@ const PaymentButton = ({
 
   const router = useRouter();
   const makePayment = async () => {
+    if (!user) {
+      return; // SignInButton will handle the sign-in flow
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       // Validate amount
       if (!amount || amount <= 0) {
-        router.push("/controller")
+        router.push("/controller");
+        return;
       }
 
       // Create order
@@ -90,9 +96,9 @@ const PaymentButton = ({
           }
         },
         prefill: {
-          name: user.fullName || "",
-          email: user.primaryEmailAddress.emailAddress || "",
-          contact: user.phoneNumbers?.[0]?.phoneNumber || "",
+          name: user?.fullName || "",
+          email: user?.primaryEmailAddress?.emailAddress || "",
+          contact: user?.phoneNumbers?.[0]?.phoneNumber || "",
         },
         theme: {
           color: "#3399cc",
@@ -111,6 +117,50 @@ const PaymentButton = ({
       setLoading(false);
     }
   };
+
+  const getButtonContent = () => {
+    if (loading) {
+      return (
+        <>
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Processing...</span>
+        </>
+      );
+    }
+
+    if (!amount || amount === 0) {
+      return (
+        <>
+          <Zap className="w-5 h-5" />
+          <span>Get Started Free</span>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <CreditCard className="w-5 h-5" />
+        <span>Subscribe for ₹{amount.toLocaleString()}</span>
+        {popular && <Crown className="w-4 h-4 ml-1 fill-current" />}
+      </>
+    );
+  };
+
+  const getButtonStyles = () => {
+    const baseStyles =
+      "group relative w-full font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-lg";
+
+    if (!amount || amount === 0) {
+      return `${baseStyles} bg-gray-900 hover:bg-gray-800 text-white border-2 border-gray-900 hover:border-gray-800`;
+    }
+
+    if (popular) {
+      return `${baseStyles} bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-2 border-transparent relative overflow-hidden`;
+    }
+
+    return `${baseStyles} bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-200 hover:border-gray-300`;
+  };
+
   return (
     <div className="space-y-3">
       <Script
@@ -122,20 +172,37 @@ const PaymentButton = ({
           {error}
         </div>
       )}
-      <button
-        onClick={makePayment}
-        disabled={loading}
-        className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          `Get Started ${amount > 0 ? " -" + amount.toLocaleString() : ""}`
-        )}
-      </button>
+      {user ? (
+        <button
+          onClick={makePayment}
+          disabled={loading}
+          className={getButtonStyles()}
+        >
+          {popular && !loading && (
+            <div className="absolute inset-0 -top-[2px] -bottom-[2px] -left-[2px] -right-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer rounded-xl"></div>
+          )}
+          <div className="relative flex items-center gap-3">
+            {getButtonContent()}
+          </div>
+        </button>
+      ) : (
+        <SignInButton
+          mode="modal"
+          afterSignInUrl={window.location.pathname}
+        >
+          <button
+            disabled={loading}
+            className={getButtonStyles()}
+          >
+            {popular && !loading && (
+              <div className="absolute inset-0 -top-[2px] -bottom-[2px] -left-[2px] -right-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer rounded-xl"></div>
+            )}
+            <div className="relative flex items-center gap-3">
+              {getButtonContent()}
+            </div>
+          </button>
+        </SignInButton>
+      )}
     </div>
   );
 };

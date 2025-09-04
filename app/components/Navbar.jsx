@@ -54,14 +54,10 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
               {[
-                { href: "#features", label: "Features" },
-                { href: "#how-it-works", label: "How it Works" },
-                { href: "#use-cases", label: "Use Cases" },
-                ...(
-                  isSignedIn
-                    ? [{ href: "/payment", label: "Pricing" }]
-                    : []
-                )
+                { href: "/#features", label: "Features" },
+                { href: "/#how-it-works", label: "How it Works" },
+                { href: "/#use-cases", label: "Use Cases" },
+                { href: "/payment", label: "Pricing" },
               ].map((item) => (
                 <a
                   key={item.href}
@@ -162,9 +158,10 @@ const Navbar = () => {
             {/* Navigation Links */}
             <nav className="flex flex-col px-4 py-6 space-y-1">
               {[
-                { href: "#features", label: "Features", icon: "✨" },
-                { href: "#how-it-works", label: "How it Works", icon: "⚡" },
-                { href: "#use-cases", label: "Use Cases", icon: "🎯" },
+                { href: "#features", label: "Features",},
+                { href: "#how-it-works", label: "How it Works",},
+                { href: "#use-cases", label: "Use Cases" },
+                { href: "/payment", label: "Pricing" },
               ].map((item) => (
                 <a
                   key={item.href}
