@@ -48,8 +48,8 @@ export async function POST(req) {
     // Validate input
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature, subscriptionPlan, subscriptDuration } = await req.json();
     
-    console.log(subscriptDuration," --duration in api")
-    console.log(subscriptionPlan," --plan in api")
+    // console.log(subscriptDuration," --duration in api")
+    // console.log(subscriptionPlan," --plan in api")
     if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
       await logEvent(userId, userEmail, "error", {
         message: "Missing required payment details",

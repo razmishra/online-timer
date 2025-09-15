@@ -100,8 +100,8 @@ export default function PricingCard({
               <div 
                 key={index} 
                 className="relative flex items-start gap-3 group/feature"
-                onMouseEnter={() => setHoveredFeature(index)}
-                onMouseLeave={() => setHoveredFeature(null)}
+                // onMouseEnter={() => setHoveredFeature(index)}
+                // onMouseLeave={() => setHoveredFeature(null)}
               >
                 <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 ${
                   popular 

@@ -88,7 +88,7 @@ export const useSocket = (setFailedSocketIds = null) => {
         const timerToJoin = runningTimer || timers.find(timer => timer.id === lastSelectedId);
         if (timerToJoin) {
           // console.log('Auto-reconnecting to timer:', timerToJoin.id, 'isRunning:', timerToJoin.isRunning);
-          socketInstance.emit('join-timer', { timerId: timerToJoin.id, controllerId });
+          socketInstance.emit('join-timer', { timerId: timerToJoin.id, controllerId , maxConnectionsAllowed:currentActivePlan?.maxConnectionsAllowed});
         }
         autoReconnectDone.current = true;
       }
@@ -205,16 +205,15 @@ export const useSocket = (setFailedSocketIds = null) => {
     socket?.emit('delete-timer', { timerId, controllerId });
   }, [socket, controllerId]);
 
-  const joinTimer = useCallback((timerId, maxConnectionsAllowed) => {
+  const joinTimer = useCallback((timerId) => {
     if (socket && isConnected && !isLoading) {
       socket.emit('join-timer', { timerId, controllerId, maxConnectionsAllowed, isLoading });
     }
   }, [socket, isConnected, controllerId, maxConnectionsAllowed, isLoading]);
 
-  const viewTimer = useCallback((timerId, maxConnectionsAllowed) => {
+  const viewTimer = useCallback((timerId) => {
     if (socket && isConnected && !isLoading) {
-      console.log("before sending view-timer", maxConnectionsAllowed)
-      socket.emit('view-timer', { timerId, controllerId, maxConnectionsAllowed });
+      socket.emit('view-timer', { timerId, controllerId });
     }
   }, [socket, isConnected, controllerId, maxConnectionsAllowed, isLoading]);
 
