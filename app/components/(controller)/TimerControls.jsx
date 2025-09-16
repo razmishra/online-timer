@@ -301,6 +301,7 @@ const handleTimerKeyDown = useCallback((e) => {
           onClose={closeSetTimerModal}
           onConfirm={confirmSetTimer}
           title="Confirm Timer Update"
+          confirmButton={"Update"}
           message={`Are you sure you want to update the timer to ${formatTime(pendingTimerDuration)}?`}
         />
       </div>

@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect } from 'react';
 
-const Modal = ({ isOpen, onClose, onConfirm, title, message }) => {
+const Modal = ({ isOpen, onClose, onConfirm, title, message, confirmButton="Delete" }) => {
   const handleBackdropClick = useCallback((e) => {
     // Close modal only if the click is on the backdrop (not the content)
     if (e.target === e.currentTarget) {
@@ -52,7 +52,7 @@ const Modal = ({ isOpen, onClose, onConfirm, title, message }) => {
             onClick={onConfirm}
             className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm"
           >
-            Delete
+            {confirmButton}
           </button>
         </div>
       </div>
