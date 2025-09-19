@@ -1,12 +1,12 @@
 // app/utils/geolocation.js
-export async function getUserCurrency() {
+export async function getUserCountry() {
     try {
       const response = await fetch(
         `https://api.ipgeolocation.io/ipgeo?apiKey=${process.env.NEXT_PUBLIC_IPGEOLOCATION_API_KEY}`,
         { cache: "no-store" } // Ensure fresh data
       );
       const data = await response.json();
-      return data.country_code2 === "IN" ? "INR" : "USD";
+      return data.country_code2; //IN for india
     } catch (error) {
       console.error("Geolocation error:", error);
       return "USD"; // Fallback to USD for international

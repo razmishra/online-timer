@@ -1,5 +1,4 @@
 import { Check, Users, Rocket, Star, Info } from "lucide-react";
-import { useState } from "react";
 import PaymentButton from "./PaymentButton";
 
 const featureTooltips = {
@@ -34,9 +33,10 @@ export default function PricingCard({
   billingPeriod = "free",
   setShowModal,
   setPaymentStatus,
+  isOneTimePayment = false,
 }) {
   const IconComponent = planIcons[name] || Users;
-
+  console.log(id, isOneTimePayment, "--information")
   return (
     <div className="relative group">
       {/* Popular badge */}
@@ -121,6 +121,7 @@ export default function PricingCard({
 
           {/* CTA Button */}
           <PaymentButton
+            planId={id}
             amount={amount}
             planName={name}
             setShowModal={setShowModal}
@@ -128,6 +129,7 @@ export default function PricingCard({
             subscriptionPlan={id}
             subscriptDuration={billingPeriod}
             popular={popular}
+            isOneTimePayment={isOneTimePayment}
           />
         </div>
       </div>

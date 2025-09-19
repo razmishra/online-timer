@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.25.5",
+    "@dodopayments/nextjs": "^0.1.9",
     "crypto": "^1.0.1",
+    "dodopayments": "^2.0.1",
     "framer-motion": "^12.23.12",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
@@ -27,6 +29,7 @@
     "react-dom": "^19.0.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "standardwebhooks": "^1.0.0",
     "svix": "^1.69.0",
     "uuid": "^11.1.0",
     "zustand": "^5.0.6"

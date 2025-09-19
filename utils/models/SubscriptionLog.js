@@ -20,8 +20,7 @@ const subscriptionLogSchema = new mongoose.Schema({
   },
   subscriptDuration: {
     type: String,
-    required: [true, "Subscription duration is required in subscriptionLog schema"],
-    enum: ["free", "monthly", "singleEvent"],
+    default: "free"
   },
   amount: {
     type: Number,

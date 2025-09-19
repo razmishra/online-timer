@@ -1,12 +1,13 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { CreditCard, Crown, Loader2, Zap } from "lucide-react";
 import { useUser, SignInButton } from "@clerk/nextjs"; // Import SignInButton
 import { BRAND_NAME } from "../constants";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
 import useUserPlanStore from "@/stores/userPlanStore";
+import { getUserCountry } from "../utils/geolocation";
 
 const PaymentButton = ({
   amount,
@@ -15,11 +16,27 @@ const PaymentButton = ({
   subscriptionPlan = "free",
   subscriptDuration = "free",
   popular = false,
+  isOneTimePayment = false,
+  planId = null,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user } = useUser();
   const setPlan = useUserPlanStore((state) => state.setPlan);
+  const userCountryRef = useRef("US")
+
+  useEffect(()=>{
+    const fetchUserCountry = async () =>{
+      const countryFromLocalStorage = localStorage.getItem("userCountry")
+      let country = "US"; // default country
+      if(!countryFromLocalStorage){
+        country = await getUserCountry();
+        localStorage.setItem("userCountry", country)
+      }
+      userCountryRef.current = country;
+    }
+    fetchUserCountry();
+  },[])
 
   const router = useRouter();
   const makePayment = async () => {
@@ -118,6 +135,65 @@ const PaymentButton = ({
     }
   };
 
+  const openPaymentWindowAndMakePayment = () => {
+    // console.log(userCountryRef.current, ' --userCountryRef');
+    // if (userCountryRef.current == 'IN') {
+    //   makePayment();
+    // } else {
+    // }
+    dodoPayments();
+  };
+
+  async function dodoPayments(){
+    if (!user && amount>0) { 
+      return; // SignInButton will handle the sign-in flow
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Validate amount
+      if (!amount || amount <= 0) {
+        router.push("/controller");
+        return;
+      }
+      
+      const checkoutEndPoint = (isOneTimePayment==="true") ? "/api/dodopayment/oneTime" : "/api/dodopayment/subscription"
+      
+      // create order
+      const response = await fetch(checkoutEndPoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount,
+          planId,
+          userCountry: userCountryRef.current,
+          user: {
+            name: user?.fullName || "",
+            email: user?.primaryEmailAddress?.emailAddress || "",
+          },
+          subscriptionPlan: subscriptionPlan,
+          subscriptDuration: subscriptDuration,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.error || !response.ok) {
+        throw new Error(data.message || "Failed to create order");
+      }
+      // console.log(data," --data")
+      if(!data.checkoutUrl){
+        throw new Error(data.message || "Error creating payment link, please try again.");
+      }
+      router.push(data.checkoutUrl)
+    } catch (error) {
+      setError(error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const getButtonContent = () => {
     if (loading) {
       return (
@@ -174,7 +250,7 @@ const PaymentButton = ({
       )}
       {user ? (
         <button
-          onClick={makePayment}
+          onClick={openPaymentWindowAndMakePayment}
           disabled={loading}
           className={getButtonStyles()}
         >
@@ -188,7 +264,7 @@ const PaymentButton = ({
       ) : (
         <SignInButton
           mode="modal"
-          afterSignInUrl={window.location.pathname}
+          // afterSignInUrl={window.location.pathname}
         >
           <button
             disabled={loading}

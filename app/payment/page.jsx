@@ -21,10 +21,6 @@ function PaymentPage() {
     "singleEvent": "Single Event"
   }
 
-  const redirectToFeedbackForm = () => {
-    router.push('/#feedback-form');
-  };
-
   async function fetchPlans() {
     try {
       setIsLoading(true);
@@ -41,6 +37,7 @@ function PaymentPage() {
         description: plan?.description,
         features: plan?.features,
         popular: plan?.popular || false,
+        isOneTimePayment: plan?.isOneTimePayment || false
       }));
       setPlans(mappedPlans);
     } catch (err) {
@@ -141,6 +138,7 @@ function PaymentPage() {
                     billingPeriod={plan.billingPeriod}
                     setShowModal={setShowModal}
                     setPaymentStatus={setPaymentStatus}
+                    isOneTimePayment={plan?.isOneTimePayment ?? false}
                   />
                 ))}
               </div>

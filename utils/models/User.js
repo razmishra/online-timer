@@ -27,7 +27,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Plan ID is required in userShema"],
       trim: true,
-      enum: ["free", "pro","premium", "premiumPlus", "singleEvent"],
       default: "free",
     },
     planVersion: {
@@ -42,6 +41,10 @@ const userSchema = new mongoose.Schema(
     planExpiresAt: {
       type: Date,
       default: null,
+    },
+    subscriptionId:{
+      type: String,
+      default: null
     },
     isActive: {
       type: Boolean,
