@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import User from "@/utils/models/User";
-import { dodoClient } from "@/app/lib/dodoPayments";
 import { connectToDatabase } from "@/utils/db";
+import DodoPayments from "dodopayments";
+
+const dodoClient = new DodoPayments({
+  bearerToken: process.env.DODO_PAYMENTS_API_KEY, // This is the default and can be omitted
+  environment: process.env.DODO_PAYMENTS_ENVIRONMENT, // defaults to 'live_mode'
+});
+
 
 export async function POST(request) {
   // check auth
