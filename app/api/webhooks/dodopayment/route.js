@@ -6,13 +6,7 @@ import DodosubscriptionLog from "@/utils/models/DodosubscriptionLog";
 import User from "@/utils/models/User";
 import { calculateExpirationDate } from "@/helper/dateHelper";
 import { connectToDatabase } from "@/utils/db";
-import DodoPayments from "dodopayments";
-
-
-const dodoClient = new DodoPayments({
-  bearerToken: process.env.DODO_PAYMENTS_API_KEY, // This is the default and can be omitted
-  environment: process.env.DODO_PAYMENTS_ENVIRONMENT, // defaults to 'live_mode'
-});
+import { dodoClient } from "@/app/lib/dodoPayments";
 
 const webhook = new Webhook(process.env.DODO_PAYMENTS_WEBHOOK_KEY);
 

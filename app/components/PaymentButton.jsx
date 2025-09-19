@@ -160,7 +160,7 @@ const PaymentButton = ({
       }
       
       const checkoutEndPoint = (isOneTimePayment==="true") ? "/api/dodopayment/oneTime" : "/api/dodopayment/subscription"
-      
+      console.log(checkoutEndPoint,"--checkoutEndPoint")
       // create order
       const response = await fetch(checkoutEndPoint, {
         method: "POST",
@@ -179,6 +179,7 @@ const PaymentButton = ({
       });
 
       const data = await response.json();
+      console.log(data," --data in paymment button")
       if (data.error || !response.ok) {
         throw new Error(data.message || "Failed to create order");
       }
