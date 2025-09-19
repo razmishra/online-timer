@@ -68,7 +68,7 @@ export async function POST(request) {
     const selectedPlan = productList?.items?.find(
       (plan) => plan?.name?.toString()?.toLocaleLowerCase() === planId?.toString()?.toLocaleLowerCase()
     );
-    console.log(selectedPlan, "--selectedPlan");
+    // console.log(selectedPlan, "--selectedPlan");
     const { product_id } = selectedPlan;
     if (!selectedPlan) {
       await logEvent(userId, userEmail, "error", {

@@ -36,7 +36,7 @@ export default function PricingCard({
   isOneTimePayment = false,
 }) {
   const IconComponent = planIcons[name] || Users;
-  console.log(id, isOneTimePayment, "--information")
+  // console.log(id, isOneTimePayment, "--information")
   return (
     <div className="relative group">
       {/* Popular badge */}
