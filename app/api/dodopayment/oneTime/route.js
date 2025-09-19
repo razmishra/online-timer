@@ -111,8 +111,8 @@ export async function POST(request) {
       },
       return_url: process.env.DODO_PAYMENTS_RETURN_URL,
     });
-    // console.log(checkoutSessionResponse, " --checkoutSessionResponse");
-    const {checkout_url} = checkoutSessionResponse;
+    console.log(checkoutSessionResponse, " --checkoutSessionResponse");
+    // const {checkout_url} = checkoutSessionResponse;
     return NextResponse.json({
       message: "success",
       checkoutUrl: checkoutSessionResponse.payment_link

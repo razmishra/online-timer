@@ -22,6 +22,8 @@ export async function POST(request) {
       );
     }
 
+    await connectToDatabase();
+    
     const userDetails = await User.findOne({ userID: userId }).select(
       "planExpiresAt"
     );
