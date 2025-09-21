@@ -176,9 +176,9 @@ export async function POST(request) {
     if (payload_type === "Payment") {
       const paymentId = payload.data.payment_id;
       const eventType = payload.type;
-
+      console.log(eventType, "--eventType");
       const paymentData = await dodoClient.payments.retrieve(paymentId);
-
+      console.log(paymentData, "--paymentData");
       const paymentLog = {
         payment_id: paymentData.payment_id,
         business_id: paymentData.business_id,
@@ -213,17 +213,24 @@ export async function POST(request) {
 
       switch (eventType) {
         case "payment.succeeded":
-          await DodopaymentLog.create({ ...paymentLog, status: "succeeded" });
+          // await DodopaymentLog.create({ ...paymentLog, status: "succeeded" });
           
           // Extract user info from payment data
           const metadata = paymentData.metadata || {};
+          console.log(metadata, "--metadata");
           const planId = metadata.planId || 'free';
           const subscriptDuration = metadata.subscriptDuration || 'free';
           const userId = metadata.userId || 'free';
           const planExpiresAtDate = calculateExpirationDate({ subscriptDuration });
-
+          console.log(planExpiresAtDate, "--planExpiresAtDate");
           // Update user in database
-          await User.findOneAndUpdate(
+          const updateUser = {
+            planId: planId,
+            planActivatedAt: new Date(),
+            planExpiresAt: planExpiresAtDate
+          }
+          console.log(updateUser, "--updateUser");
+          const newUser = await User.findOneAndUpdate(
             { userID: userId },
             {
               $set: {
@@ -234,7 +241,7 @@ export async function POST(request) {
             },
             { new: true, upsert: true } // upsert creates user if doesn't exist
           );
-
+          console.log(newUser, "--newUser");
           break;
 
         case "payment.failed":

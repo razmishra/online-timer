@@ -100,7 +100,6 @@ export async function POST(request) {
 
     const country = userCountry==="IN" ? "IN" : 'US';
     const billing = defaultBilling[country];
-
     const checkoutSessionResponse = await dodoClient.subscriptions.create({
       billing,
       customer: {

@@ -4,32 +4,32 @@ const { Schema } = mongoose;
 const dodopaymentLogSchema = new Schema({
   payment_id: {
     type: String,
-    required: true,
-    unique: true,
+    // required: true,
+    // unique: true,
   },
   business_id: {
     type: String,
-    required: true,
+    // required: true,
   },
   status: {
     type: String,
-    required: true,
+    // required: true,
   },
   total_amount: {
     type: Number,
-    required: true,
+    // required: true,
   },
   currency: {
     type: String,
-    required: true,
+    // required: true,
   },
   payment_method: {
     type: String,
-    required: true,
+    // required: true,
   },
   created_at: {
     type: Date,
-    required: true,
+    // required: true,
   },
   customer: {
     customer_id: {
@@ -46,17 +46,17 @@ const dodopaymentLogSchema = new Schema({
     {
       product_id: {
         type: String,
-        required: true,
+        // required: true,
       },
       quantity: {
         type: Number,
-        required: true,
+        // required: true,
       },
     },
   ],
   payment_link: {
     type: String,
-    required: true,
+    //  required: true,
     default: null,
   },
   tax: {
