@@ -96,7 +96,7 @@ export async function POST(request) {
 
     const country = userCountry==="IN" ? "IN" : 'US';
     const billing = defaultBilling[country];
-    console.log(billing, "--billing");
+    // console.log(billing, "--billing");
 
     const checkoutSessionResponse = await dodoClient.payments.create({
       billing,
@@ -113,7 +113,7 @@ export async function POST(request) {
       },
       return_url: process.env.DODO_PAYMENTS_RETURN_URL,
     });
-    console.log(checkoutSessionResponse, " --checkoutSessionResponse");
+    // console.log(checkoutSessionResponse, " --checkoutSessionResponse");
     // const {checkout_url} = checkoutSessionResponse;
     return NextResponse.json({
       message: "success",

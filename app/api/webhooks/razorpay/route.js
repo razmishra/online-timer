@@ -137,7 +137,7 @@ async function logEvent(userEmail, eventType, details) {
       eventType,
       details,
     });
-    console.log(` Logged event:`, { userEmail, eventType, details });
+    // console.log(` Logged event:`, { userEmail, eventType, details });
   } catch (error) {
     console.error(` Failed to log event:`, error);
   }

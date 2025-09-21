@@ -26,8 +26,8 @@ const ShareTimer = React.memo(({ viewerUrl, effectiveTimerId, isAnyTimerRunning,
   const handleCopyLink = useCallback(async () => {
     try {
       const fullUrl = effectiveTimerId ? `${viewerUrl}?timer=${effectiveTimerId}` : viewerUrl;
-      console.log(viewerUrl,"--viewerUrl")
-      console.log(effectiveTimerId," --effectiveTimerId")
+      // console.log(viewerUrl,"--viewerUrl")
+      // console.log(effectiveTimerId," --effectiveTimerId")
       await navigator.clipboard.writeText(fullUrl);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
