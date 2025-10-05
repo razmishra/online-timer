@@ -105,7 +105,6 @@ export const themes = {
     animation: "slowGlow 10s ease-in-out infinite",
     timerGlow: "0 0 30px #d4af3799",
   },
-
   swissModern: {
     name: "Swiss Modern",
     gradient: "linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)",
@@ -119,7 +118,6 @@ export const themes = {
     animation: "pulse-calm 5s ease-in-out infinite",
     timerGlow: "0 0 30px #007aff99",
   },
-
   nordicFrost: {
     name: "Nordic Frost",
     gradient: "linear-gradient(135deg, #e2ecf4 0%, #c9d8e8 100%)",
@@ -133,7 +131,6 @@ export const themes = {
     animation: "slowRotateReverse 40s linear infinite",
     timerGlow: "0 0 30px #5c759e88",
   },
-
   editorsMonochrome: {
     name: "Editor’s Monochrome",
     gradient: "linear-gradient(135deg, #000000 0%, #333333 100%)",
@@ -147,7 +144,6 @@ export const themes = {
     animation: "pixelBlink 8s steps(5) infinite",
     timerGlow: "0 0 40px #d7263199",
   },
-
   techOpulence: {
     name: "Tech Opulence",
     gradient: "linear-gradient(135deg, #121212 0%, #0a0a0a 100%)",
@@ -161,7 +157,6 @@ export const themes = {
     animation: "slowGlow 12s ease-in-out infinite",
     timerGlow: "0 0 40px #08f7feaa",
   },
-
   roseGoldStatement: {
     name: "Rose Gold Statement",
     gradient: "linear-gradient(135deg, #f7cac9 0%, #f0b8a6 100%)",
@@ -175,7 +170,6 @@ export const themes = {
     animation: "flowSunset 15s ease-in-out infinite",
     timerGlow: "0 0 45px #d97c7c99",
   },
-
   deepEmerald: {
     name: "Deep Emerald",
     gradient: "linear-gradient(135deg, #0b3d0b 0%, #256625 100%)",
@@ -188,6 +182,71 @@ export const themes = {
     fontFamily: "'Cormorant Garamond', serif",
     animation: "swaySlow 18s ease-in-out infinite",
     timerGlow: "0 0 40px #cdd4a299",
+  },
+  sapphireElegance: {
+    name: "Sapphire Elegance",
+    gradient: "linear-gradient(135deg, #001f3f 0%, #0c2d5a 100%)",
+    backgroundColor: "#001f3f",
+    borderColor: "#7df9ff",        // Alice blue cyan
+    barColor: "#5dade2",
+    textColorPrimary: "#e8f4fd",
+    textColorSecondary: "#b3d9f2",
+    accent: "#7df9ff",
+    fontFamily: "'Cinzel', serif",
+    animation: "slowGlow 8s ease-in-out infinite",
+    timerGlow: "0 0 35px #7df9ff99",
+  },
+  velvetImperial: {
+    name: "Velvet Imperial",
+    gradient: "linear-gradient(135deg, #4b0082 0%, #8a2be2 100%)",
+    backgroundColor: "#4b0082",
+    borderColor: "#ffd700",        // Gold
+    barColor: "#daa520",
+    textColorPrimary: "#f5f5dc",
+    textColorSecondary: "#d4af37",
+    accent: "#ffd700",
+    fontFamily: "'Lora', serif",
+    animation: "slowRotate 25s linear infinite",
+    timerGlow: "0 0 32px #ffd70099",
+  },
+  onyxDiamond: {
+    name: "Onyx Diamond",
+    gradient: "linear-gradient(135deg, #000000 0%, #1a1a1a 100%)",
+    backgroundColor: "#000000",
+    borderColor: "#ffffff",        // Pure white
+    barColor: "#f0f0f0",
+    textColorPrimary: "#ffffff",
+    textColorSecondary: "#cccccc",
+    accent: "#ffffff",
+    fontFamily: "'Futura', sans-serif",
+    animation: "pixelBlink 10s steps(5) infinite",
+    timerGlow: "0 0 50px #ffffffaa",
+  },
+  bourbonLegacy: {
+    name: "Bourbon Legacy",
+    gradient: "linear-gradient(135deg, #8b4513 0%, #a0522d 100%)",
+    backgroundColor: "#8b4513",
+    borderColor: "#cd853f",        // Peru
+    barColor: "#d2691e",
+    textColorPrimary: "#f4e4bc",
+    textColorSecondary: "#deb887",
+    accent: "#cd853f",
+    fontFamily: "'Old Standard TT', serif",
+    animation: "swaySlow 14s ease-in-out infinite",
+    timerGlow: "0 0 38px #cd853f99",
+  },
+  platinumPrestige: {
+    name: "Platinum Prestige",
+    gradient: "linear-gradient(135deg, #e5e4e2 0%, #f8f8f8 100%)",
+    backgroundColor: "#e5e4e2",
+    borderColor: "#e5e4e2",
+    barColor: "#a8a8a8",
+    textColorPrimary: "#1a1a1a",
+    textColorSecondary: "#4d4d4d",
+    accent: "#c0c0c0",
+    fontFamily: "'Bodoni Moda', serif",
+    animation: "slowGlow 9s ease-in-out infinite",
+    timerGlow: "0 0 35px #c0c0c099",
   },
 };
 
@@ -227,4 +286,10 @@ export const themeAnimations = `
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+@keyframes pulse-calm {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(0, 122, 255, 0); }
+}
 `;
+

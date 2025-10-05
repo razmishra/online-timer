@@ -6,22 +6,31 @@ const { customAlphabet } = require("nanoid");
 
 const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
 
+let activeCodes = new Set();
+
+// Load active codes from DB once
+async function loadActiveCodes() {
+  const codes = await JoiningCode.find(
+    { expiresAt: { $gte: new Date() } },
+    { code: 1 }
+  ).lean();
+
+  activeCodes = new Set(codes.map(c => c?.code?.toString()?.toUpperCase()));
+}
+
 // Generate unique code
 async function generateUniqueCode() {
+  await loadActiveCodes();
+  
   let code;
   let attempts = 0;
   const maxAttempts = 10;
   while (attempts < maxAttempts) {
     code = nanoid();
-    const existing = await JoiningCode.findOne({
-      code: code?.toString()?.toUpperCase(),
-      expiresAt: { $gte: new Date() },
-    });
-    if (!existing) {
-      return {
-        code: code?.toString()?.toUpperCase(),
-        success: true,
-      };
+    // check if code is already in memory
+    if (!activeCodes.has(code)) {
+      activeCodes.clear(); // clear the set to avoid memory leak
+      return { code: code?.toString()?.toUpperCase(), success: true };
     }
     attempts++;
   }
