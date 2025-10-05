@@ -6,6 +6,7 @@ const { customAlphabet } = require("nanoid");
 
 const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
 
+// set to store active codes
 let activeCodes = new Set();
 
 // Load active codes from DB once
