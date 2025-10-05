@@ -15,41 +15,6 @@ function PaymentPage({ plans }) {
   const [error, setError] = useState(null);
   const router = useRouter();
 
-  // const planNamesObj = {
-  //   "free": "Starter",
-  //   "pro":"Pro",
-  //   "singleEvent": "Single Event"
-  // }
-
-  // async function fetchPlans() {
-  //   try {
-  //     setIsLoading(true);
-  //     const res = await fetch("/api/plans");
-  //     if (!res.ok) {
-  //       throw new Error("Failed to fetch plans");
-  //     }
-  //     const { plans } = await res.json();
-  //     const mappedPlans = plans.map((plan) => ({
-  //       id: plan.planId,
-  //       name: planNamesObj[plan.planId],
-  //       billingPeriod: plan?.subscriptDuration,
-  //       amount: plan?.amount,
-  //       description: plan?.description,
-  //       features: plan?.features,
-  //       popular: plan?.popular || false,
-  //       isOneTimePayment: plan?.isOneTimePayment || false
-  //     }));
-  //     setPlans(mappedPlans);
-  //   } catch (err) {
-  //     setError(err.message);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
-  // useEffect(() => {
-  //   fetchPlans();
-  // }, []);
-
   const handleEmailClick = () => {
     window.location.href = 'mailto:sharemytimer0@gmail.com?subject=Inquiry about Custom Plans';
   };
