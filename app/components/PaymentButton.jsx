@@ -141,6 +141,10 @@ const PaymentButton = ({
     //   makePayment();
     // } else {
     // }
+    if (!amount || amount <= 0) {
+      router.push("/controller");
+      return;
+    }
     dodoPayments();
   };
 
@@ -248,7 +252,7 @@ const PaymentButton = ({
           {error}
         </div>
       )}
-      {user ? (
+      {(user || amount <= 0) ? (
         <button
           onClick={openPaymentWindowAndMakePayment}
           disabled={loading}
