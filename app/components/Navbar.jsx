@@ -58,6 +58,11 @@ const Navbar = () => {
                 { href: "/#how-it-works", label: "How it Works" },
                 { href: "/#use-cases", label: "Use Cases" },
                 { href: "/payment", label: "Pricing" },
+                ...(
+                  isSignedIn
+                    ? [{ href: "/subscription", label: "Subscription" }]
+                    : []
+                )
               ].map((item) => (
                 <a
                   key={item.href}
