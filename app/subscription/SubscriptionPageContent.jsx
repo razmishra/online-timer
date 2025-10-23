@@ -239,7 +239,7 @@ export default function SubscriptionPageContent() {
 
             {/* Plan Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {subscription.activatedAt && (
+              {(currentPlan.planId !== "free" && subscription.activatedAt) && (
                 <div className="flex items-start space-x-3">
                   <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
@@ -249,7 +249,7 @@ export default function SubscriptionPageContent() {
                 </div>
               )}
               
-              {subscription.expiresAt && (
+              {currentPlan.planId !== "free" && subscription.expiresAt ? (
                 <div className="flex items-start space-x-3">
                   <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
                   <div>
@@ -259,7 +259,17 @@ export default function SubscriptionPageContent() {
                     <p className="font-semibold text-gray-900">{formatDate(subscription.expiresAt)}</p>
                   </div>
                 </div>
-              )}
+              ) : (subscription.expiresAt && (
+                <div className="flex items-start space-x-3">
+                  <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-gray-600">
+                      {"Expired At"}
+                    </p>
+                    <p className="font-semibold text-gray-900">{formatDate(subscription.expiresAt)}</p>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Features */}

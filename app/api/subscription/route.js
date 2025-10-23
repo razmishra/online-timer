@@ -57,9 +57,9 @@ export async function GET() {
 
     // Determine plan type
     let planType = "free";
-    if (user.planId === "singleEvent") {
+    if (user.planId === "singleEvent" && daysRemaining>0) {
       planType = "one-time";
-    } else if (user.planId === "pro") {
+    } else if (user.planId === "pro" && daysRemaining>0) {
       planType = "subscription";
     }
 
