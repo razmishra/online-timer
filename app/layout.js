@@ -29,7 +29,7 @@ export const metadata = {
   title: 'ShareMyTimer - Real-Time Online Timer Sharing',
   description: 'ShareMyTimer lets you create, control, and share real-time synchronized timers for teams, events, and classrooms. No sign up required. Free and easy to use.',
   keywords: [
-    'timer', 'online timer', 'share timer', 'real-time timer', 'synchronized timer', 'event timer', 'classroom timer', 'countdown', 'count up', 'remote timer', 'presentation timer', 'meeting timer', 'ShareMyTimer'
+    'timer', 'online timer', 'share timer', 'real-time timer', 'synchronized timer', 'event timer', 'classroom timer', 'countdown', 'count up', 'remote timer', 'presentation timer', 'meeting timer', 'ShareMyTimer', 'sharable timer', 'free timer', 'team timer', 'collaborative timer'
   ],
   icons: {
     icon: '/favicon.ico',
