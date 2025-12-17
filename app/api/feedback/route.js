@@ -26,7 +26,7 @@ function getTransporter() {
 
 export async function POST(req) {
   try {
-    const { feedback } = await req.json();
+    const { feedback, userEmail } = await req.json();
     if (!feedback || typeof feedback !== 'string' || !feedback.trim()) {
       return NextResponse.json({ error: 'Feedback cannot be empty.' }, { status: 400 });
     }
@@ -40,12 +40,20 @@ export async function POST(req) {
 
     // Send email
     const transporter = getTransporter();
+    const emailContent = userEmail 
+      ? `Feedback from: ${userEmail}\n\nFeedback: ${feedback.trim()}`
+      : `Feedback: ${feedback.trim()}\n\n(Submitted anonymously)`;
+    
+    const htmlContent = userEmail
+      ? `<p><strong>Feedback from:</strong> ${userEmail}</p><p><strong>Feedback:</strong> ${feedback.trim()}</p>`
+      : `<p><strong>Feedback:</strong> ${feedback.trim()}</p><p><em>(Submitted anonymously)</em></p>`;
+
     await transporter.sendMail({
       from: SENDER_EMAIL,
       to: ADMIN_EMAIL,
-      subject: 'New Feedback Received',
-      text: `Feedback: ${feedback.trim()}`,
-      html: `<p><strong>Feedback:</strong> ${feedback.trim()}</p>`
+      subject: userEmail ? `New Feedback Received from ${userEmail}` : 'New Feedback Received (Anonymous)',
+      text: emailContent,
+      html: htmlContent
     });
 
     return NextResponse.json({ success: true });

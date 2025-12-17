@@ -60,7 +60,7 @@ const Navbar = () => {
                 { href: "/payment", label: "Pricing" },
                 ...(
                   isSignedIn
-                    ? [{ href: "/subscription", label: "Subscription" }]
+                    ? [{ href: "/subscription", label: "Active Plan" }]
                     : []
                 )
               ].map((item) => (

@@ -26,8 +26,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'ShareMyTimer - Real-Time Online Timer Sharing',
-  description: 'ShareMyTimer lets you create, control, and share real-time synchronized timers for teams, events, and classrooms. No sign up required. Free and easy to use.',
+  title: 'ShareMyTimer - Share Timers Instantly | Real-Time Collaborative Timer',
+  description: 'ShareMyTimer lets you create, control, and share real-time synchronized timers for teams, events, and classrooms. Control from your phone, display fullscreen anywhere. No sign up required. Free and easy to use.',
   keywords: [
     'timer', 'online timer', 'share timer', 'real-time timer', 'synchronized timer', 'event timer', 'classroom timer', 'countdown', 'count up', 'remote timer', 'presentation timer', 'meeting timer', 'ShareMyTimer', 'sharable timer', 'free timer', 'team timer', 'collaborative timer'
   ],
@@ -37,16 +37,16 @@ export const metadata = {
     apple: '/favicon.ico',
   },
   openGraph: {
-    title: 'ShareMyTimer - Real-Time Online Timer Sharing',
-    description: 'Create and share real-time synchronized timers for teams, events, and classrooms. Free, no sign up required.',
+    title: 'ShareMyTimer - Share Timers Instantly',
+    description: 'Collaborative timer for creators, teams and events. Control the timer from your phone. Display it fullscreen anywhere. Real-time sync, zero friction, no sign up required.',
     url: 'https://sharemytimer.live',
     siteName: 'ShareMyTimer',
     images: [
       {
-        url: '/shareMyTimerWithoutTxt.png',
+        url: '/landingPage.png',
         width: 1200,
         height: 630,
-        alt: 'ShareMyTimer Logo',
+        alt: 'ShareMyTimer - Real-time collaborative timer interface showing live timer display',
       },
     ],
     locale: 'en_US',
@@ -54,10 +54,11 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ShareMyTimer - Real-Time Online Timer Sharing',
-    description: 'Create and share real-time synchronized timers for teams, events, and classrooms. Free, no sign up required.',
-    images: ['/shareMyTimerWithoutTxt.png'],
+    title: 'ShareMyTimer - Share Timers Instantly',
+    description: 'Collaborative timer for creators, teams and events. Control from your phone, display fullscreen anywhere. Real-time sync, zero friction.',
+    images: ['/landingPage.png'],
     site: '@RajneeshMi436',
+    creator: '@RajneeshMi436',
   },
 };
 

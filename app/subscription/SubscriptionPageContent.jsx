@@ -97,10 +97,10 @@ export default function SubscriptionPageContent() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Error</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
-            onClick={() => router.push("/controller")}
+            onClick={() => router.push("/")}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
           >
-            Back to Dashboard
+            Back to Home
           </button>
         </div>
       </div>
@@ -186,11 +186,11 @@ export default function SubscriptionPageContent() {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => router.push("/controller")}
+            onClick={() => router.push("/")}
             className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Dashboard
+            Back to Home
           </button>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Subscription</h1>
           <p className="text-gray-600">Manage your plan and billing information</p>
@@ -366,10 +366,10 @@ export default function SubscriptionPageContent() {
                 )}
 
                 <Link
-                  href="/controller"
+                  href="/"
                   className="block w-full bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-3 px-4 rounded-xl transition-colors text-center"
                 >
-                  Go to Dashboard
+                  Go to Home
                 </Link>
               </div>
             </div>

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { useRef, useState } from 'react';
+import { useUser } from '@clerk/nextjs';
 import TutorialSection from './components/(landingPage)/TutorialSection';
 import Navbar from './components/Navbar';
 import { BRAND_NAME } from "./constants";
@@ -22,6 +23,7 @@ export default function HomePage() {
   const [feedbackError, setFeedbackError] = useState('');
   const [feedbackSuccess, setFeedbackSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const { user } = useUser();
 
   // Helper for smooth scroll to anchor
   function handleAnchorClick(e, id) {
@@ -44,10 +46,11 @@ export default function HomePage() {
     }
     setSubmitting(true);
     try {
+      const userEmail = user?.primaryEmailAddress?.emailAddress || null;
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ feedback }),
+        body: JSON.stringify({ feedback, userEmail }),
       });
       if (res.ok) {
         setFeedback('');
