@@ -26,8 +26,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'ShareMyTimer - Share Timers Instantly | Real-Time Collaborative Timer',
-  description: 'ShareMyTimer lets you create, control, and share real-time synchronized timers for teams, events, and classrooms. Control from your phone, display fullscreen anywhere. No sign up required. Free and easy to use.',
+  metadataBase: new URL('https://sharemytimer.live'),
+  title: 'ShareMyTimer - Real-Time Collaborative Synchronized Timers',
+  description: 'Create and share synchronized timers for teams and events. Control from your phone, display fullscreen anywhere. Zero friction, no sign up required.',
   keywords: [
     'timer', 'online timer', 'share timer', 'real-time timer', 'synchronized timer', 'event timer', 'classroom timer', 'countdown', 'count up', 'remote timer', 'presentation timer', 'meeting timer', 'ShareMyTimer', 'sharable timer', 'free timer', 'team timer', 'collaborative timer'
   ],
@@ -37,8 +38,8 @@ export const metadata = {
     apple: '/favicon.ico',
   },
   openGraph: {
-    title: 'ShareMyTimer - Share Timers Instantly',
-    description: 'Collaborative timer for creators, teams and events. Control the timer from your phone. Display it fullscreen anywhere. Real-time sync, zero friction, no sign up required.',
+    title: 'ShareMyTimer - Real-Time Collaborative Synchronized Timers',
+    description: 'Create and share synchronized timers for teams and events. Control from your phone, display fullscreen anywhere. Zero friction, no sign up required.',
     url: 'https://sharemytimer.live',
     siteName: 'ShareMyTimer',
     images: [
@@ -51,14 +52,6 @@ export const metadata = {
     ],
     locale: 'en_US',
     type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'ShareMyTimer - Share Timers Instantly',
-    description: 'Collaborative timer for creators, teams and events. Control from your phone, display fullscreen anywhere. Real-time sync, zero friction.',
-    images: ['/landingPage.png'],
-    site: '@RajneeshMi436',
-    creator: '@RajneeshMi436',
   },
 };
 

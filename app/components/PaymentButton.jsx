@@ -220,7 +220,7 @@ const PaymentButton = ({
     return (
       <>
         <CreditCard className="w-5 h-5" />
-        <span>Subscribe for ₹{amount.toLocaleString()}</span>
+        <span>Subscribe for ${amount.toLocaleString()}</span>
         {popular && <Crown className="w-4 h-4 ml-1 fill-current" />}
       </>
     );

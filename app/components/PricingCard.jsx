@@ -83,7 +83,7 @@ export default function PricingCard({
                 <span className={`text-5xl font-bold tracking-tight ${
                   popular ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : "text-gray-900"
                 }`}>
-                  {amount ? "₹" + amount.toLocaleString() : "FREE"}
+                  {amount ? "$" + amount.toLocaleString() : "FREE"}
                 </span>
                 {(billingPeriod && !["free","singleEvent"]?.includes(billingPeriod)) && (
                   <span className="text-gray-500 text-lg font-medium">/{billingPeriod}</span>
