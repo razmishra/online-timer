@@ -69,7 +69,7 @@ export default function FounderSection() {
             <div className="pt-4 border-t border-gray-100">
               <p className="text-sm text-gray-500 flex items-center justify-center md:justify-start gap-2">
                 <MessageCircle className="w-4 h-4 text-green-500" />
-                Typically replies within a few hours on X
+                Typically replies within a few hours
               </p>
             </div>
           </div>
