@@ -11,6 +11,7 @@ import { BRAND_NAME } from "./constants";
 import WhyWeBuiltThis from './components/(landingPage)/WhyWeBuiltThisSection';
 import Testimonials from './components/(landingPage)/TestimonialsSections';
 import HeroJoinInput from './components/(landingPage)/HeroInput';
+import FounderSection from './components/(landingPage)/FounderSection';
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
@@ -515,6 +516,9 @@ export default function HomePage() {
         </div>
       </div>
     </section>
+
+    {/* Founder Section */}
+    <FounderSection />
 
       <footer className="px-6 py-12 bg-gray-50 border-t border-gray-100">
         <div className="max-w-6xl mx-auto">
