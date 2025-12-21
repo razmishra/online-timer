@@ -64,7 +64,7 @@ export async function POST(request) {
     }
 
     let productList = await dodoClient.products.list()
-    console.log(productList.items, "--productList");
+    // console.log(productList.items, "--productList");
     const selectedPlan = productList?.items?.find(
       (plan) => plan?.name?.toString()?.toLocaleLowerCase() === planId?.toString()?.toLocaleLowerCase()
     );

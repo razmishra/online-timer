@@ -7,6 +7,7 @@ import User from "@/utils/models/User";
 import { calculateExpirationDate } from "@/helper/dateHelper";
 import { connectToDatabase } from "@/utils/db";
 import { dodoClient } from "@/app/lib/dodoPayments";
+import { getTransporter } from "@/app/lib/email";
 
 const webhook = new Webhook(process.env.DODO_PAYMENTS_WEBHOOK_KEY);
 
@@ -127,6 +128,38 @@ export async function POST(request) {
             failureReason: subscriptionData.error_message || 'Payment failed'
           });
           
+          // Send email notification to admin
+          try {
+            const transporter = getTransporter();
+            const failureReason = subscriptionData.error_message || 'Payment processing failed';
+            const amount = subscriptionData.recurring_pre_tax_amount || subscriptionData.amount || 'N/A';
+            const currency = subscriptionData.currency || 'USD';
+            const planName = metadata.planName || planId || 'subscription plan';
+            
+            const emailSubject = `Subscription Payment Failed - ${subscriptionId}`;
+            
+            const emailText = `Subscription payment failed.
+
+            User: ${customerEmail}
+            Subscription ID: ${subscriptionId}
+            Plan: ${planName}
+            Amount: ${currency} ${amount}
+            Reason: ${failureReason}
+            Date: ${new Date().toLocaleString()}`;
+            
+            await transporter.sendMail({
+              from: process.env.SENDER_EMAIL,
+              to: process.env.ADMIN_EMAIL,
+              subject: emailSubject,
+              text: emailText
+            });
+            
+            console.log(`✅ Failure notification email sent to admin`);
+          } catch (emailError) {
+            console.error("❌ Failed to send subscription failure email:", emailError);
+            // Don't throw - we don't want email failures to break the webhook processing
+          }
+          
           break;
 
         case "subscription.cancelled":
@@ -239,7 +272,44 @@ export async function POST(request) {
           break;
 
         case "payment.failed":
+          console.log(`📕 payment.failed received`);
           await DodopaymentLog.create({ ...paymentLog, status: "failed" });
+          
+          // Send email notification to admin
+          try {
+            const transporter = getTransporter();
+            const customerEmail = paymentData.customer?.email || 'N/A';
+            const customerName = paymentData.customer?.name || 'N/A';
+            const failureReason = paymentData.error_message || 'Payment processing failed';
+            const amount = paymentData.total_amount || 'N/A';
+            const currency = paymentData.currency || 'USD';
+            const paymentId = paymentData.payment_id;
+            const planId = paymentData.metadata?.planId || 'N/A';
+            
+            const emailSubject = `Payment Failed - ${paymentId}`;
+            
+            const emailText = `Payment failed.
+
+            User: ${customerEmail}${customerName !== 'N/A' ? ` (${customerName})` : ''}
+            Payment ID: ${paymentId}
+            Plan: ${planId}
+            Amount: ${currency} ${amount}
+            Reason: ${failureReason}
+            Date: ${new Date().toLocaleString()}`;
+            
+            await transporter.sendMail({
+              from: process.env.SENDER_EMAIL,
+              to: process.env.ADMIN_EMAIL,
+              subject: emailSubject,
+              text: emailText
+            });
+            
+            console.log(`✅ Payment failure notification email sent to admin`);
+          } catch (emailError) {
+            console.error("❌ Failed to send payment failure email:", emailError);
+            // Don't throw - we don't want email failures to break the webhook processing
+          }
+          
           break;
 
         case "payment.cancelled":

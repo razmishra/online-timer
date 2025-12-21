@@ -28,6 +28,40 @@ const Navbar = () => {
     router.push("/controller");
   };
 
+  // Handle navigation with smooth scroll for anchor links
+  const handleNavigation = (href, e) => {
+    // Close mobile menu if open
+    setMobileMenuOpen(false);
+    
+    // Check if it's an anchor link (contains #)
+    if (href.includes('#')) {
+      e.preventDefault();
+      const [path, hash] = href.split('#');
+      const targetPath = path || '/';
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      
+      // If we're on a different page, navigate first then scroll
+      if (targetPath !== currentPath) {
+        router.push(href);
+        // Wait for navigation then scroll
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 400);
+      } else {
+        // Same page, just scroll
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    }
+  };
+
   const { isSignedIn, user, isLoaded } = useUser();
   
   return (
@@ -63,17 +97,25 @@ const Navbar = () => {
                     ? [{ href: "/subscription", label: "Active Plan" }]
                     : []
                 )
-              ].map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="relative px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-all duration-200 rounded-lg hover:bg-gray-50/80 group"
-                  onClick={(e) => handleAnchorClick(e, item.href.slice(1))}
-                >
-                  {item.label}
-                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-8 group-hover:left-1/2 group-hover:-translate-x-1/2 transition-all duration-300 rounded-full"></span>
-                </a>
-              ))}
+              ].map((item) => {
+                // For anchor links, use Link to "/" and handle hash in onClick
+                // For regular links, use Link normally
+                const isAnchorLink = item.href.includes('#');
+                const linkHref = isAnchorLink ? item.href.split('#')[0] || '/' : item.href;
+                
+                return (
+                  <Link
+                    key={item.href}
+                    href={linkHref}
+                    className="relative px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-all duration-200 rounded-lg hover:bg-gray-50/80 group"
+                    onClick={(e) => handleNavigation(item.href, e)}
+                    scroll={!isAnchorLink}
+                  >
+                    {item.label}
+                    <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-8 group-hover:left-1/2 group-hover:-translate-x-1/2 transition-all duration-300 rounded-full"></span>
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Desktop Auth & CTA */}
@@ -163,23 +205,36 @@ const Navbar = () => {
             {/* Navigation Links */}
             <nav className="flex flex-col px-4 py-6 space-y-1">
               {[
-                { href: "#features", label: "Features",},
-                { href: "#how-it-works", label: "How it Works",},
-                { href: "#use-cases", label: "Use Cases" },
+                { href: "/#features", label: "Features",},
+                { href: "/#how-it-works", label: "How it Works",},
+                { href: "/#use-cases", label: "Use Cases" },
                 { href: "/payment", label: "Pricing" },
-              ].map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center space-x-3 py-3 px-4 text-gray-700 hover:text-gray-900 hover:bg-gray-50 font-medium rounded-xl transition-all duration-200 group"
-                  onClick={(e) => handleAnchorClick(e, item.href.slice(1))}
-                >
-                  <span className="text-lg group-hover:scale-110 transition-transform duration-200">
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                </a>
-              ))}
+                ...(
+                  isSignedIn
+                    ? [{ href: "/subscription", label: "Active Plan" }]
+                    : []
+                )
+              ].map((item) => {
+                // For anchor links, use Link to "/" and handle hash in onClick
+                // For regular links, use Link normally
+                const isAnchorLink = item.href.includes('#');
+                const linkHref = isAnchorLink ? item.href.split('#')[0] || '/' : item.href;
+                
+                return (
+                  <Link
+                    key={item.href}
+                    href={linkHref}
+                    className="flex items-center space-x-3 py-3 px-4 text-gray-700 hover:text-gray-900 hover:bg-gray-50 font-medium rounded-xl transition-all duration-200 group"
+                    onClick={(e) => handleNavigation(item.href, e)}
+                    scroll={!isAnchorLink}
+                  >
+                    <span className="text-lg group-hover:scale-110 transition-transform duration-200">
+                      {item.icon}
+                    </span>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Mobile Auth Section */}

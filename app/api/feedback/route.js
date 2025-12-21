@@ -1,28 +1,11 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '../../../utils/db';
 import Feedback from '../../../utils/models/Feedback';
-import nodemailer from 'nodemailer';
+import { getTransporter } from '../../lib/email';
 
 const MONGODB_DB = process.env.MONGODB_DB || 'sharemytimer';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const SENDER_EMAIL = process.env.SENDER_EMAIL;
-const SMTP_HOST = process.env.SMTP_HOST;
-const SMTP_PORT = process.env.SMTP_PORT;
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
-
-// Email sending utility
-function getTransporter() {
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT),
-    secure: Number(SMTP_PORT) === 465, // true for 465, false for other ports
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS,
-    },
-  });
-}
 
 export async function POST(req) {
   try {
