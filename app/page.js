@@ -531,7 +531,7 @@ export default function HomePage() {
             </div>
             <div className="border-t border-gray-200 pt-6">
               <p className="text-gray-500 text-sm">
-                © 2025 {BRAND_NAME}. All rights reserved.
+                © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.
               </p>
             </div>
           </div>
