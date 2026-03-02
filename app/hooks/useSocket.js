@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
 import Cookies from 'js-cookie';
-import { useAuth, useUser } from '@clerk/nextjs';
 import useUserPlanStore from '@/stores/userPlanStore';
 
 // Helper to generate UUID
@@ -14,6 +14,7 @@ function generateUUID() {
 }
 
 export const useSocket = (setFailedSocketIds = null) => {
+  const router = useRouter();
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(true);
@@ -168,6 +169,7 @@ export const useSocket = (setFailedSocketIds = null) => {
     socketInstance.on('timer-full', ({ timerId, failedSocketId }) => {
       // console.log('timer-full received for timer', timerId, 'failedSocketId', failedSocketId);
       if (socketInstance.id === failedSocketId) {
+        setCurrentTimer(null); // Don't show timer state when rejected — show only the error
         setTimerFullMessage('This timer is full. Maximum viewers allowed have already connected.');
         // Add the failed socket ID to the context's failed list
         if (setFailedSocketIds) {
@@ -188,17 +190,24 @@ export const useSocket = (setFailedSocketIds = null) => {
       useUserPlanStore.getState().showPopup(type, message);
     });
 
-    socketInstance.on('timer-not-found', (data) => {
-      // No-op for production
+    socketInstance.on('timer-not-found', () => {
+      router.replace('/404');
     });
 
     return () => {
       socketInstance.disconnect();
     };
-  }, [isLoading]);
+  }, [isLoading, router]);
 
   const createTimer = useCallback((name, duration, maxConnectionsAllowed, maxTimersAllowed, styling = {}) => {
-    socket?.emit('create-timer', { name, duration, controllerId, maxConnectionsAllowed, maxTimersAllowed, styling });
+    socket?.emit('create-timer', {
+      name,
+      duration,
+      controllerId,
+      maxConnectionsAllowed,
+      maxTimersAllowed,
+      styling,
+    });
   }, [socket, controllerId]);
 
   const deleteTimer = useCallback((timerId) => {
