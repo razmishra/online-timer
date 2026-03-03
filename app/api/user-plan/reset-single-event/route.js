@@ -38,11 +38,13 @@ export async function POST(req) {
     }
     const reason = body?.reason ?? PLAN_RESET_REASONS?.SINGLE_EVENT_VIEWER_LIMIT;
     const timerId = body?.timerId ?? null;
+    const timerName = body?.timerName ?? null;
 
     await PlanResetLog.create({
       userID: userId,
       reason,
       timerId: timerId ?? null,
+      timerName: timerName ?? null,
       previousPlanId: user?.planId,
       previousPlanExpiresAt: user?.planExpiresAt ?? null,
       previousPlanVersion: user?.planVersion ?? null,

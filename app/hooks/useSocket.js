@@ -246,7 +246,7 @@ export const useSocket = (setFailedSocketIds = null) => {
       }
     });
 
-    socketInstance.on('limit-exceeded', async ({ type, message, timerId, reason }) => {
+    socketInstance.on('limit-exceeded', async ({ type, message, timerId, timerName, reason }) => {
       if (type === 'viewers') {
         if (reason === 'plan_used') {
           const plan = useUserPlanStore.getState().plan;
@@ -255,7 +255,7 @@ export const useSocket = (setFailedSocketIds = null) => {
               await fetch('/api/user-plan/reset-single-event', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ timerId: timerId ?? undefined }),
+                body: JSON.stringify({ timerId: timerId ?? undefined, timerName: timerName ?? undefined }),
               });
               const uid = userIdRef.current;
               if (uid) {

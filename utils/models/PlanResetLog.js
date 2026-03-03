@@ -18,6 +18,10 @@ const planResetLogSchema = new mongoose.Schema(
       default: null,
       index: true,
     },
+    timerName: {
+      type: String,
+      default: null,
+    },
     previousPlanId: {
       type: String,
       default: null,
