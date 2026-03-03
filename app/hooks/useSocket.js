@@ -123,8 +123,8 @@ export const useSocket = (setFailedSocketIds = null) => {
       if (!autoReconnectDone.current && timers.length > 0 && !currentTimer) {
         const lastSelectedId = getLastSelectedTimerId();
         const runningTimer = timers.find(timer => timer.isRunning);
-        // Priority: running timer first, then last selected timer
-        const timerToJoin = runningTimer || timers.find(timer => timer.id === lastSelectedId);
+        // Priority: running timer first, then last selected (e.g. from this device), then first timer (e.g. new device / cross-device)
+        const timerToJoin = runningTimer || timers.find(timer => timer.id === lastSelectedId) || timers[0];
         if (timerToJoin && effectiveId) {
           socketInstance.emit('join-timer', { timerId: timerToJoin.id, controllerId: effectiveId });
         }
@@ -308,23 +308,23 @@ export const useSocket = (setFailedSocketIds = null) => {
 
   const joinTimer = useCallback((timerId) => {
     if (socket && isConnected && !isLoading) {
-      socket.emit('join-timer', { timerId, controllerId, maxConnectionsAllowed, isLoading });
+      socket.emit('join-timer', { timerId, controllerId });
     }
-  }, [socket, isConnected, controllerId, maxConnectionsAllowed, isLoading]);
+  }, [socket, isConnected, controllerId]);
 
   const viewTimer = useCallback((timerId) => {
     if (socket && isConnected && !isLoading) {
       socket.emit('view-timer', { timerId, controllerId });
     }
-  }, [socket, isConnected, controllerId, maxConnectionsAllowed, isLoading]);
+  }, [socket, isConnected, controllerId]);
 
   const setTimer = useCallback((timerId, duration) => {
     socket?.emit('set-timer', { timerId, duration, controllerId });
   }, [socket, controllerId]);
 
   const startTimer = useCallback((timerId) => {
-    socket?.emit('start-timer', { timerId, controllerId, maxConnectionsAllowed });
-  }, [socket, controllerId, maxConnectionsAllowed]);
+    socket?.emit('start-timer', { timerId, controllerId });
+  }, [socket, controllerId]);
 
   const pauseTimer = useCallback((timerId) => {
     socket?.emit('pause-timer', { timerId, controllerId });
