@@ -97,7 +97,7 @@ const TimerList = React.memo(({ timerList, isAnyTimerRunning, effectiveTimerId, 
                     <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                   )}
                   <span className="text-xs font-medium text-slate-400 bg-slate-600/50 px-2 py-1 rounded-lg whitespace-nowrap">
-                    {timer.connectedCount}/{maxConnectionsAllowed-1}
+                    {timer.connectedCount}/{(timer.maxConnectionsAllowed ?? maxConnectionsAllowed) - 1}
                   </span>
                   <button
                     onClick={(e) => {

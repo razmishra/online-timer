@@ -14,7 +14,8 @@ const TimerControls = React.memo(({ effectiveTimerId, currentTimer, startTimer, 
   const [timerExceedsLimit, setTimerExceedsLimit] = useState(false);
   
   const currentActivePlan = useUserPlanStore(store => store.plan)
-  const { maxConnectionsAllowed } = currentActivePlan
+  const { maxConnectionsAllowed: planMaxConnections } = currentActivePlan
+  const maxConnectionsAllowed = currentTimer?.maxConnectionsAllowed ?? planMaxConnections
 
   const calculateTotalSeconds = useCallback((inputValue) => {
     if (!inputValue) return 0;
@@ -29,7 +30,6 @@ const TimerControls = React.memo(({ effectiveTimerId, currentTimer, startTimer, 
 
   const handleTimerInputChange = useCallback((e) => {
     let value = e.target.value.replace(/[^\d:]/g, '');
-    console.log(value," --value")
     if ((value.match(/:/g) || []).length > 1) {
       const firstColonIndex = value.indexOf(':');
       value = value.slice(0, firstColonIndex + 1) + value.slice(firstColonIndex + 1).replace(/:/g, '');
@@ -260,10 +260,14 @@ const handleTimerKeyDown = useCallback((e) => {
 
         {/* Timer Status */}
         <div className="bg-slate-700/30 rounded-lg p-3">
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
             <div>
               <p className="text-xs font-medium text-slate-400 mb-1">Duration</p>
-              <p className="font-semibold text-white text-sm">{formatTime(currentTimer?.duration)}</p>
+              <p className="font-semibold text-white text-sm">{formatTime(currentTimer?.duration ?? 0)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-slate-400 mb-1">Remaining</p>
+              <p className="font-semibold text-white text-sm">{formatTime(currentTimer?.remaining ?? 0)}</p>
             </div>
             <div>
               <p className="text-xs font-medium text-slate-400 mb-1">Status</p>
@@ -273,7 +277,7 @@ const handleTimerKeyDown = useCallback((e) => {
             </div>
             <div>
               <p className="text-xs font-medium text-slate-400 mb-1">Connected</p>
-              <p className="font-semibold text-white text-sm">{currentTimer?.connectedCount}/{maxConnectionsAllowed-1}</p>
+              <p className="font-semibold text-white text-sm">{currentTimer?.connectedCount ?? 0}/{maxConnectionsAllowed - 1}</p>
             </div>
           </div>
         </div>

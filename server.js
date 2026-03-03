@@ -20,11 +20,18 @@ const io = new Server(server, {
   }
 });
 
+// Default (free) viewer limit — used to trigger single-event plan reset when exceeded
+const DEFAULT_MAX_CONNECTIONS = 4;
+
 // Global variables
 const timers = new Map(); // timerId -> Timer instance
-const deviceToTimer = new Map(); // deviceId -> timerId
 const controllerTimers = new Map(); // controllerId -> Set of timerIds
 const controllerToSocket = new Map(); // controllerId -> Set of socketIds
+
+// Room name for a timer (one Socket.IO room per timer)
+function timerRoomId(timerId) {
+  return "timer:" + timerId;
+}
 
 // Helper function to generate unique IDs
 function generateId() {
@@ -48,7 +55,6 @@ class Timer {
     this.textColor = '#ffffff';
     this.fontSize = 'text-6xl';
     this.isFlashing = false;
-    this.connectedDevices = new Set(); // Track connected devices
     this.interval = null;
     this.controllerId = null;
     this.timerView = 'normal';
@@ -136,33 +142,10 @@ class Timer {
       const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
       this.remaining = this.duration - elapsed;
     }
-    
-    // Emit to all connected devices for this timer
-    this.connectedDevices.forEach(deviceId => {
-      if (io && io.sockets && io.sockets.sockets) {
-        const socket = io.sockets.sockets.get(deviceId);
-        if (socket) {
-          const timerState = this.getState();
-          socket.emit('timer-update', timerState);
-        } else {
-          this.connectedDevices.delete(deviceId);
-        }
-      }
-    });
-  }
-
-  addDevice(deviceId) {
-    if (this.connectedDevices.size < this.maxConnectionsAllowed) {
-      this.connectedDevices.add(deviceId);
-      this.update();
-      return true;
+    const roomId = timerRoomId(this.id);
+    if (io) {
+      io.to(roomId).emit("timer-update", this.getState());
     }
-    return false;
-  }
-
-  removeDevice(deviceId) {
-    this.connectedDevices.delete(deviceId);
-    this.update();
   }
 
   updateMessage(message) {
@@ -194,6 +177,8 @@ class Timer {
   }
 
   getState() {
+    const roomId = timerRoomId(this.id);
+    const connectedCount = io?.sockets?.adapter?.rooms?.get(roomId)?.size ?? 0;
     return {
       id: this.id,
       name: this.name,
@@ -205,8 +190,10 @@ class Timer {
       textColor: this.textColor,
       fontSize: this.fontSize,
       isFlashing: this.isFlashing,
-      connectedCount: this.connectedDevices.size,
+      connectedCount,
       joiningCode: this.joiningCode,
+      maxConnectionsAllowed: this.maxConnectionsAllowed,
+      maxTimersAllowed: this.maxTimersAllowed,
       styling: {
         backgroundColor: this.backgroundColor,
         textColor: this.textColor,
@@ -217,38 +204,36 @@ class Timer {
   }
 }
 
-// Helper function to ensure controller is connected to timer
-function ensureControllerConnected(socket, timerId) {
-  const timer = timers.get(timerId);
-  if (timer && !timer.connectedDevices.has(socket.id)) {
-    timer.addDevice(socket.id);
-    deviceToTimer.set(socket.id, timerId);
-  }
-}
-
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
     timers: timers.size,
-    connectedDevices: Array.from(deviceToTimer.keys()).length
+    connectedSockets: io.sockets.sockets?.size ?? 0,
   });
 });
 
-// Helper: get timers for a controller
+// Helper: get timers for a controller (connectedCount from room size)
 function getTimersForController(controllerId) {
   const timerIds = controllerTimers.get(controllerId) || new Set();
-  return Array.from(timerIds).map(id => {
-    const timer = timers.get(id);
-    if (!timer) return null;
-    return {
-      id: timer.id,
-      name: timer.name,
-      duration: timer.duration,
-      connectedCount: timer.connectedDevices.size,
-      joiningCode: timer.joiningCode || '',
-    };
-  }).filter(Boolean);
+  return Array.from(timerIds)
+    .map((id) => {
+      const timer = timers.get(id);
+      if (!timer) return null;
+      const roomId = timerRoomId(id);
+      const connectedCount = io?.sockets?.adapter?.rooms?.get(roomId)?.size ?? 0;
+      return {
+        id: timer.id,
+        name: timer.name,
+        duration: timer.duration,
+        connectedCount,
+        joiningCode: timer.joiningCode || "",
+        maxConnectionsAllowed: timer.maxConnectionsAllowed,
+        maxTimersAllowed: timer.maxTimersAllowed,
+        isRunning: timer.isRunning,
+      };
+    })
+    .filter(Boolean);
 }
 
 // Helper: emit timer-list only for the requesting controller
@@ -259,120 +244,147 @@ function emitTimerListForController(socket, controllerId) {
 // Socket.IO connection handling
 io.on('connection', (socket) => {
 
-    // --- JOIN TIMER ---
-  // Modified join-timer event handler to update controllerToSocket and emit limit-exceeded to controller
-socket.on('join-timer', ({ timerId, controllerId, maxConnectionsAllowed }) => {
-  if (!controllerId) return;
-  const timer = timers.get(timerId);
-  if (timer) {
-    timer.maxConnectionsAllowed = maxConnectionsAllowed ?? timer.maxConnectionsAllowed;
-    const wasAdded = timer.addDevice(socket.id);
-    if (wasAdded) {
-      deviceToTimer.set(socket.id, timerId);
-      // Update controllerToSocket mapping
-      if (!controllerToSocket.has(controllerId)) {
-        controllerToSocket.set(controllerId, new Set());
-      }
-      controllerToSocket.get(controllerId).add(socket.id);
-
-      const timerState = timer.getState();
-      socket.emit('timer-joined', timerState);
-      if (timer.controllerId === controllerId) {
-        emitTimerListForController(socket, controllerId);
-      }
-    } else {
-      socket.emit('timer-full', { timerId, failedSocketId: socket.id });
-
-      // Emit limit-exceeded to controller's socket(s) using controllerToSocket
-      const controllerSocketIds = controllerToSocket.get(timer.controllerId) || new Set();
+    // --- JOIN TIMER (room-based) ---
+  socket.on("join-timer", ({ timerId, controllerId }) => {
+    if (!controllerId) return;
+    const timer = timers.get(timerId);
+    if (!timer) {
+      socket.emit("timer-not-found", { timerId });
+      return;
+    }
+    const roomId = timerRoomId(timerId);
+    socket.join(roomId);
+    const roomSize = io.sockets.adapter.rooms.get(roomId)?.size ?? 0;
+    if (roomSize >= timer.maxConnectionsAllowed) {
+      socket.leave(roomId);
+      socket.emit("timer-full", { timerId, failedSocketId: socket.id });
+      const controllerSocketIds =
+        controllerToSocket.get(timer.controllerId) || new Set();
       controllerSocketIds.forEach((controllerSocketId) => {
         const controllerSocket = io.sockets.sockets.get(controllerSocketId);
         if (controllerSocket) {
-          controllerSocket.emit('limit-exceeded', {
+          controllerSocket.emit("limit-exceeded", {
             timerId,
-            type: 'viewers',
+            type: "viewers",
+            reason: "timer_full",
             message: `You've reached the maximum number of viewers (${timer.maxConnectionsAllowed-1}) for your plan. Upgrade to allow more viewers.`,
           });
         }
       });
+      return;
     }
-  } else {
-    socket.emit('timer-not-found', { timerId });
-  }
-});
-
-// Modified view-timer event handler to update controllerToSocket and emit limit-exceeded to controller
-socket.on('view-timer', ({ timerId, controllerId, maxConnectionsAllowed }) => {
-  // console.log(controllerId," --controllerId in view-timer event");
-  if (!controllerId) return;
-  const timer = timers.get(timerId);
-  if (timer) {
-    const wasAdded = timer.addDevice(socket.id);
-    if (wasAdded) {
-      deviceToTimer.set(socket.id, timerId);
-      // Update controllerToSocket mapping
-      if (!controllerToSocket.has(controllerId)) {
-        controllerToSocket.set(controllerId, new Set());
+    if (!controllerToSocket.has(controllerId)) {
+      controllerToSocket.set(controllerId, new Set());
+    }
+    controllerToSocket.get(controllerId).add(socket.id);
+    socket.emit("timer-joined", timer.getState());
+    timer.update(); // broadcast new connectedCount to everyone in room
+    if (roomSize > DEFAULT_MAX_CONNECTIONS) {
+      const controllerSocketIds =
+        controllerToSocket.get(timer.controllerId) || new Set();
+      const firstControllerSocketId = controllerSocketIds.values().next().value;
+      if (firstControllerSocketId) {
+        const controllerSocket = io.sockets.sockets.get(firstControllerSocketId);
+        if (controllerSocket) {
+          controllerSocket.emit("limit-exceeded", {
+            timerId,
+            type: "viewers",
+            reason: "plan_used",
+            message: "Viewer count exceeded default limit. Your single-event plan has been used.",
+          });
+        }
       }
-      controllerToSocket.get(controllerId).add(socket.id);
+    }
+    if (timer.controllerId === controllerId) {
+      emitTimerListForController(socket, controllerId);
+    }
+  });
 
-      const timerState = timer.getState();
-      socket.emit('timer-joined', timerState);
-    } else {
-      socket.emit('timer-full', { timerId, failedSocketId: socket.id });
-
-      // Emit limit-exceeded to controller's socket(s) using controllerToSocket
-      const controllerSocketIds = controllerToSocket.get(timer.controllerId) || new Set();
+  // --- VIEW TIMER (room-based) ---
+  socket.on("view-timer", ({ timerId, controllerId }) => {
+    if (!controllerId) return;
+    const timer = timers.get(timerId);
+    if (!timer) {
+      socket.emit("timer-not-found", { timerId });
+      return;
+    }
+    const roomId = timerRoomId(timerId);
+    socket.join(roomId);
+    const roomSize = io.sockets.adapter.rooms.get(roomId)?.size ?? 0;
+    if (roomSize >= timer.maxConnectionsAllowed) {
+      socket.leave(roomId);
+      socket.emit("timer-full", { timerId, failedSocketId: socket.id });
+      const controllerSocketIds =
+        controllerToSocket.get(timer.controllerId) || new Set();
       controllerSocketIds.forEach((controllerSocketId) => {
         const controllerSocket = io.sockets.sockets.get(controllerSocketId);
         if (controllerSocket) {
-          controllerSocket.emit('limit-exceeded', {
+          controllerSocket.emit("limit-exceeded", {
             timerId,
-            type: 'viewers',
+            type: "viewers",
+            reason: "timer_full",
             message: `You've reached the maximum number of viewers (${timer.maxConnectionsAllowed-1}) for your plan. Upgrade to allow more viewers.`,
           });
         }
       });
+      return;
     }
-  } else {
-    socket.emit('timer-not-found', { timerId });
-  }
-});
+    if (!controllerToSocket.has(controllerId)) {
+      controllerToSocket.set(controllerId, new Set());
+    }
+    controllerToSocket.get(controllerId).add(socket.id);
+    socket.emit("timer-joined", timer.getState());
+    timer.update(); // broadcast new connectedCount to everyone in room
+    if (roomSize > DEFAULT_MAX_CONNECTIONS) {
+      const controllerSocketIds =
+        controllerToSocket.get(timer.controllerId) || new Set();
+      const firstControllerSocketId = controllerSocketIds.values().next().value;
+      if (firstControllerSocketId) {
+        const controllerSocket = io.sockets.sockets.get(firstControllerSocketId);
+        if (controllerSocket) {
+          controllerSocket.emit("limit-exceeded", {
+            timerId,
+            type: "viewers",
+            reason: "plan_used",
+            message: "Viewer count exceeded default limit. Your single-event plan has been used.",
+          });
+        }
+      }
+    }
+  });
 
-// Modified create-timer event handler to update controllerToSocket
-socket.on('create-timer', ({ name, duration, maxConnectionsAllowed = 4, maxTimersAllowed = 3, controllerId, styling }) => {
-  if (!controllerId) return;
-  const currentTimers = controllerTimers.get(controllerId) || new Set();
-  if (currentTimers.size >= maxTimersAllowed) {
-    socket.emit('limit-exceeded', {
-      type: 'timers',
-      message: `You've reached the maximum number of timers (${maxTimersAllowed}) for your plan. Upgrade to create more timers.`,
-    });
-    return;
-  }
-  const timerId = generateId();
-  const timer = new Timer(timerId, name, duration, maxConnectionsAllowed, maxTimersAllowed);
-  timer.controllerId = controllerId;
-  if (styling) {
-    timer.backgroundColor = styling.backgroundColor || timer.backgroundColor;
-    timer.textColor = styling.textColor || timer.textColor;
-    timer.fontSize = styling.fontSize || timer.fontSize;
-    timer.timerView = styling.timerView || 'normal';
-  }
-  timers.set(timerId, timer);
-  if (!controllerTimers.has(controllerId)) controllerTimers.set(controllerId, new Set());
-  controllerTimers.get(controllerId).add(timerId);
-  timer.addDevice(socket.id);
-  deviceToTimer.set(socket.id, timerId);
-  // Update controllerToSocket mapping
-  if (!controllerToSocket.has(controllerId)) {
-    controllerToSocket.set(controllerId, new Set());
-  }
-  controllerToSocket.get(controllerId).add(socket.id);
-
-  emitTimerListForController(socket, controllerId);
-  socket.emit('timer-created', timer.getState());
-});
+  // --- CREATE TIMER (room-based) ---
+  socket.on("create-timer", ({ name, duration, maxConnectionsAllowed = 4, maxTimersAllowed = 3, controllerId, styling }) => {
+    if (!controllerId) return;
+    const currentTimers = controllerTimers.get(controllerId) || new Set();
+    if (currentTimers.size >= maxTimersAllowed) {
+      socket.emit("limit-exceeded", {
+        type: "timers",
+        message: `You've reached the maximum number of timers (${maxTimersAllowed}) for your plan. Upgrade to create more timers.`,
+      });
+      return;
+    }
+    const timerId = generateId();
+    const timer = new Timer(timerId, name, duration, maxConnectionsAllowed, maxTimersAllowed);
+    timer.controllerId = controllerId;
+    if (styling) {
+      timer.backgroundColor = styling.backgroundColor || timer.backgroundColor;
+      timer.textColor = styling.textColor || timer.textColor;
+      timer.fontSize = styling.fontSize || timer.fontSize;
+      timer.timerView = styling.timerView || "normal";
+    }
+    timers.set(timerId, timer);
+    if (!controllerTimers.has(controllerId))
+      controllerTimers.set(controllerId, new Set());
+    controllerTimers.get(controllerId).add(timerId);
+    socket.join(timerRoomId(timerId));
+    if (!controllerToSocket.has(controllerId)) {
+      controllerToSocket.set(controllerId, new Set());
+    }
+    controllerToSocket.get(controllerId).add(socket.id);
+    emitTimerListForController(socket, controllerId);
+    socket.emit("timer-created", timer.getState());
+  });
 
   // --- LIST TIMERS FOR CONTROLLER ---
   socket.on('get-timers', ({ controllerId }) => {
@@ -380,23 +392,53 @@ socket.on('create-timer', ({ name, duration, maxConnectionsAllowed = 4, maxTimer
     emitTimerListForController(socket, controllerId);
   });
 
-  // --- DELETE TIMER ---
-  socket.on('delete-timer', ({ timerId, controllerId }) => {
+  // --- HYDRATE TIMERS (client sends persisted timers from DB to restore server memory) ---
+  socket.on("hydrate-timers", ({ controllerId, timers: timerList }) => {
+    if (!controllerId || !Array.isArray(timerList)) return;
+    timerList.forEach((t) => {
+      const id = t.id;
+      if (!id || timers.has(id)) return;
+      const name = t.name ?? "";
+      const duration = t.duration ?? 0;
+      const maxConnectionsAllowed = t.maxConnectionsAllowed ?? DEFAULT_MAX_CONNECTIONS;
+      const maxTimersAllowed = t.maxTimersAllowed ?? 3;
+      const timer = new Timer(id, name, duration, maxConnectionsAllowed, maxTimersAllowed);
+      timer.controllerId = controllerId;
+      if (t.message != null) timer.message = t.message;
+      if (t.joiningCode != null) timer.joiningCode = t.joiningCode;
+      const styling = t.styling || t;
+      if (styling.backgroundColor) timer.backgroundColor = styling.backgroundColor;
+      if (styling.textColor) timer.textColor = styling.textColor;
+      if (styling.fontSize) timer.fontSize = styling.fontSize;
+      if (styling.timerView) timer.timerView = styling.timerView;
+      timers.set(id, timer);
+      if (!controllerTimers.has(controllerId)) {
+        controllerTimers.set(controllerId, new Set());
+      }
+      controllerTimers.get(controllerId).add(id);
+    });
+  });
+
+    // --- LEAVE TIMER (client emits when switching timers or navigating away) ---
+  socket.on("leave-timer", ({ timerId }) => {
+    if (!timerId) return;
+    const timer = timers.get(timerId);
+    if (timer) {
+      socket.leave(timerRoomId(timerId));
+      timer.update();
+    }
+  });
+
+  // --- DELETE TIMER (room-based broadcast) ---
+  socket.on("delete-timer", ({ timerId, controllerId }) => {
     if (!controllerId) return;
     const timer = timers.get(timerId);
     if (timer && timer.controllerId === controllerId) {
-      timer.connectedDevices.forEach(deviceId => {
-        const deviceSocket = io.sockets.sockets.get(deviceId);
-        if (deviceSocket) {
-          deviceSocket.emit('timer-deleted', { timerId });
-        }
-        deviceToTimer.delete(deviceId);
-      });
-      if (timer.interval) {
-        clearInterval(timer.interval);
-      }
+      io.to(timerRoomId(timerId)).emit("timer-deleted", { timerId });
+      if (timer.interval) clearInterval(timer.interval);
       timers.delete(timerId);
-      if (controllerTimers.has(controllerId)) controllerTimers.get(controllerId).delete(timerId);
+      if (controllerTimers.has(controllerId))
+        controllerTimers.get(controllerId).delete(timerId);
       emitTimerListForController(socket, controllerId);
     }
   });
@@ -492,17 +534,21 @@ socket.on('create-timer', ({ name, duration, maxConnectionsAllowed = 4, maxTimer
     }
   });
 
-  // Modified disconnect event handler to clean up controllerToSocket
-  socket.on('disconnect', () => {
-    const timerId = deviceToTimer.get(socket.id);
-    if (timerId) {
-      const timer = timers.get(timerId);
-      if (timer) {
-        timer.removeDevice(socket.id);
-      }
-      deviceToTimer.delete(socket.id);
-    }
-    // Clean up controllerToSocket mapping
+  // --- DISCONNECTING: capture timer rooms (socket.rooms is empty by the time "disconnect" fires) ---
+  socket.on("disconnecting", () => {
+    socket._timerRoomIds = Array.from(socket.rooms || []).filter((r) => r.startsWith("timer:")).map((r) => r.slice(6));
+  });
+
+  // --- DISCONNECT: broadcast new connectedCount to remaining clients (after socket has left rooms) ---
+  socket.on("disconnect", () => {
+    const timerIds = socket._timerRoomIds || [];
+    socket._timerRoomIds = undefined;
+    setImmediate(() => {
+      timerIds.forEach((timerId) => {
+        const timer = timers.get(timerId);
+        if (timer) timer.update();
+      });
+    });
     controllerToSocket.forEach((socketIds, controllerId) => {
       if (socketIds.has(socket.id)) {
         socketIds.delete(socket.id);

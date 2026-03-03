@@ -2,14 +2,23 @@
 import React, { useState, useCallback } from 'react';
 import posthog from 'posthog-js';
 import useUserPlanStore from '@/stores/userPlanStore';
+import { FREE_CONNECTIONS_ALLOWED, FREE_TIMERS_ALLOWED } from '@/app/constants';
 
-const CreateTimer = React.memo(({ createTimer, timerView, backgroundColor, textColor, fontSize }) => {
+const CreateTimer = React.memo(({ createTimer, timerList = [], timerView, backgroundColor, textColor, fontSize }) => {
   const [createTimerInput, setCreateTimerInput] = useState('');
   const [timerName, setTimerName] = useState('');
   const [timerExceedsLimit, setTimerExceedsLimit] = useState(false);
 
   const userCurrentPlan = useUserPlanStore(state => state.plan)
-  const { maxConnectionsAllowed, maxTimersAllowed } = userCurrentPlan
+  const { maxConnectionsAllowed, maxTimersAllowed, planId } = userCurrentPlan
+  
+  // Single-event: only one timer at a time can have elevated limits. If user already has any timer with elevated limits, use default for the new one; otherwise use plan (e.g. after deleting the elevated one, next create gets plan again).
+  const hasElevatedLimitTimer = timerList.some(
+    (t) => (t.maxConnectionsAllowed ?? FREE_CONNECTIONS_ALLOWED) > FREE_CONNECTIONS_ALLOWED
+  )
+  const useDefaultLimits = planId === 'singleEvent' && hasElevatedLimitTimer
+  const effectiveMaxConnections = useDefaultLimits ? FREE_CONNECTIONS_ALLOWED : maxConnectionsAllowed
+  const effectiveMaxTimers = useDefaultLimits ? FREE_TIMERS_ALLOWED : maxTimersAllowed
 
   const calculateTotalSeconds = useCallback((inputValue) => {
     if (!inputValue) return 0;
@@ -89,7 +98,7 @@ const CreateTimer = React.memo(({ createTimer, timerView, backgroundColor, textC
     const [minutes, seconds] = createTimerInput.split(':').map(Number);
     const totalSeconds = (minutes || 0) * 60 + (seconds || 0);
     if (totalSeconds > 0 && timerName.trim()) {
-      createTimer(timerName.trim(), totalSeconds, maxConnectionsAllowed, maxTimersAllowed, { timerView, backgroundColor, textColor, fontSize });
+      createTimer(timerName.trim(), totalSeconds, effectiveMaxConnections, effectiveMaxTimers, { timerView, backgroundColor, textColor, fontSize });
       if (posthog.__initialized) {
         posthog.capture('timer_created', {
           name: timerName.trim(),
@@ -103,7 +112,7 @@ const CreateTimer = React.memo(({ createTimer, timerView, backgroundColor, textC
       setCreateTimerInput('');
       setTimerName('');
     }
-  }, [createTimerInput, timerName, createTimer, maxConnectionsAllowed, maxTimersAllowed, timerView, backgroundColor, textColor, fontSize]);
+  }, [createTimerInput, timerName, createTimer, effectiveMaxConnections, effectiveMaxTimers, timerView, backgroundColor, textColor, fontSize]);
 
   return (
     <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 p-6">

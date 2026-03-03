@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
 import Cookies from 'js-cookie';
+import { useAuth } from '@clerk/nextjs';
 import useUserPlanStore from '@/stores/userPlanStore';
 
 // Helper to generate UUID
@@ -29,7 +30,8 @@ export const useSocket = (setFailedSocketIds = null) => {
   const currentActivePlan = useUserPlanStore(state=>state.plan)
   const isLoading = useUserPlanStore(state=>state.isLoading)
   const {maxConnectionsAllowed} = currentActivePlan;
-  // console.log(maxConnectionsAllowed, maxTimersAllowed, " data in the useSocket")
+  const { userId, isLoaded: isAuthLoaded } = useAuth();
+
   // Get the last selected timer ID from localStorage
   const getLastSelectedTimerId = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -45,15 +47,53 @@ export const useSocket = (setFailedSocketIds = null) => {
     }
   }, []);
 
-  // Controller ID logic
-  let controllerId = null;
-  if (typeof window !== 'undefined') {
-    controllerId = Cookies.get('controllerId');
-    if (!controllerId) {
-      controllerId = generateUUID();
-      Cookies.set('controllerId', controllerId, { expires: 365 });
+  // Anonymous controller ID (cookie) — only used when user is not logged in
+  const anonymousControllerId = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    let id = Cookies.get('controllerId');
+    if (!id) {
+      id = generateUUID();
+      Cookies.set('controllerId', id, { expires: 365 });
     }
-  }
+    return id;
+  }, []);
+
+  // Effective owner ID: logged-in users use Clerk userId (cross-device); others use cookie-based id
+  const controllerId = isAuthLoaded && userId ? userId : anonymousControllerId;
+  const controllerIdRef = useRef(controllerId);
+  controllerIdRef.current = controllerId;
+  const userIdRef = useRef(userId);
+  userIdRef.current = userId;
+
+  // When controllerId changes: fetch timers from DB → hydrate on server → get-timers
+  useEffect(() => {
+    if (!socket || !isConnected || !controllerId) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/timers?ownerId=${encodeURIComponent(controllerId)}`);
+        const data = res.ok ? await res.json() : [];
+        if (cancelled || !Array.isArray(data)) return;
+        const timersToHydrate = data.map((t) => ({
+          id: t.id,
+          name: t.name,
+          duration: t.duration,
+          originalDuration: t.originalDuration ?? t.duration,
+          maxConnectionsAllowed: t.maxConnectionsAllowed,
+          maxTimersAllowed: t.maxTimersAllowed,
+          message: t.message,
+          joiningCode: t.joiningCode,
+          styling: t.styling,
+        }));
+        socket.emit('hydrate-timers', { controllerId, timers: timersToHydrate });
+        socket.emit('get-timers', { controllerId });
+      } catch {
+        socket.emit('get-timers', { controllerId });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [socket, isConnected, controllerId]);
 
   useEffect(() => {
     if(isLoading) return
@@ -67,10 +107,8 @@ export const useSocket = (setFailedSocketIds = null) => {
       setIsConnected(true);
       setIsConnecting(false);
       setSocketId(socketInstance.id);
-      // Request timers for this controllerId on connect/reconnect
-      if (controllerId) {
-        socketInstance.emit('get-timers', { controllerId });
-      }
+      // Request timers on connect — identity (controllerId) is resolved in the effect above when it changes
+      // Note: initial request uses whatever controllerId is at connect time (anonymous or userId)
     });
 
     socketInstance.on('disconnect', () => {
@@ -80,16 +118,15 @@ export const useSocket = (setFailedSocketIds = null) => {
 
     socketInstance.on('timer-list', (timers) => {
       setTimerList(timers);
-      
+      const effectiveId = controllerIdRef.current;
       // Only run auto-reconnect once after initial load
       if (!autoReconnectDone.current && timers.length > 0 && !currentTimer) {
         const lastSelectedId = getLastSelectedTimerId();
         const runningTimer = timers.find(timer => timer.isRunning);
         // Priority: running timer first, then last selected timer
         const timerToJoin = runningTimer || timers.find(timer => timer.id === lastSelectedId);
-        if (timerToJoin) {
-          // console.log('Auto-reconnecting to timer:', timerToJoin.id, 'isRunning:', timerToJoin.isRunning);
-          socketInstance.emit('join-timer', { timerId: timerToJoin.id, controllerId , maxConnectionsAllowed:currentActivePlan?.maxConnectionsAllowed});
+        if (timerToJoin && effectiveId) {
+          socketInstance.emit('join-timer', { timerId: timerToJoin.id, controllerId: effectiveId });
         }
         autoReconnectDone.current = true;
       }
@@ -99,36 +136,39 @@ export const useSocket = (setFailedSocketIds = null) => {
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
       saveSelectedTimerId(timerState.id);
-      // setJoiningCode(timerState.joiningCode);
-      try {
-        if(timerState?.joiningCode){
-          setJoiningCode(timerState?.joiningCode)
-        }else{
-          const response = await fetch("/api/create-joining-code",{
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              timerId: timerState.id
-          }),
-        })
-        const result = await response.json();
-        if(!result?.error){
-          socketInstance.emit("update-joining-code",{timerId: timerState.id, joiningCode: result?.joiningCode, controllerId})
-          setJoiningCode(result?.joiningCode)
-        }
+      const ownerId = controllerIdRef.current;
+      if (timerState?.joiningCode) {
+        setJoiningCode(timerState.joiningCode);
+        return;
       }
+      try {
+        const response = await fetch("/api/create-joining-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ timerId: timerState.id }),
+        });
+        const result = await response.json();
+        const code = result?.joiningCode;
+        if (code) {
+          socketInstance.emit("update-joining-code", { timerId: timerState.id, joiningCode: code, controllerId: ownerId });
+          setJoiningCode(code);
+          await fetch(`/api/timers/${timerState.id}?ownerId=${encodeURIComponent(ownerId)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ joiningCode: code }),
+          }).catch(() => {});
+        }
       } catch (error) {
-        console.log("error creating joining code in frontend")
+        console.log("error creating joining code in frontend");
       }
     });
 
     socketInstance.on('timer-update', (timerState) => {
       setCurrentTimer(timerState);
-      if (timerState.connectedCount < maxConnectionsAllowed) {
+      const limit = timerState.maxConnectionsAllowed ?? maxConnectionsAllowed;
+      if (timerState.connectedCount < limit) {
         setTimerFullMessage(null);
-        // Clear failed socket IDs when timer is no longer full
         if (setFailedSocketIds) {
-          // console.log('Clearing failed socket IDs - timer no longer full');
           setFailedSocketIds(new Set());
         }
       }
@@ -138,21 +178,46 @@ export const useSocket = (setFailedSocketIds = null) => {
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
       saveSelectedTimerId(timerState.id);
+      const ownerId = controllerIdRef.current;
       try {
-        const response = await fetch("/api/create-joining-code",{
+        await fetch('/api/timers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: timerState.id,
+            ownerId,
+            name: timerState.name,
+            duration: timerState.duration,
+            originalDuration: timerState.duration,
+            maxConnectionsAllowed: timerState.maxConnectionsAllowed,
+            maxTimersAllowed: timerState.maxTimersAllowed,
+            styling: timerState.styling,
+            joiningCode: '',
+            message: timerState.message || '',
+          }),
+        });
+      } catch (err) {
+        console.error('Failed to persist timer', err);
+      }
+      try {
+        const response = await fetch("/api/create-joining-code", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            timerId: timerState.id
-          }),
-        })
+          body: JSON.stringify({ timerId: timerState.id }),
+        });
         const result = await response.json();
-        if(!result?.error){
-          socketInstance.emit("update-joining-code",{timerId: timerState.id, joiningCode: result?.joiningCode, controllerId})
-          setJoiningCode(result?.joiningCode)
+        const code = result?.joiningCode;
+        if (code) {
+          socketInstance.emit("update-joining-code", { timerId: timerState.id, joiningCode: code, controllerId: ownerId });
+          setJoiningCode(code);
+          await fetch(`/api/timers/${timerState.id}?ownerId=${encodeURIComponent(ownerId)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ joiningCode: code }),
+          }).catch(() => {});
         }
       } catch (error) {
-        console.log("error creating joining code in frontend")
+        console.log("error creating joining code in frontend");
       }
     });
 
@@ -181,13 +246,36 @@ export const useSocket = (setFailedSocketIds = null) => {
       }
     });
 
-    socketInstance.on('limit-exceeded', ({ type, message }) => {
-      // console.log(type," --type")
-      // console.log(message," --message")
-      // setLimitExceededMsg(message);
-      // if(type==="timers") setTimerLimitExceeded(true)
-      // if(type==="viewers") setViewerLimitExceeded(true)
-      useUserPlanStore.getState().showPopup(type, message);
+    socketInstance.on('limit-exceeded', async ({ type, message, timerId, reason }) => {
+      if (type === 'viewers') {
+        if (reason === 'plan_used') {
+          const plan = useUserPlanStore.getState().plan;
+          if (plan.planId !== 'free') {
+            try {
+              await fetch('/api/user-plan/reset-single-event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ timerId: timerId ?? undefined }),
+              });
+              const uid = userIdRef.current;
+              if (uid) {
+                console.log(uid, " calling the reset API")
+                const res = await fetch(`/api/user-plan?userId=${encodeURIComponent(uid)}`);
+                if (res.ok) {
+                  const { plan: nextPlan } = await res.json();
+                  useUserPlanStore.getState().setPlan(nextPlan);
+                }
+              }
+            } catch (err) {
+              console.error('Failed to reset single-event plan', err);
+            }
+          }
+        } else {
+          useUserPlanStore.getState().showPopup(type, message);
+        }
+      } else {
+        useUserPlanStore.getState().showPopup(type, message);
+      }
     });
 
     socketInstance.on('timer-not-found', () => {
@@ -211,7 +299,11 @@ export const useSocket = (setFailedSocketIds = null) => {
   }, [socket, controllerId]);
 
   const deleteTimer = useCallback((timerId) => {
-    socket?.emit('delete-timer', { timerId, controllerId });
+    if (!socket || !controllerId) return;
+    socket.emit('delete-timer', { timerId, controllerId });
+    fetch(`/api/timers/${timerId}?ownerId=${encodeURIComponent(controllerId)}`, { method: 'DELETE' }).catch((err) =>
+      console.error('Failed to delete timer from DB', err)
+    );
   }, [socket, controllerId]);
 
   const joinTimer = useCallback((timerId) => {

@@ -133,8 +133,7 @@ export default function ControllerPageContent() {
               <div className="space-y-6">
                 <CreateTimer
                   createTimer={createTimer}
-                  maxConnectionsAllowed={3}
-                  maxTimersAllowed={10}
+                  timerList={timerList}
                   timerView={timerView}
                   backgroundColor={backgroundColor}
                   textColor={textColor}
