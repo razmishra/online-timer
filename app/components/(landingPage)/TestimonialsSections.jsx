@@ -52,7 +52,7 @@ const DEFAULT_ITEMS = [
     id: "5",
     quote:
       "As a software engineer, I often work with teams across different locations. ShareMyTimer is one of those rare tools that just works — simple, reliable, and super handy.",
-    author: "Sachin Pathak",
+    author: "Sachin Pathak", 
     handle: "@SachinPathak291",
     avatarUrl:
       "https://pbs.twimg.com/profile_images/1953793078856478721/SBYdbjCS_400x400.jpg",
