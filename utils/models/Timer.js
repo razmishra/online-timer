@@ -18,7 +18,7 @@ const timerSchema = new mongoose.Schema(
     originalDuration: { type: Number, required: true },
     maxConnectionsAllowed: { type: Number, required: true },
     maxTimersAllowed: { type: Number, required: true },
-    message: { type: String, default: "" },
+    message: { type: mongoose.Schema.Types.Mixed, default: "" },
     joiningCode: { type: String, default: "" },
     backgroundColor: { type: String, default: "#1f2937" },
     textColor: { type: String, default: "#ffffff" },

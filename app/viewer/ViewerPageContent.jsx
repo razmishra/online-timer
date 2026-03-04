@@ -349,8 +349,8 @@ export default function ViewerPageContent() {
         )}
 
         {/* Main Timer Container */}
-        <main className="flex flex-col items-center justify-center flex-grow px-4 py-12 relative z-10">
-          <div className="max-w-4xl w-full flex flex-col items-center gap-10">
+        <main className="flex flex-col items-center justify-center flex-grow px-4 relative z-10">
+          <div className="max-w-[96%] w-full flex flex-col items-center gap-6">
             <Timer
               timerState={
                 currentTimer ?? {
@@ -364,7 +364,7 @@ export default function ViewerPageContent() {
                 }
               }
               showMessage={true}
-              className="w-full max-w-4xl"
+              className="w-full max-w-none"
               style={{
                 color: cssVars["--text-color-primary"],
                 "--timer-glow": cssVars["--timer-glow"],

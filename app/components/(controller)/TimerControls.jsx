@@ -260,14 +260,10 @@ const handleTimerKeyDown = useCallback((e) => {
 
         {/* Timer Status */}
         <div className="bg-slate-700/30 rounded-lg p-3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-xs font-medium text-slate-400 mb-1">Duration</p>
               <p className="font-semibold text-white text-sm">{formatTime(currentTimer?.duration ?? 0)}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-slate-400 mb-1">Remaining</p>
-              <p className="font-semibold text-white text-sm">{formatTime(currentTimer?.remaining ?? 0)}</p>
             </div>
             <div>
               <p className="text-xs font-medium text-slate-400 mb-1">Status</p>

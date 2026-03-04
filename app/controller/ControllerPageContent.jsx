@@ -67,11 +67,11 @@ export default function ControllerPageContent() {
   }, [currentTimer]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen lg:h-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 lg:overflow-hidden">
       <Header isConnected={isConnected} isConnecting={isConnecting} />
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-full">
-          <div className="lg:col-span-5 w-full">
+      <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 min-h-0 overflow-y-auto lg:overflow-hidden no-scrollbar">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-full lg:h-full">
+          <div className="lg:col-span-4 w-full lg:h-full lg:overflow-y-auto no-scrollbar" style={{ containerType: 'inline-size' }}>
             <div className="relative group w-full">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-teal-500/20 rounded-2xl sm:rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition-all duration-700 animate-pulse"></div>
               <div className="relative bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-700/60 overflow-hidden h-full w-full">
@@ -82,23 +82,43 @@ export default function ControllerPageContent() {
                   <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center space-x-3 sm:space-x-4">
                       <div className="relative">
-                        <div className="absolute inset-0 bg-blue-400/30 rounded-xl sm:rounded-2xl blur-md"></div>
-                        <div className="relative bg-gradient-to-br from-blue-500/20 to-purple-500/20 p-2 sm:p-3 lg:p-4 rounded-xl sm:rounded-2xl border border-blue-400/30">
-                          <svg className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="absolute inset-0 bg-blue-400/30 rounded-lg sm:rounded-xl blur-md"></div>
+                        <div 
+                          className="relative bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg sm:rounded-xl border border-blue-400/30"
+                          style={{ padding: 'clamp(0.25rem, 2cqw, 0.75rem)' }}
+                        >
+                          <svg 
+                            style={{ width: 'clamp(0.875rem, 6cqw, 1.5rem)', height: 'clamp(0.875rem, 6cqw, 1.5rem)' }}
+                            className="text-blue-400" 
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                          >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                           </svg>
                         </div>
                       </div>
                       <div>
-                        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+                        <h2 
+                          className="font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent"
+                          style={{ fontSize: 'clamp(1rem, 5cqw, 1.5rem)' }}
+                        >
                           Live Preview
                         </h2>
-                        <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">Real-time timer visualization</p>
+                        <p 
+                          className="text-slate-400 font-medium mt-1"
+                          style={{ fontSize: 'clamp(0.7rem, 3cqw, 0.875rem)' }}
+                        >
+                          Real-time timer visualization
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 self-start sm:self-auto">
                       <div className="w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
-                      <span className="text-emerald-400 text-xs sm:text-sm font-semibold">LIVE</span>
+                      <span 
+                        className="text-emerald-400 font-semibold"
+                        style={{ fontSize: 'clamp(0.75rem, 3cqw, 0.875rem)' }}
+                      >
+                        LIVE
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -128,9 +148,9 @@ export default function ControllerPageContent() {
               </div>
             </div>
           </div>
-          <div className="lg:col-span-7">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full">
-              <div className="space-y-6">
+          <div className="lg:col-span-8 lg:h-full min-h-0">
+            <div className="grid grid-cols-1 xl:grid-cols-8 gap-6 lg:h-full">
+              <div className="xl:col-span-5 space-y-6 lg:h-full lg:overflow-y-auto no-scrollbar">
                 <CreateTimer
                   createTimer={createTimer}
                   timerList={timerList}
@@ -159,13 +179,14 @@ export default function ControllerPageContent() {
                     </>
                   )}
               </div>
-              <div className="space-y-6">
+              <div className="xl:col-span-3 space-y-6 lg:h-full lg:overflow-y-auto no-scrollbar">
                 {timerList?.length>0 && effectiveTimerId && currentTimer && (
                   <>
                     <MessageControl
                       effectiveTimerId={effectiveTimerId}
                       updateMessage={updateMessage}
                       clearMessage={clearMessage}
+                      currentTimer={currentTimer}
                     />
                     <TimerControls
                       effectiveTimerId={effectiveTimerId}

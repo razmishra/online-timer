@@ -11,7 +11,7 @@ const CurrentTimeDisplay = React.memo(() => {
   }, []);
 
   return (
-    <div className="relative group/time">
+    <div className="relative group/time" style={{ containerType: 'inline-size' }}>
       <div className="absolute inset-0 bg-gradient-to-br from-slate-800/60 via-slate-700/40 to-slate-800/60 rounded-2xl sm:rounded-3xl"></div>
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-2xl sm:rounded-3xl"></div>
       <div className="relative p-4 sm:p-6 lg:p-8 border border-slate-600/40 rounded-2xl sm:rounded-3xl backdrop-blur-sm">
@@ -26,7 +26,10 @@ const CurrentTimeDisplay = React.memo(() => {
             <span className="text-slate-300 text-xs sm:text-sm font-semibold uppercase tracking-wider">Current Time</span>
           </div>
           <div className="space-y-1 sm:space-y-2">
-            <div className="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent tracking-wider">
+            <div 
+              className="font-mono font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent tracking-wider"
+              style={{ fontSize: 'clamp(1.25rem, 12cqw, 3rem)' }}
+            >
               {(() => {
                 let timeStr = now.toLocaleTimeString([], { 
                   hour: '2-digit', 
@@ -38,7 +41,10 @@ const CurrentTimeDisplay = React.memo(() => {
                 return timeStr;
               })()}
             </div>
-            <div className="text-slate-400 text-sm sm:text-base lg:text-lg font-medium">
+            <div 
+              className="text-slate-400 font-medium"
+              style={{ fontSize: 'clamp(0.75rem, 5cqw, 1.25rem)' }}
+            >
               {now.toLocaleDateString([], { 
                 weekday: 'long',
                 year: 'numeric', 

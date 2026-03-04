@@ -5,12 +5,15 @@ import posthog from 'posthog-js';
 
 const EnhancedTimerControls = React.memo(({effectiveTimerId, currentTimer, startTimer, pauseTimer, resetTimer}) => {
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6" style={{ containerType: 'inline-size' }}>
       {/* Section Header */}
       <div className="text-center">
         <div className="inline-flex items-center space-x-2 sm:space-x-3">
           <div className="w-4 sm:w-8 h-0.5 bg-gradient-to-r from-transparent to-blue-400 rounded-full"></div>
-          <h3 className="text-base sm:text-lg font-bold text-slate-200">
+          <h3 
+            className="font-bold text-slate-200"
+            style={{ fontSize: 'clamp(0.875rem, 6cqw, 1.25rem)' }}
+          >
             Timer Controls
           </h3>
           <div className="w-4 sm:w-8 h-0.5 bg-gradient-to-l from-transparent to-purple-400 rounded-full"></div>
@@ -47,7 +50,7 @@ const EnhancedTimerControls = React.memo(({effectiveTimerId, currentTimer, start
                 clipRule="evenodd"
               />
             </svg>
-            <span className="text-sm sm:text-base">Start</span>
+            <span style={{ fontSize: 'clamp(0.75rem, 5cqw, 1.125rem)' }}>Start</span>
           </span>
         </button>
 
@@ -76,7 +79,7 @@ const EnhancedTimerControls = React.memo(({effectiveTimerId, currentTimer, start
                 clipRule="evenodd"
               />
             </svg>
-            <span className="text-sm sm:text-base">Pause</span>
+            <span style={{ fontSize: 'clamp(0.75rem, 5cqw, 1.125rem)' }}>Pause</span>
           </span>
         </button>
 
@@ -104,7 +107,7 @@ const EnhancedTimerControls = React.memo(({effectiveTimerId, currentTimer, start
                 clipRule="evenodd"
               />
             </svg>
-            <span className="text-sm sm:text-base">Reset</span>
+            <span style={{ fontSize: 'clamp(0.75rem, 5cqw, 1.125rem)' }}>Reset</span>
           </span>
         </button>
       </div>

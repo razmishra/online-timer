@@ -72,7 +72,7 @@ const TimerList = React.memo(({ timerList, isAnyTimerRunning, effectiveTimerId, 
           <p className="text-sm">No timers created yet</p>
         </div>
       ) : (
-        <div className="space-y-3 max-h-64 overflow-y-auto overflow-x-hidden">
+        <div className="space-y-3 max-h-64 overflow-y-auto overflow-x-hidden no-scrollbar">
           {timerList.map((timer) => (
             <div
               key={timer.id}

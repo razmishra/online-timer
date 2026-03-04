@@ -113,6 +113,17 @@ html, body {
   scrollbar-width: none;
 }
 
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
 /* Beautiful blob animations for background */
 /* @keyframes blob {
   0% {

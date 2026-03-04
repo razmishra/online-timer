@@ -89,7 +89,7 @@ export default function Timer({ timerState, showMessage = true, className = "", 
           className=""
         />
         {showMessage && message && (
-          <div className="mt-8 max-w-4xl break-words px-4 font-bold leading-tight" style={{ color: "var(--text-color-primary)" }}>
+          <div className="mt-8 max-w-4xl break-words px-4 font-bold leading-tight" style={{ color: "var(--text-color-primary)", whiteSpace: "pre-wrap" }}>
             {message}
           </div>
         )}
@@ -98,17 +98,22 @@ export default function Timer({ timerState, showMessage = true, className = "", 
   }
 
   return (
-    <div className={`flex flex-col items-center justify-center text-center ${className}`} style={{ background: isEmbed ? "transparent" : "inherit" }}>
+    <div className={`flex flex-col items-center justify-center text-center w-full h-full no-scrollbar px-[2cqw] ${className}`} style={{ background: isEmbed ? "transparent" : "inherit", containerType: 'inline-size', minHeight: '100%' }}>
       <div
-        className={`font-mono font-bold leading-none ${isFlashing ? "animate-pulse text-red-500" : ""}`}
+        className={`font-mono font-bold leading-none shrink-0 ${isFlashing ? "animate-pulse text-red-500" : ""}`}
         style={{
-          fontSize: ((showMessage && message) || (isPreview)) ? "min(10vw, 7rem)" : "min(19vw, 17rem)",
-          color: remaining < 0 ? '#ff4d4f' : "var(--text-color-primary)",
-          textShadow: `0 0 15px var(--timer-glow), 0 0 5px var(--accent-color)`,
+          fontSize: isPreview 
+            ? "clamp(1rem, 20cqw, 12rem)" 
+            : (showMessage && message) 
+              ? "clamp(2rem, 20cqw, 18rem)" 
+              : "clamp(2rem, 23cqw, 26rem)",
+          color: remaining < 0 ? '#ff0000' : "var(--text-color-primary)",
+          textShadow: `0 0 20px var(--timer-glow), 0 0 5px var(--accent-color)`,
           userSelect: "none",
-          wordBreak: "break-word",
-          overflowWrap: "break-word",
-          maxWidth: "90vw",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           whiteSpace: "nowrap",
           transition: "font-size 0.4s ease",
           animation:
@@ -123,23 +128,29 @@ export default function Timer({ timerState, showMessage = true, className = "", 
       </div>
       {showMessage && message && (
         <div
-          className="mb-10 max-w-4xl px-6 break-words"
+          className={`px-6 break-words no-scrollbar ${(typeof message === 'object' && message.styling?.uppercase) ? 'uppercase' : ''}`}
           style={{
-            fontSize: 'min(8vw, 4.5rem)',
-            color: 'var(--text-color-primary)',
-            fontWeight: 700,
+            fontSize: 'clamp(1rem, 8cqw, 4.5rem)',
+            color: typeof message === 'object' && message.styling?.color 
+              ? (message.styling.color === 'red' ? '#DD524C' : message.styling.color === 'green' ? '#4ade80' : '#ffffff')
+              : 'var(--text-color-primary)',
+            fontWeight: (typeof message === 'object' && message.styling?.bold) ? 900 : 500,
             fontFamily: "'Helvetica Neue', Arial, sans-serif",
             lineHeight: 1.1,
-            textTransform: 'none',
+            textTransform: (typeof message === 'object' && message.styling?.uppercase) ? 'uppercase' : 'none',
             textShadow: 'none',
             userSelect: 'none',
-            maxWidth: '90vw',
-            marginBottom: '2rem',
+            width: '100%',
+            maxHeight: '40vh',
+            overflowY: 'auto',
+            marginTop: '1.5rem',
+            marginBottom: '1rem',
+            whiteSpace: 'pre-wrap',
           }}
           role="banner"
           aria-live="polite"
         >
-          {message}
+          {typeof message === 'object' ? message.text : message}
         </div>
       )}
     </div>
