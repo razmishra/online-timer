@@ -33,18 +33,29 @@ const DEFAULT_ITEMS = [
     author: "Tommy Phan",
     handle: "@0xyyy77",
     avatarUrl:
-      "https://pbs.twimg.com/profile_images/1911371268718272512/bKqXMOCv_400x400.jpg",
+      "https://pbs.twimg.com/profile_images/1965907945410949122/SmPblGlD_400x400.jpg",
     sourceUrl: "https://x.com/0xyyy77/status/1950129137936437377",
     sourceType: "twitter",
   },
   {
     id: "4",
     quote:
+      "Recommend! This app was almost perfectly tailored to our needs at an event we hosted. Thanks much!",
+    author: "Alejandro Rivas",
+    handle: "@besamir",
+    avatarUrl:
+      "https://pbs.twimg.com/profile_images/1453444019/AR_400x400.jpg",
+    sourceUrl: "https://x.com/besamir/status/2022107022196695186",
+    sourceType: "twitter",
+  },
+  {
+    id: "5",
+    quote:
       "As a software engineer, I often work with teams across different locations. ShareMyTimer is one of those rare tools that just works — simple, reliable, and super handy.",
     author: "Sachin Pathak",
     handle: "@SachinPathak291",
     avatarUrl:
-      "https://pbs.twimg.com/profile_images/1872963615889752064/WDNfFRGF_400x400.jpg",
+      "https://pbs.twimg.com/profile_images/1953793078856478721/SBYdbjCS_400x400.jpg",
     sourceUrl: "https://x.com/SachinPathak291/status/1953779783403250142",
     sourceType: "twitter",
   },
