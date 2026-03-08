@@ -29,6 +29,9 @@ const MessageControl = React.memo(({ effectiveTimerId, updateMessage, clearMessa
 
   // Sync with server message whenever it changes, unless we are actively typing/editing
   useEffect(() => {
+    // Skip sync when we have unsent local changes (e.g. user just toggled bold/color);
+    // otherwise we'd overwrite their choice with stale server state before the debounce fires.
+    if (isDirty.current) return;
     // Only sync if the user isn't currently focused on this input
     if (document.activeElement !== textareaRef.current) {
       // GATEKEEPER: Only update local state if server has a non-empty message.
