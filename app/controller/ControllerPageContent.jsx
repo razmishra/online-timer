@@ -15,6 +15,7 @@ import CreateTimer from '../components/(controller)/CreateTimer';
 import Header from '../components/(controller)/Header';
 import TimerPreview from '../components/(controller)/TimerPreview';
 import EnhancedTimerControls from '../components/(controller)/EnhancedTimerControls';
+import EnhancedTimerControl from '../components/(controller)/EnhancedTimerControl';
 import LimitExceededPopup from '../components/LimitExceededPopup';
 const CurrentTimeDisplay = dynamic(() => import('../components/(controller)/CurrentTimeDisplay'), {
   ssr: false,
@@ -69,7 +70,7 @@ export default function ControllerPageContent() {
   return (
     <div className="min-h-screen lg:h-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 lg:overflow-hidden">
       <Header isConnected={isConnected} isConnecting={isConnecting} />
-      <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 min-h-0 overflow-y-auto lg:overflow-hidden no-scrollbar">
+      <div className="flex-1 w-full px-2 sm:px-4 lg:px-4 py-6 min-h-0 overflow-y-auto lg:overflow-hidden no-scrollbar">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-full lg:h-full">
           <div className="lg:col-span-4 w-full lg:h-full lg:overflow-y-auto no-scrollbar" style={{ containerType: 'inline-size' }}>
             <div className="relative group w-full">
@@ -130,14 +131,24 @@ export default function ControllerPageContent() {
                     textColor={textColor}
                     fontSize={fontSize}
                   />
-                  {timerList?.length>0 && effectiveTimerId && currentTimer && (
-                    <EnhancedTimerControls
-                    effectiveTimerId={effectiveTimerId}
-                    currentTimer={currentTimer}
-                    startTimer={startTimer}
-                    pauseTimer={pauseTimer}
-                    resetTimer={resetTimer}
-                    />
+                  {timerList?.length > 0 && effectiveTimerId && currentTimer && (
+                    <div className="space-y-6">
+                      <EnhancedTimerControl
+                        effectiveTimerId={effectiveTimerId}
+                        currentTimer={currentTimer}
+                        startTimer={startTimer}
+                        pauseTimer={pauseTimer}
+                        resetTimer={resetTimer}
+                        adjustTimer={adjustTimer}
+                      />
+                      <EnhancedTimerControls
+                        effectiveTimerId={effectiveTimerId}
+                        currentTimer={currentTimer}
+                        startTimer={startTimer}
+                        pauseTimer={pauseTimer}
+                        resetTimer={resetTimer}
+                      />
+                    </div>
                   )}
                   <CurrentTimeDisplay />
                 </div>
@@ -202,8 +213,6 @@ export default function ControllerPageContent() {
                       isAnyTimerRunning={isAnyTimerRunning}
                       deleteTimer={deleteTimer}
                       joinTimer={joinTimer}
-                      // maxTimersAllowed={maxTimersAllowed}
-                      // maxConnectionsAllowed={maxConnectionsAllowed}
                     />
                     <StylingControls
                       effectiveTimerId={effectiveTimerId}
