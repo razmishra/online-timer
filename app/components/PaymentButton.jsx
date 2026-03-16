@@ -179,9 +179,6 @@ const PaymentButton = ({
           },
           subscriptionPlan: subscriptionPlan,
           subscriptDuration: subscriptDuration,
-          feature_flags:{
-            allow_discount_code: true,
-          }
         }),
       });
 
