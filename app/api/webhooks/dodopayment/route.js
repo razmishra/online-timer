@@ -34,7 +34,7 @@ export async function POST(request) {
       const subscriptionId = subscriptionData.subscription_id;
       const eventType = payload.type;
 
-      const subscription = await dodoClient.subscriptions.retrieve(subscriptionId);
+      // const subscription = await dodoClient.subscriptions.retrieve(subscriptionId);
 
       // Extract user info from metadata
       const metadata = subscriptionData.metadata || {};
