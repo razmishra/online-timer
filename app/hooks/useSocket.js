@@ -26,9 +26,6 @@ export const useSocket = (setFailedSocketIds = null) => {
   const [socketId, setSocketId] = useState(null);
   const [joiningCode, setJoiningCode] = useState(null)
   const autoReconnectDone = useRef(false);
-  const selectedTimerIdRef = useRef(selectedTimerId);
-  selectedTimerIdRef.current = selectedTimerId;
-  const hasJoinedRef = useRef(false);
 
   const currentActivePlan = useUserPlanStore(state=>state.plan)
   const isLoading = useUserPlanStore(state=>state.isLoading)
@@ -102,90 +99,40 @@ export const useSocket = (setFailedSocketIds = null) => {
     if(isLoading) return
     // Use environment variable for server URL, fallback to localhost for development
     const serverUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3001';
-    const socketInstance = io(serverUrl, {
-      reconnection: true,
-      reconnectionAttempts: Infinity,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      transports: ['websocket', 'polling'],
-      timeout: 20000
-    });
+    const socketInstance = io(serverUrl);
     setSocket(socketInstance);
 
-    // socketInstance.on('connect', () => {
-    //   // console.log('connected to socket', socketInstance.id);
-    //   setIsConnected(true);
-    //   setIsConnecting(false);
-    //   setSocketId(socketInstance.id);
-    //   // Request timers on connect — identity (controllerId) is resolved in the effect above when it changes
-    //   // Note: initial request uses whatever controllerId is at connect time (anonymous or userId)
-    // });
-
-    const handleConnect = () => {
+    socketInstance.on('connect', () => {
+      // console.log('connected to socket', socketInstance.id);
       setIsConnected(true);
       setIsConnecting(false);
       setSocketId(socketInstance.id);
+      // Request timers on connect — identity (controllerId) is resolved in the effect above when it changes
+      // Note: initial request uses whatever controllerId is at connect time (anonymous or userId)
+    });
 
-      const currentId = controllerIdRef.current;
-      const timerId = selectedTimerIdRef.current;
-
-      if (timerId && currentId && hasJoinedRef.current === false) {
-        socketInstance.emit('join-timer', {
-          timerId,
-          controllerId: currentId
-        });
-        hasJoinedRef.current = true;
-      }
-
-      if (currentId) {
-        socketInstance.emit('get-timers', { controllerId: currentId });
-      }
-    };
-
-    const handleDisconnect = () => {
+    socketInstance.on('disconnect', () => {
       setIsConnected(false);
       setIsConnecting(false);
-      autoReconnectDone.current = false;
-      hasJoinedRef.current = false;
-    };
-
-    const handleConnectError = (error) => {
-      console.log('socket connect_error', error);
-    };
-
-    const handleReconnect = (attemptNumber) => {
-      console.log('socket reconnect', attemptNumber);
-    };
-
-    const handleReconnectAttempt = (attemptNumber) => {
-      console.log('socket reconnect_attempt', attemptNumber);
-    };
-
-    socketInstance.on('connect', handleConnect);
-    socketInstance.on('disconnect', handleDisconnect);
-    socketInstance.on('connect_error', handleConnectError);
-    socketInstance.io.on('reconnect', handleReconnect);
-    socketInstance.io.on('reconnect_attempt', handleReconnectAttempt);
+    });
 
     socketInstance.on('timer-list', (timers) => {
       setTimerList(timers);
       const effectiveId = controllerIdRef.current;
       // Only run auto-reconnect once after initial load
-      if (!autoReconnectDone.current && timers.length > 0 && !selectedTimerIdRef.current) {
+      if (!autoReconnectDone.current && timers.length > 0 && !currentTimer) {
         const lastSelectedId = getLastSelectedTimerId();
         const runningTimer = timers.find(timer => timer.isRunning);
         // Priority: running timer first, then last selected (e.g. from this device), then first timer (e.g. new device / cross-device)
         const timerToJoin = runningTimer || timers.find(timer => timer.id === lastSelectedId) || timers[0];
         if (timerToJoin && effectiveId) {
           socketInstance.emit('join-timer', { timerId: timerToJoin.id, controllerId: effectiveId });
-          hasJoinedRef.current = true;
         }
         autoReconnectDone.current = true;
       }
     });
 
     socketInstance.on('timer-joined', async (timerState) => {
-      hasJoinedRef.current = true;
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
       saveSelectedTimerId(timerState.id);
@@ -228,7 +175,6 @@ export const useSocket = (setFailedSocketIds = null) => {
     });
 
     socketInstance.on('timer-created', async (timerState) => {
-      hasJoinedRef.current = true;
       setCurrentTimer(timerState);
       setSelectedTimerId(timerState.id);
       saveSelectedTimerId(timerState.id);
@@ -276,10 +222,9 @@ export const useSocket = (setFailedSocketIds = null) => {
     });
 
     socketInstance.on('timer-deleted', (data) => {
-      if (selectedTimerIdRef.current === data.timerId) {
+      if (selectedTimerId === data.timerId) {
         setCurrentTimer(null);
         setSelectedTimerId(null);
-        hasJoinedRef.current = false;
         if (typeof window !== 'undefined') {
           localStorage.removeItem('lastSelectedTimerId');
         }
@@ -338,9 +283,6 @@ export const useSocket = (setFailedSocketIds = null) => {
     });
 
     return () => {
-      socketInstance.io.off('reconnect', handleReconnect);
-      socketInstance.io.off('reconnect_attempt', handleReconnectAttempt);
-      socketInstance.removeAllListeners();
       socketInstance.disconnect();
     };
   }, [isLoading, router]);
