@@ -13,11 +13,7 @@ const JoiningCodeSchema = new mongoose.Schema(
       index: true,
     },
     timerId: { type: String, required: true },
-    expiresAt: {
-      type: Date,
-      expires: "7d",
-      default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    },
+    isDeleted: { type: Boolean, default: false, index: true },
   },
   {
     timestamps: true,

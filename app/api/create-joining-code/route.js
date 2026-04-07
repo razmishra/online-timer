@@ -12,7 +12,7 @@ let activeCodes = new Set();
 // Load active codes from DB once
 async function loadActiveCodes() {
   const codes = await JoiningCode.find(
-    { expiresAt: { $gte: new Date() } },
+    { isDeleted: { $ne: true } },
     { code: 1 }
   ).lean();
 
@@ -57,7 +57,7 @@ export async function POST(request) {
     await connectToDatabase();
     const joininCodeAlreadyExists = await JoiningCode.findOne({
       timerId: timerId,
-      expiresAt: { $gt: new Date() },
+      isDeleted: { $ne: true },
     });
     if (joininCodeAlreadyExists) {
       return NextResponse.json(

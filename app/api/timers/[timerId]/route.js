@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import Timer from "@/utils/models/Timer";
+import JoiningCode from "@/utils/models/JoiningCode";
 import { connectToDatabase } from "@/utils/db";
 
 export async function PATCH(req, { params }) {
@@ -61,6 +62,7 @@ export async function DELETE(req, { params }) {
     }
 
     await Timer.updateOne({ id: timerId }, { isDeleted: true });
+    await JoiningCode.updateMany({ timerId }, { isDeleted: true });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
