@@ -10,7 +10,7 @@ export async function POST(request) {
     await connectToDatabase();
     const joiningCodeResponse = await JoiningCode.findOne({
       code: joiningCode,
-      isDeleted: { $ne: true },
+      isDeleted: false,
     });
 
     if (!joiningCodeResponse) {

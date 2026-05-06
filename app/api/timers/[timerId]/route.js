@@ -26,6 +26,12 @@ export async function PATCH(req, { params }) {
     if (body.joiningCode != null) updates.joiningCode = String(body.joiningCode);
     if (Object.keys(updates).length === 0) return NextResponse.json({ ok: true });
     await Timer.updateOne({ id: timerId }, updates);
+    await JoiningCode.insertOne({
+      userId: userId || "anonymous",
+      timerId,
+      code: String(body.joiningCode),
+      isDeleted: false,
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Error updating timer:", error);

@@ -12,7 +12,7 @@ let activeCodes = new Set();
 // Load active codes from DB once
 async function loadActiveCodes() {
   const codes = await JoiningCode.find(
-    { isDeleted: { $ne: true } },
+    { isDeleted: false },
     { code: 1 }
   ).lean();
 
